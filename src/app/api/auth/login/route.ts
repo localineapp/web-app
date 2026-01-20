@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Use a dummy hash for non-existent users to prevent timing attacks
     // This ensures password verification always takes approximately the same time
-    const passwordHash = user?.passwordHash || '$2a$10$dummyhashtopreventtimingattacksxxxxxxxxxxxxxxxxxxxxxxxxx';
+    const passwordHash = user?.passwordHash || '$2a$10$dummyhashtopreventtimingattacksxxxxxxxxxxxxxxxxxxxxxx';
     const isValidPassword = await verifyPassword(password, passwordHash);
 
     // Always check both conditions together to maintain constant timing
