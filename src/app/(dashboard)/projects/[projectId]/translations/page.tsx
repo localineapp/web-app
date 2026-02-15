@@ -207,6 +207,11 @@ export default function TranslationsPage() {
     return referenceTranslationsMap.get(termId) || "";
   }, [referenceTranslationsMap]);
 
+  const getTextareaRows = React.useCallback((value: string, minRows = 2) => {
+    const lineCount = value ? value.split("\n").length : 1;
+    return Math.max(minRows, lineCount);
+  }, []);
+
   // Memoized focus handlers for better performance
   const handleFocus = React.useCallback((termId: string) => {
     setFocusedTermId(termId);
@@ -668,8 +673,9 @@ export default function TranslationsPage() {
                               onFocus={() => handleFocus(term.id)}
                               onBlur={handleBlur}
                               placeholder="Enter translation..."
-                              className="min-h-15"
-                              rows={2}
+                              className="min-h-15 whitespace-pre overflow-auto"
+                              rows={getTextareaRows(getTranslationForTerm(term.id))}
+                              wrap="off"
                               disabled={!permissions.canAccessLocale(selectedLocale) || isDisabled}
                             />
                             {/* Reference Translation - shown only when focused and reference locale is selected */}
@@ -685,8 +691,9 @@ export default function TranslationsPage() {
                                         value={getReferenceTranslationForTerm(term.id)}
                                         readOnly
                                         onMouseDown={(e) => e.preventDefault()}
-                                        className="min-h-15 bg-muted cursor-text flex-1"
-                                        rows={2}
+                                        className="min-h-15 bg-muted cursor-text flex-1 whitespace-pre overflow-auto"
+                                        rows={getTextareaRows(getReferenceTranslationForTerm(term.id))}
+                                        wrap="off"
                                       />
                                       <Button
                                         variant="ghost"
