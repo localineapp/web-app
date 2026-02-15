@@ -4,7 +4,7 @@ import { Icons } from "@/components/icons";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AuthLayout({
   children,
@@ -12,6 +12,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -24,14 +25,30 @@ export default function AuthLayout({
         if (response.ok) {
           // User is already authenticated, redirect to projects
           router.push('/projects');
+          return;
         }
+
+        setIsChecking(false);
       } catch {
         // User is not authenticated, stay on auth page
+        setIsChecking(false);
       }
     }
 
     checkAuth();
   }, [router]);
+
+  // Show loading state while checking authentication
+  if (isChecking) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
