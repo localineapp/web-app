@@ -329,6 +329,9 @@ export default function SettingsPage() {
                 />
               </div>
             </div>
+            <p className="text-sm text-muted-foreground">
+              Changing your password will immediately invalidate all other active sessions. You will remain signed in on this device.
+            </p>
             <Button 
               variant="outline" 
               onClick={handlePasswordChange}

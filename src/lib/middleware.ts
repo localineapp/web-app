@@ -1,10 +1,10 @@
 /**
  * API authentication middleware
- * Handles both JWT session authentication and API key authentication
+ * Handles both session token authentication and API key authentication
  */
 
 import { NextRequest } from 'next/server';
-import { getCurrentUser, verifyApiKey } from '@/lib/auth';
+import { getSession, getCurrentUser, verifyApiKey } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 export interface AuthContext {
@@ -19,31 +19,35 @@ export interface AuthContext {
 }
 
 /**
- * Authenticate request - supports both session and API key
+ * Authenticate request - supports session tokens (Bearer sess_…) and API keys (Bearer tk_…)
+ *
+ * Resolution order:
+ *   1. Authorization: Bearer sess_… → session token (DB/cache lookup)
+ *   2. Authorization: Bearer <other> → API key (bcrypt compare)
+ *   3. session_id cookie            → session token (DB/cache lookup)
  */
 export async function authenticateRequest(request: NextRequest): Promise<AuthContext | null> {
-  // Check for API key in Authorization header
   const authHeader = request.headers.get('authorization');
-  
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const apiKey = authHeader.substring(7);
-    
-    // Get all non-revoked API keys
+
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+
+    // Session token path (prefix: sess_)
+    if (token.startsWith('sess_')) {
+      const session = await getSession(token);
+      if (!session) return null;
+      return { userId: session.userId, isApiKey: false };
+    }
+
+    // API key path (any other Bearer value, e.g. tk_…)
     const apiKeys = await prisma.apiKey.findMany({
       where: { revokedAt: null },
-      select: {
-        id: true,
-        projectId: true,
-        keyHash: true,
-        role: true,
-      },
+      select: { id: true, projectId: true, keyHash: true, role: true },
     });
-    
-    // Verify the provided API key against each stored hash
+
     for (const keyRecord of apiKeys) {
-      const isValid = await verifyApiKey(apiKey, keyRecord.keyHash);
+      const isValid = await verifyApiKey(token, keyRecord.keyHash);
       if (isValid) {
-        // The role is already in the correct format from database
         return {
           projectId: keyRecord.projectId,
           apiKeyRole: keyRecord.role as 'read-only' | 'editor' | 'admin',
@@ -51,18 +55,14 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthCon
         };
       }
     }
-    
-    // No matching API key found
+
     return null;
   }
 
-  // Fall back to session authentication
-  const currentUser = await getCurrentUser();
+  // Fall back to cookie-based session
+  const currentUser = await getCurrentUser(request);
   if (currentUser) {
-    return {
-      userId: currentUser.userId,
-      isApiKey: false,
-    };
+    return { userId: currentUser.userId, isApiKey: false };
   }
 
   return null;

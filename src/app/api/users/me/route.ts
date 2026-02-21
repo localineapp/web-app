@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, removeAuthCookie } from '@/lib/auth';
+import { getCurrentUser, removeSessionCookie } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 interface UpdateProfileRequest {
@@ -15,9 +15,9 @@ interface UpdateProfileRequest {
 }
 
 // GET /api/users/me
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUser(request);
     
     if (!currentUser) {
       return NextResponse.json(
@@ -55,7 +55,7 @@ export async function GET() {
 // PATCH /api/users/me
 export async function PATCH(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUser(request);
     
     if (!currentUser) {
       return NextResponse.json(
@@ -132,9 +132,9 @@ export async function PATCH(request: NextRequest) {
 }
 
 // DELETE /api/users/me
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
-    const currentUser = await getCurrentUser();
+    const currentUser = await getCurrentUser(request);
     
     if (!currentUser) {
       return NextResponse.json(
@@ -158,7 +158,7 @@ export async function DELETE() {
       where: { id: currentUser.userId },
     });
 
-    await removeAuthCookie();
+    await removeSessionCookie();
 
     return NextResponse.json({ 
       message: 'Account deleted successfully' 

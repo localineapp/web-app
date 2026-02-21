@@ -29,7 +29,7 @@
 
 ## ✨ Features
 
-- 🔐 **User Authentication** - Secure signup/login with JWT-based session management
+- 🔐 **User Authentication** - Secure signup/login with server-side session management
 - 📁 **Project Management** - Create and manage multiple translation projects
 - 👥 **Team Collaboration** - Invite team members with role-based access control
 - 🌍 **Multi-language Support** - Add multiple locales to your projects
@@ -53,7 +53,7 @@
 | **UI Components** | Radix UI |
 | **Styling** | Tailwind CSS |
 | **State Management** | TanStack Query (React Query) |
-| **Authentication** | JWT with httpOnly cookies |
+| **Authentication** | Opaque server-side sessions (DB + optional Redis cache) |
 | **API Documentation** | Swagger/OpenAPI |
 
 ---
@@ -71,8 +71,12 @@ See `.env.example` for required environment variables:
 | `DATABASE_USER` | Database user | - | ✅ |
 | `DATABASE_PASSWORD` | Database password | - | ✅ |
 | `DATABASE_NAME` | Database name | `localine` | ✅ |
-| `JWT_SECRET` | Secret key for JWT tokens (min 32 characters) | - | ✅ (Production) |
+| `NODE_ENV` | Environment mode | `development` | ✅ |
 | `SIGNUPS_ENABLED` | Allow new account creation through web interface and API | `true` | ❌ |
+| `SESSION_EXPIRES_DAYS` | Days until a session token becomes invalid for normal requests | `14` | ❌ |
+| `SESSION_REFRESH_EXPIRES_DAYS` | Days until a session token can no longer be refreshed | `30` | ❌ |
+| `REDIS_URL` | Redis connection string for session caching (e.g. `redis://localhost:6379`). Requires `npm install ioredis`. Falls back to in-process cache when unset. | - | ❌ |
+| `GEOIP_ENABLED` | Set to `true` to geo-locate client IPs on session creation (city + country via ip-api.com) | `false` | ❌ |
 
 ### Database Setup
 

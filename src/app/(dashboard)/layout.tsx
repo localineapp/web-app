@@ -22,16 +22,24 @@ export default function DashboardLayout({
         const response = await fetch('/api/users/me', {
           credentials: 'include',
         });
-        
-        if (!response.ok) {
-          // Not authenticated, redirect to login
+
+        if (response.status === 401) {
+          // No valid session at all – send to login
           router.push('/login');
           return;
         }
-        
+
+        if (!response.ok) {
+          // Server error or other non-auth failure – still allow render so
+          // individual page components can show their own error states
+          setIsChecking(false);
+          return;
+        }
+
         setIsChecking(false);
       } catch {
-        router.push('/login');
+        // Network failure – let individual components handle it gracefully
+        setIsChecking(false);
       }
     }
 

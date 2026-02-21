@@ -102,14 +102,21 @@ DATABASE_USER=root
 DATABASE_PASSWORD=your_password_here
 DATABASE_NAME=localine
 
-# JWT Secret (CHANGE IN PRODUCTION!)
-JWT_SECRET=your-secret-jwt-key-change-in-production-min-32-chars
-
 # Signups Configuration
 SIGNUPS_ENABLED=true
 
 # Node Environment
 NODE_ENV=development
+
+# Session lifetimes (optional, these are the defaults)
+SESSION_EXPIRES_DAYS=14
+SESSION_REFRESH_EXPIRES_DAYS=30
+
+# Optional: Redis session cache (requires: npm install ioredis)
+# REDIS_URL=redis://localhost:6379
+
+# Optional: IP geolocation for sessions
+# GEOIP_ENABLED=true
 ```
 
 ### Environment Variables Reference
@@ -121,9 +128,12 @@ NODE_ENV=development
 | `DATABASE_USER` | Database username | `root` | ✅ |
 | `DATABASE_PASSWORD` | Database password | `your_password` | ✅ |
 | `DATABASE_NAME` | Database name | `localine` | ✅ |
-| `JWT_SECRET` | Secret key for JWT tokens (min 32 chars) | `random-string` | ✅ |
 | `SIGNUPS_ENABLED` | Allow new account creation through web interface and API | `true` | ❌ |
 | `NODE_ENV` | Environment mode | `development` / `production` | ✅ |
+| `SESSION_EXPIRES_DAYS` | Days until a session token expires for normal requests | `14` | ❌ |
+| `SESSION_REFRESH_EXPIRES_DAYS` | Days until a token can no longer be refreshed | `30` | ❌ |
+| `REDIS_URL` | Redis URL for session caching. Falls back to in-process cache when unset. | - | ❌ |
+| `GEOIP_ENABLED` | Geo-locate client IPs on session creation (`true` / `false`) | `false` | ❌ |
 
 ⚠️ **Security Note:** Never commit your `.env` file to version control!
 

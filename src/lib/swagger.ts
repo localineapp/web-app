@@ -23,14 +23,14 @@ export const swaggerSpec = {
       BearerAuth: {
         type: 'http',
         scheme: 'bearer',
-        bearerFormat: 'API Key',
-        description: 'API Key authentication (format: tk_...)',
+        bearerFormat: 'Session token or API key',
+        description: 'Session token (format: sess_...) or API key (format: tk_...)',
       },
       CookieAuth: {
         type: 'apiKey',
         in: 'cookie',
-        name: 'token',
-        description: 'Session cookie authentication',
+        name: 'session_id',
+        description: 'Session cookie authentication (set automatically on login)',
       },
     },
     schemas: {
@@ -236,6 +236,88 @@ export const swaggerSpec = {
           },
         },
       },
+      Session: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            format: 'uuid',
+          },
+          ipAddress: {
+            type: 'string',
+            nullable: true,
+            description: 'Client IP address at session creation',
+          },
+          city: {
+            type: 'string',
+            nullable: true,
+            description: 'Geolocation city (populated when GEOIP_ENABLED=true)',
+          },
+          country: {
+            type: 'string',
+            nullable: true,
+            description: 'ISO 3166-1 alpha-2 country code',
+          },
+          os: {
+            type: 'string',
+            nullable: true,
+            description: 'Operating system parsed from User-Agent',
+          },
+          platform: {
+            type: 'string',
+            enum: ['desktop', 'mobile', 'tablet', 'bot', 'unknown'],
+            description: 'Device platform parsed from User-Agent',
+          },
+          userAgent: {
+            type: 'string',
+            nullable: true,
+            description: 'Raw User-Agent string',
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'When the session was first issued',
+          },
+          lastLogin: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last time this session was used',
+          },
+          expires: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Token stops working for normal requests after this timestamp',
+          },
+          refreshExpires: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Token can no longer be refreshed after this timestamp',
+          },
+          isCurrent: {
+            type: 'boolean',
+            description: 'True when this session belongs to the calling request',
+          },
+        },
+      },
+      SessionToken: {
+        type: 'object',
+        properties: {
+          token: {
+            type: 'string',
+            description: 'Session token (format: sess_...)',
+          },
+          expires: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Token expiry for normal requests',
+          },
+          refreshExpires: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Token expiry for refresh requests',
+          },
+        },
+      },
     },
   },
   security: [
@@ -286,6 +368,9 @@ export const swaggerSpec = {
                   properties: {
                     user: {
                       $ref: '#/components/schemas/User',
+                    },
+                    session: {
+                      $ref: '#/components/schemas/SessionToken',
                     },
                   },
                 },
@@ -350,6 +435,9 @@ export const swaggerSpec = {
                   properties: {
                     user: {
                       $ref: '#/components/schemas/User',
+                    },
+                    session: {
+                      $ref: '#/components/schemas/SessionToken',
                     },
                   },
                 },
@@ -476,9 +564,11 @@ export const swaggerSpec = {
       },
     },
     '/users/me/password': {
-      patch: {
+      post: {
         tags: ['Users'],
         summary: 'Change user password',
+        description: 'Changes the authenticated user\'s password. All existing sessions are invalidated and a new session is issued for the current device.',
+
         requestBody: {
           required: true,
           content: {
@@ -501,7 +591,126 @@ export const swaggerSpec = {
         },
         responses: {
           200: {
-            description: 'Password changed',
+            description: 'Password changed. All other sessions invalidated; new session issued for this device.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                    },
+                    session: {
+                      $ref: '#/components/schemas/SessionToken',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Not authenticated or invalid current password',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/sessions': {
+      get: {
+        tags: ['Sessions'],
+        summary: 'List active sessions',
+        description: 'Returns all sessions for the authenticated user where refreshExpires has not yet passed.',
+        responses: {
+          200: {
+            description: 'List of sessions',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    sessions: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Session',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'Not authenticated',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/sessions/refresh': {
+      post: {
+        tags: ['Sessions'],
+        summary: 'Refresh session token',
+        description: 'Rotates the current session token. Accepts tokens that are past `expires` but still within `refreshExpires`. The old token is invalidated and a new one is issued. Typical flow: store `refreshExpires` from login; when a request returns 401, call this endpoint; if successful, replace the stored token and retry.',
+        responses: {
+          200: {
+            description: 'New session token issued',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    session: {
+                      $ref: '#/components/schemas/SessionToken',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: 'No token provided, or refreshExpires has passed',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/sessions/{sessionId}': {
+      delete: {
+        tags: ['Sessions'],
+        summary: 'Revoke a session',
+        description: 'Revokes a specific session by its ID. Users may only revoke sessions that belong to them. Revoking the current session is equivalent to logging out.',
+        parameters: [
+          {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Session revoked',
             content: {
               'application/json': {
                 schema: {
@@ -516,7 +725,27 @@ export const swaggerSpec = {
             },
           },
           401: {
-            description: 'Not authenticated or invalid password',
+            description: 'Not authenticated',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          403: {
+            description: 'Session belongs to a different user',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
+              },
+            },
+          },
+          404: {
+            description: 'Session not found',
             content: {
               'application/json': {
                 schema: {

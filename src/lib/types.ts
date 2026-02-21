@@ -13,9 +13,10 @@ export interface User {
   name: string | null;
 }
 
-export interface JWTPayload {
+export interface SessionPayload {
   userId: string;
   email: string;
+  sessionId: string;
 }
 
 export interface AuthContext {

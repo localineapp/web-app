@@ -3,12 +3,17 @@
  * POST /api/auth/logout
  */
 
-import { NextResponse } from 'next/server';
-import { removeAuthCookie } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { extractTokenFromRequest, revokeSession, removeSessionCookie } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    await removeAuthCookie();
+    const token = extractTokenFromRequest(request);
+    if (token) {
+      await revokeSession(token);
+    } else {
+      await removeSessionCookie();
+    }
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

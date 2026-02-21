@@ -18,6 +18,7 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
+  sessions           Session[]
   projects           Project[]
   projectMemberships ProjectMember[]
 
@@ -150,4 +151,29 @@ model ProjectMember {
   @@index([projectId], map: "idx_project_member")
   @@index([userId], map: "idx_user_member")
   @@map("project_members")
+}
+
+// Sessions table - persistent server-side sessions
+model Session {
+  id             String   @id @db.VarChar(36)
+  tokenHash      String   @unique @map("token_hash") @db.VarChar(64) // SHA-256 hex of the raw bearer token
+  userId         String   @map("user_id") @db.VarChar(36)
+  // Network / device metadata
+  ipAddress      String?  @map("ip_address") @db.VarChar(45)  // IPv4 or IPv6
+  city           String?  @db.VarChar(100)
+  country        String?  @db.VarChar(2)                      // ISO 3166-1 alpha-2
+  os             String?  @db.VarChar(100)                    // e.g. "Windows 10/11", "iOS 17"
+  platform       String?  @db.VarChar(20)                     // "desktop" | "mobile" | "tablet" | "bot"
+  userAgent      String?  @map("user_agent") @db.VarChar(512)
+  // Timestamps
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  lastLogin      DateTime @default(now()) @map("last_login") @db.Timestamp(0)
+  expires        DateTime @map("expires") @db.Timestamp(0)          // token becomes invalid for normal requests
+  refreshExpires DateTime @map("refresh_expires") @db.Timestamp(0)  // token can no longer be refreshed
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash], map: "idx_session_token_hash")
+  @@index([userId], map: "idx_session_user_id")
+  @@map("sessions")
 }
