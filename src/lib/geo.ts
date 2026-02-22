@@ -52,7 +52,7 @@ export async function getGeoInfo(ip: string | null | undefined): Promise<GeoInfo
   if (process.env.GEOIP_ENABLED !== 'true') return EMPTY;
 
   try {
-    const res = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?fields=city,countryCode`, {
+    const res = await fetch(`https://ip-api.com/json/${encodeURIComponent(ip)}?fields=city,countryCode`, {
       signal: AbortSignal.timeout(2500),
     });
 
