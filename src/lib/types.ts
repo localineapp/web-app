@@ -134,6 +134,25 @@ export interface Label {
 }
 
 // ============================================================================
+// Session Types
+// ============================================================================
+
+export interface Session {
+  id: string;
+  ipAddress: string | null;
+  city: string | null;
+  country: string | null;
+  os: string | null;
+  platform: string | null;
+  userAgent: string | null;
+  createdAt: string;
+  lastLogin: string;
+  expires: string;
+  refreshExpires: string;
+  isCurrent: boolean;
+}
+
+// ============================================================================
 // API Key Types
 // ============================================================================
 

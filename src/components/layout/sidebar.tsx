@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname } from "next/navigation";
-import { Globe, FolderOpen, Settings, LogOut, FileText, Tag, Users, Key, Zap, Lock, type LucideIcon } from "lucide-react";
+import { Globe, FolderOpen, Settings, LogOut, FileText, Tag, Users, Key, Zap, Lock, Shield, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -38,6 +38,11 @@ const navItems: NavItem[] = [
     title: "Settings",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    title: "Sessions",
+    href: "/settings/sessions",
+    icon: Shield,
   },
 ];
 
@@ -120,7 +125,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
   }
 
   const renderNavItem = (item: NavItem) => {
-    const isActive = pathname === item.href || (item.href !== '/projects' && pathname.startsWith(item.href));
+    const isActive = pathname === item.href || (item.href !== '/projects' && item.href !== '/settings' && pathname.startsWith(item.href));
     const NavIcon = item.icon;
     const isDisabled = item.disabled;
 
@@ -237,6 +242,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
           
           {/* Settings item - always last */}
           {renderNavItem(navItems[1])}
+          {renderNavItem(navItems[2])}
         </nav>
       </ScrollArea>
 
