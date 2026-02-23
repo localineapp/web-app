@@ -4,15 +4,14 @@
  * Reduces database reads on every authenticated request by caching validated
  * session payloads in memory.
  *
- * Optional Redis support
- * ---------------------
- * Set the REDIS_URL environment variable and install ioredis:
- *   npm install ioredis
- *   npm install --save-dev @types/ioredis   (for TypeScript types, if needed)
- *
- * When REDIS_URL is present and ioredis can be imported, the Redis store is
- * used automatically.  Otherwise the app falls back to the in-process store.
+ * Redis support
+ * -------------
+ * Set the REDIS_URL environment variable to enable the Redis store.
+ * When REDIS_URL is present the Redis store is used automatically.
+ * Otherwise the app falls back to the in-process store.
  */
+
+import Redis from 'ioredis';
 
 // ---------------------------------------------------------------------------
 // In-process store
@@ -61,40 +60,21 @@ class InProcessCache {
 const inProcess = new InProcessCache();
 
 // ---------------------------------------------------------------------------
-// Redis client (loaded lazily – only when REDIS_URL is configured)
+// Redis client (only connected when REDIS_URL is configured)
 // ---------------------------------------------------------------------------
 
-// Minimal interface so we can call ioredis without a hard dependency
-interface RedisLike {
-  get(key: string): Promise<string | null>;
-  set(key: string, value: string, exMode: 'EX', ttl: number): Promise<unknown>;
-  del(key: string | string[]): Promise<unknown>;
-}
-
-let _redis: RedisLike | null = null;
+let _redis: Redis | null = null;
 let _redisChecked = false;
 
-async function getRedis(): Promise<RedisLike | null> {
+async function getRedis(): Promise<Redis | null> {
   if (_redisChecked) return _redis;
   _redisChecked = true;
 
   const url = process.env.REDIS_URL;
   if (!url) return null;
 
-  try {
-    // Dynamic import keeps ioredis optional.
-    // Install it with: npm install ioredis
-    // TypeScript: the module is intentionally absent until the user installs it.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    const { default: Redis } = await import('ioredis');
-    _redis = new Redis(url) as unknown as RedisLike;
-    console.log('[session-cache] Connected to Redis at', url.replace(/:\/\/.*@/, '://***@'));
-  } catch {
-    console.warn(
-      '[session-cache] REDIS_URL is set but ioredis failed to load – ' +
-        'run `npm install ioredis` or falling back to in-process cache.',
-    );
-  }
+  _redis = new Redis(url);
+  console.log('[session-cache] Connected to Redis at', url.replace(/:\/\/.*@/, '://***@'));
 
   return _redis;
 }
