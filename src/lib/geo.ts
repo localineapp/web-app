@@ -19,6 +19,8 @@
  * without making a network request.
  */
 
+import ipaddr from 'ipaddr.js';
+
 export interface GeoInfo {
   city: string | null;
   /** ISO 3166-1 alpha-2 country code, e.g. "DE", "US" */
@@ -27,18 +29,39 @@ export interface GeoInfo {
 
 const EMPTY: GeoInfo = { city: null, country: null };
 
-/** Returns true for RFC-1918 / loopback / link-local addresses. */
+/** Named ranges considered non-routable / private. */
+const PRIVATE_RANGES = new Set([
+  'loopback',
+  'private',
+  'linkLocal',
+  'uniqueLocal',
+  'ipv4Mapped',  // ::ffff:0:0/96 — IPv4-mapped IPv6
+  'rfc6145',     // IPv4-translated IPv6 (::ffff:0:0:0/96)
+  'rfc6052',     // IPv4/IPv6 translation (64:ff9b::/96)
+  '6to4',        // 2002::/16
+  'teredo',      // 2001::/32
+  'reserved',
+]);
+
+/**
+ * Returns true for any address that should not be sent to an external
+ * geo-lookup service: loopback, RFC-1918 private, link-local, IPv6
+ * unique-local (ULA, fc00::/7), IPv4-mapped IPv6, and other non-routable
+ * ranges.
+ *
+ * Uses ipaddr.js so that all IPv4 and IPv6 edge-cases are handled correctly
+ * (case-insensitive, compressed notation, IPv4-mapped IPv6, etc.).
+ */
 function isPrivateIp(ip: string): boolean {
-  return (
-    ip === '127.0.0.1' ||
-    ip === '::1' ||
-    ip.startsWith('10.') ||
-    ip.startsWith('192.168.') ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(ip) ||
-    ip.startsWith('169.254.') ||
-    ip.startsWith('fc') ||
-    ip.startsWith('fd')
-  );
+  try {
+    // ipaddr.process() normalises IPv4-mapped IPv6 (::ffff:x.x.x.x) to plain
+    // IPv4 before range-checking, so private IPv4-mapped addresses are caught.
+    const range = ipaddr.process(ip).range();
+    return PRIVATE_RANGES.has(range);
+  } catch {
+    // Unparseable string — treat as private to avoid leaking bad input.
+    return true;
+  }
 }
 
 /**
