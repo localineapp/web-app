@@ -138,3 +138,53 @@ export function parseLocaleCode(code: string): { language: string; region: strin
   }
   return null;
 }
+
+/**
+ * Map a locale code (e.g. en_US) to a DeepL target language code (e.g. EN-US)
+ * Returns null if the locale is not supported by DeepL
+ */
+export function toDeepLTargetLang(code: string): string | null {
+  const mapping: Record<string, string> = {
+    en_US: 'EN-US',
+    en_GB: 'EN-GB',
+    // en_CA and en_AU have no dedicated DeepL target variant; fall back to EN-US
+    en_CA: 'EN-US',
+    en_AU: 'EN-US',
+    pt_BR: 'PT-BR',
+    pt_PT: 'PT-PT',
+    zh_CN: 'ZH-HANS',
+    zh_TW: 'ZH-HANT',
+    zh_HK: 'ZH-HANT',
+    no_NO: 'NB',
+  };
+  if (mapping[code]) return mapping[code];
+  // For remaining locales derive the 2-letter uppercase code
+  const lang = code.split('_')[0].toUpperCase();
+  const supported = [
+    'AR', 'BG', 'CS', 'DA', 'DE', 'EL', 'ES', 'ET', 'FI', 'FR',
+    'HU', 'ID', 'IT', 'JA', 'KO', 'LT', 'LV', 'NL', 'PL', 'RO',
+    'RU', 'SK', 'SL', 'SV', 'TR', 'UK',
+  ];
+  return supported.includes(lang) ? lang : null;
+}
+
+/**
+ * Map a locale code (e.g. en_US) to a DeepL source language code (e.g. EN)
+ * Returns null if the locale is not supported by DeepL
+ */
+export function toDeepLSourceLang(code: string): string | null {
+  const mapping: Record<string, string> = {
+    no_NO: 'NB',
+    zh_CN: 'ZH',
+    zh_TW: 'ZH',
+    zh_HK: 'ZH',
+  };
+  if (mapping[code]) return mapping[code];
+  const lang = code.split('_')[0].toUpperCase();
+  const supported = [
+    'AR', 'BG', 'CS', 'DA', 'DE', 'EL', 'EN', 'ES', 'ET', 'FI', 'FR',
+    'HU', 'ID', 'IT', 'JA', 'KO', 'LT', 'LV', 'NB', 'NL', 'PL', 'PT',
+    'RO', 'RU', 'SK', 'SL', 'SV', 'TR', 'UK', 'ZH',
+  ];
+  return supported.includes(lang) ? lang : null;
+}

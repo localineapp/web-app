@@ -14,6 +14,7 @@ import {
   Lock,
   Info,
   Copy,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,6 +130,7 @@ export default function TranslationsPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [labelsDialogPage, setLabelsDialogPage] = React.useState(1);
   const [labelsSearchQuery, setLabelsSearchQuery] = React.useState("");
+  const [aiTranslatingTermId, setAiTranslatingTermId] = React.useState<string | null>(null);
 
   // Get translations for selected locale
   const { data: translations = [] } = useTranslations(
@@ -350,6 +352,41 @@ export default function TranslationsPage() {
         ? prev.filter(id => id !== labelId)
         : [...prev, labelId]
     );
+  };
+
+  const handleAiTranslate = async (termId: string) => {
+    if (!selectedLocale) return;
+
+    setAiTranslatingTermId(termId);
+    try {
+      const response = await fetch(
+        `/api/v1/projects/${projectId}/translations/ai-translate`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ sourceLocaleCode: selectedLocale, termId }),
+        }
+      );
+
+      const json = await response.json() as { data?: { translated: number; skipped: number }; error?: string };
+
+      if (!response.ok) {
+        throw new Error(json.error || 'AI translation failed');
+      }
+
+      const translated = json.data?.translated ?? 0;
+      const skipped = json.data?.skipped ?? 0;
+      if (translated === 0) {
+        toast.info("No missing translations to fill");
+      } else {
+        toast.success(`Translated to ${translated} language${translated !== 1 ? 's' : ''}${skipped > 0 ? ` (${skipped} skipped)` : ''}`);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "AI translation failed");
+    } finally {
+      setAiTranslatingTermId(null);
+    }
   };
 
   // Filter labels based on search query
@@ -746,6 +783,21 @@ export default function TranslationsPage() {
                                   <Save className="h-4 w-4" />
                                 )}
                               </Button>
+                              {locales.length > 1 && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => handleAiTranslate(term.id)}
+                                  disabled={aiTranslatingTermId !== null || !getTranslationForTerm(term.id)}
+                                  title="AI translate to all missing languages"
+                                >
+                                  {aiTranslatingTermId === term.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Wand2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              )}
                             </>
                           )}
                           {isDisabled && (
