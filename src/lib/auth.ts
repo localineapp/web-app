@@ -46,6 +46,18 @@ const SESSION_REFRESH_EXPIRES_SECONDS =
 
 const SALT_ROUNDS = 10;
 
+/**
+ * Number of trusted reverse-proxy hops in front of the app.
+ * Each hop is expected to append the IP it received the request from to the
+ * `x-forwarded-for` header, so the real client IP sits at
+ * `list[list.length - TRUSTED_PROXY_COUNT]`.
+ *
+ * Set TRUSTED_PROXY_COUNT=2 if you have two layers of trusted proxies, etc.
+ * Defaults to 1 (a single load-balancer / reverse-proxy).
+ */
+const TRUSTED_PROXY_COUNT =
+  Math.max(1, parseInt(process.env.TRUSTED_PROXY_COUNT ?? '', 10) || 1);
+
 // ---------------------------------------------------------------------------
 // Feature flags
 // ---------------------------------------------------------------------------
@@ -70,6 +82,52 @@ export async function hashPassword(password: string): Promise<string> {
 /** Verify a plain-text password against a stored bcrypt hash. */
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
+}
+
+// ---------------------------------------------------------------------------
+// IP extraction
+// ---------------------------------------------------------------------------
+
+/** Loose but sufficient check that a string looks like an IPv4 or IPv6 address. */
+function isValidIp(ip: string): boolean {
+  // IPv4
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+    return ip.split('.').every((octet) => parseInt(octet, 10) <= 255);
+  }
+  // IPv6 (including ::1, compressed forms, and IPv4-mapped)
+  return /^[0-9a-fA-F:]{2,45}$/.test(ip) && ip.includes(':');
+}
+
+/**
+ * Extract the real client IP from an incoming request.
+ *
+ * The `x-forwarded-for` header is read right-to-left: the rightmost entries
+ * were appended by trusted proxies, so they cannot be spoofed by the client.
+ * With TRUSTED_PROXY_COUNT=N, the entry at index `list.length - N` is the
+ * first IP that was NOT appended by a proxy we control – i.e. the real
+ * client IP as seen by the outermost trusted proxy.
+ *
+ * Falls back to `x-real-ip` (set by Nginx) and finally to null.
+ */
+function extractClientIp(request: NextRequest): string | null {
+  const xff = request.headers.get('x-forwarded-for');
+  if (xff) {
+    const parts = xff
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const idx = parts.length - TRUSTED_PROXY_COUNT;
+    if (idx >= 0) {
+      const candidate = parts[idx];
+      if (candidate && isValidIp(candidate)) return candidate;
+    }
+  }
+
+  const xri = request.headers.get('x-real-ip')?.trim();
+  if (xri && isValidIp(xri)) return xri;
+
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -153,11 +211,7 @@ export async function issueSession(
   const refreshExpires = new Date(now + SESSION_REFRESH_EXPIRES_SECONDS * 1000);
 
   // Extract request metadata
-  const ipAddress = request
-    ? (request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-        request.headers.get('x-real-ip') ??
-        null)
-    : null;
+  const ipAddress = request ? extractClientIp(request) : null;
 
   const rawUa = request ? (request.headers.get('user-agent') ?? null) : null;
   const { os, platform } = parseUserAgent(rawUa);
