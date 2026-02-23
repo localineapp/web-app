@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser, hashPassword, verifyPassword, issueSession, revokeAllUserSessions } from '@/lib/auth';
+import { getCurrentUser, hashPassword, verifyPassword, extractTokenFromRequest, hashSessionToken, revokeAllUserSessions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 interface ChangePasswordRequest {
@@ -69,14 +69,14 @@ export async function POST(request: NextRequest) {
       data: { passwordHash: newPasswordHash },
     });
 
-    // Invalidate all sessions then issue a fresh one for the current device
-    await revokeAllUserSessions(currentUser.userId);
-    const session = await issueSession(currentUser.userId, currentUser.email, request);
+    // Keep the current session active; revoke all others
+    const currentToken = extractTokenFromRequest(request);
+    const keepTokenHash = currentToken ? hashSessionToken(currentToken) : undefined;
+    await revokeAllUserSessions(currentUser.userId, keepTokenHash);
 
     return NextResponse.json({
       success: true,
-      message: 'Password changed successfully. All active sessions have been invalidated and a new session has been issued. Other devices will lose access immediately.',
-      session,
+      message: 'Password changed successfully. All other active sessions have been invalidated. Your current session remains valid.',
     });
   } catch {
     return NextResponse.json(
