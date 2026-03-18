@@ -13,11 +13,7 @@ export interface User {
   name: string | null;
 }
 
-export interface SessionPayload {
-  userId: string;
-  email: string;
-  sessionId: string;
-}
+export type { SessionPayload } from './auth';
 
 export interface AuthContext {
   userId: string;
