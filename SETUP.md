@@ -112,7 +112,7 @@ NODE_ENV=development
 SESSION_EXPIRES_DAYS=14
 SESSION_REFRESH_EXPIRES_DAYS=30
 
-# Optional: Redis session cache (requires: npm install ioredis)
+# Optional: Redis session cache (enabled via REDIS_URL environment variable)
 # REDIS_URL=redis://localhost:6379
 
 # Optional: IP geolocation for sessions

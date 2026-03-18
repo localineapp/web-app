@@ -92,12 +92,18 @@ export const DEFAULT_CACHE_TTL = 300; // 5 minutes
 export async function cacheGet<T>(key: string): Promise<T | null> {
   const redis = await getRedis();
   if (redis) {
-    const raw = await redis.get(key);
-    if (!raw) return null;
     try {
-      return JSON.parse(raw) as T;
-    } catch {
-      return null;
+      const raw = await redis.get(key);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw) as T;
+      } catch {
+        return null;
+      }
+    } catch (error) {
+      // Redis error – log and fall back to in-process cache
+      console.warn('[session-cache] Redis get failed:', error);
+      return inProcess.get<T>(key);
     }
   }
   return inProcess.get<T>(key);
@@ -110,8 +116,13 @@ export async function cacheSet<T>(
 ): Promise<void> {
   const redis = await getRedis();
   if (redis) {
-    await redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
-    return;
+    try {
+      await redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
+      return;
+    } catch (error) {
+      // Redis error – log and fall back to in-process cache
+      console.warn('[session-cache] Redis set failed:', error);
+    }
   }
   inProcess.set(key, value, ttlSeconds);
 }
@@ -119,8 +130,13 @@ export async function cacheSet<T>(
 export async function cacheDelete(key: string): Promise<void> {
   const redis = await getRedis();
   if (redis) {
-    await redis.del(key);
-    return;
+    try {
+      await redis.del(key);
+      return;
+    } catch (error) {
+      // Redis error – log and fall back to in-process cache
+      console.warn('[session-cache] Redis delete failed:', error);
+    }
   }
   inProcess.delete(key);
 }

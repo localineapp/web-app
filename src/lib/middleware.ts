@@ -39,7 +39,11 @@ export async function authenticateRequest(request: NextRequest): Promise<AuthCon
       return { userId: session.userId, isApiKey: false };
     }
 
-    // API key path (any other Bearer value, e.g. tk_…)
+    // API key path – only attempt verification if token starts with tk_ prefix
+    if (!token.startsWith('tk_')) {
+      return null;
+    }
+
     const apiKeys = await prisma.apiKey.findMany({
       where: { revokedAt: null },
       select: { id: true, projectId: true, keyHash: true, role: true },

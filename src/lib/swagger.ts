@@ -360,7 +360,7 @@ export const swaggerSpec = {
         },
         responses: {
           201: {
-            description: 'User created successfully',
+            description: 'User created successfully. Session token is set as httpOnly cookie.',
             content: {
               'application/json': {
                 schema: {
@@ -370,7 +370,20 @@ export const swaggerSpec = {
                       $ref: '#/components/schemas/User',
                     },
                     session: {
-                      $ref: '#/components/schemas/SessionToken',
+                      type: 'object',
+                      properties: {
+                        expires: {
+                          type: 'string',
+                          format: 'date-time',
+                          description: 'Token expiry for normal requests',
+                        },
+                        refreshExpires: {
+                          type: 'string',
+                          format: 'date-time',
+                          description: 'Token expiry for refresh requests',
+                        },
+                      },
+                      description: 'Session metadata (token is in httpOnly cookie)',
                     },
                   },
                 },
@@ -427,7 +440,7 @@ export const swaggerSpec = {
         },
         responses: {
           200: {
-            description: 'Login successful',
+            description: 'Login successful. Session token is set as httpOnly cookie.',
             content: {
               'application/json': {
                 schema: {
@@ -437,7 +450,20 @@ export const swaggerSpec = {
                       $ref: '#/components/schemas/User',
                     },
                     session: {
-                      $ref: '#/components/schemas/SessionToken',
+                      type: 'object',
+                      properties: {
+                        expires: {
+                          type: 'string',
+                          format: 'date-time',
+                          description: 'Token expiry for normal requests',
+                        },
+                        refreshExpires: {
+                          type: 'string',
+                          format: 'date-time',
+                          description: 'Token expiry for refresh requests',
+                        },
+                      },
+                      description: 'Session metadata (token is in httpOnly cookie)',
                     },
                   },
                 },
@@ -567,8 +593,7 @@ export const swaggerSpec = {
       post: {
         tags: ['Users'],
         summary: 'Change user password',
-        description: 'Changes the authenticated user\'s password. All existing sessions are invalidated and a new session is issued for the current device.',
-
+        description: 'Changes the authenticated user\'s password. All other active sessions are invalidated. The current session is preserved, allowing the user to remain logged in on the current device.',
         requestBody: {
           required: true,
           content: {
@@ -591,17 +616,17 @@ export const swaggerSpec = {
         },
         responses: {
           200: {
-            description: 'Password changed. All other sessions invalidated; new session issued for this device.',
+            description: 'Password changed. All other sessions invalidated; current session preserved.',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
+                    success: {
+                      type: 'boolean',
+                    },
                     message: {
                       type: 'string',
-                    },
-                    session: {
-                      $ref: '#/components/schemas/SessionToken',
                     },
                   },
                 },

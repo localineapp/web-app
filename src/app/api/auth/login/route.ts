@@ -55,7 +55,10 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
       },
-      session,
+      session: {
+        expires: session.expires,
+        refreshExpires: session.refreshExpires,
+      },
     });
   } catch {
     return NextResponse.json(

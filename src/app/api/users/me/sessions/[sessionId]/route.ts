@@ -5,16 +5,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export function DELETE(
+export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
-  const match = request.nextUrl.pathname.match(/\/sessions\/([^/]+)$/);
-  const sessionId = match?.[1];
+  const { sessionId } = await params;
   if (!sessionId) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
-  void params;
   const url = new URL(`/api/sessions/${sessionId}`, request.url);
   return NextResponse.redirect(url, { status: 308 }); // 308 Permanent Redirect preserves the method
 }

@@ -443,14 +443,25 @@ export async function removeSessionCookie(): Promise<void> {
  */
 export async function getCurrentUser(request?: NextRequest): Promise<SessionPayload | null> {
   // Priority 1: Authorization header (API / SPA clients)
-  if (request) {
-    const auth = request.headers.get('authorization');
-    if (auth?.startsWith('Bearer ')) {
-      const candidate = auth.substring(7);
-      if (candidate.startsWith('sess_')) {
-        const payload = await getSession(candidate);
-        if (payload) return payload;
-      }
+  // Check from the provided request or from the request context
+  let authHeader = request?.headers.get('authorization');
+  
+  if (!authHeader) {
+    // Try to read from request context using next/headers
+    try {
+      const { headers } = await import('next/headers');
+      const headersList = await headers();
+      authHeader = headersList.get('authorization');
+    } catch {
+      // Request context not available (e.g., in non-server context)
+    }
+  }
+
+  if (authHeader?.startsWith('Bearer ')) {
+    const candidate = authHeader.substring(7);
+    if (candidate.startsWith('sess_')) {
+      const payload = await getSession(candidate);
+      if (payload) return payload;
     }
   }
 
@@ -466,13 +477,12 @@ export async function getCurrentUser(request?: NextRequest): Promise<SessionPayl
 // ---------------------------------------------------------------------------
 
 /** Generate a random API key with a "tk_" prefix. */
+/** Generate a random API key with a "tk_" prefix, using cryptographically secure random bytes. */
 export function generateApiKey(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let key = 'tk_';
-  for (let i = 0; i < 48; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return key;
+  // Generate 48 bytes of cryptographically secure random data
+  // and encode as base64url for URL-safe representation.
+  // This provides 384 bits of entropy (48 * 8), which is sufficient for API key authentication.
+  return 'tk_' + crypto.randomBytes(48).toString('base64url');
 }
 
 /** Hash an API key for storage (bcrypt). */
