@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { SubmitEvent, useState } from "react"
 import SocialAuthButtons from "@/components/auth/social-auth-buttons"
-import { Eye, EyeOff, Lock, Mail } from "lucide-react"
+import { Eye, EyeOff, Lock } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
@@ -136,7 +136,12 @@ export default function SignInForm({ showSocialButtons, signUpsDisabled, googleE
           </div>
 
           <div className="mt-3 flex justify-center">
-            <SocialAuthButtons googleEnabled={googleEnabled} githubEnabled={githubEnabled} discordEnabled={discordEnabled} />
+            <SocialAuthButtons
+              loading={loading}
+              setLoading={setLoading}
+              googleEnabled={googleEnabled}
+              githubEnabled={githubEnabled}
+              discordEnabled={discordEnabled} />
           </div>
         </>
       )}

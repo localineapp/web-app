@@ -157,7 +157,12 @@ export default function SignUpForm({ showSocialButtons, signUpsDisabled, googleE
           </div>
 
           <div className="mt-3 flex justify-center">
-            <SocialAuthButtons googleEnabled={googleEnabled} githubEnabled={githubEnabled} discordEnabled={discordEnabled} />
+            <SocialAuthButtons
+              loading={loading}
+              setLoading={setLoading}
+              googleEnabled={googleEnabled}
+              githubEnabled={githubEnabled}
+              discordEnabled={discordEnabled} />
           </div>
         </>
       )}

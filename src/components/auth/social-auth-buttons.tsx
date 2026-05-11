@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 
-export default function SocialAuthButtons({ googleEnabled, githubEnabled, discordEnabled }: { googleEnabled?: boolean, githubEnabled?: boolean, discordEnabled?: boolean }) {
-  const [loading, setLoading] = useState(false)
+export default function SocialAuthButtons({ loading, setLoading, googleEnabled, githubEnabled, discordEnabled }: { loading: boolean, setLoading: (loading: boolean) => void, googleEnabled?: boolean, githubEnabled?: boolean, discordEnabled?: boolean }) {
   const [lastMethod, setLastMethod] = useState<string | null>(null)
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export default function SocialAuthButtons({ googleEnabled, githubEnabled, discor
         <Button
           key={id}
           variant="outline"
-          className="relative flex items-center justify-center gap-2"
+          className="relative flex items-center justify-center gap-2 disabled:cursor-not-allowed"
           onClick={async () => handleSocialSignIn(id)}
           aria-label={label}
           disabled={loading}
