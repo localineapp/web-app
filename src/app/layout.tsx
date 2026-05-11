@@ -15,7 +15,7 @@ const fontMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Localine - Translation Management Platform",
+  title: { default: "Localine", template: "%s | Localine" },
   description: "Open translation management platform for teams to collaborate on localization of their projects.",
 };
 

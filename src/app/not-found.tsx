@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { BackgroundPattern } from "@/components/background-pattern";
-import { AlertCircle, ArrowLeft, Home, HomeIcon, LogInIcon } from "lucide-react";
+import { AlertCircle, Home, LogInIcon } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -17,10 +17,10 @@ export default async function NotFoundPage() {
       <BackgroundPattern />
 
       <div className="text-center space-y-8 relative z-10 px-4">
-        <Link href="/" className="inline-flex items-center gap-2 font-semibold mb-8">
+        <div className="inline-flex items-center gap-2 font-semibold mb-8">
           <Image src="/logo.png" alt="Localine Logo" width={32} height={32} className="object-contain" />
           <span className="text-2xl">Localine</span>
-        </Link>
+        </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-4">

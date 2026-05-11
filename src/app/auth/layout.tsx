@@ -1,7 +1,14 @@
 import { BackgroundPattern } from "@/components/background-pattern";
 import { Key, Languages, Users } from "lucide-react";
+import { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  }
+};
 
 export default function AuthLayout({
   children,
@@ -12,11 +19,12 @@ export default function AuthLayout({
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex flex-col bg-muted p-10 text-foreground relative overflow-hidden">
         <BackgroundPattern />
-        
-        <Link href="/" className="flex items-center gap-2 font-semibold relative z-10">
+
+        <div className="flex items-center gap-2 font-semibold relative z-10">
           <Image src="/logo.png" alt="Localine Logo" width={24} height={24} className="object-contain" />
           <span className="text-xl">Localine</span>
-        </Link>
+        </div>
+
         <div className="flex-1 flex flex-col justify-center relative z-10">
           <blockquote className="space-y-4">
             <p className="text-lg">
