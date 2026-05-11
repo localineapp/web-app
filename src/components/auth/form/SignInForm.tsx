@@ -13,7 +13,7 @@ import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
 
-export default function SignInForm({ showSocialButtons, signUpsDisabled }: { showSocialButtons?: boolean, signUpsDisabled?: boolean }) {
+export default function SignInForm({ showSocialButtons, signUpsDisabled, googleEnabled, githubEnabled, discordEnabled }: { showSocialButtons?: boolean, signUpsDisabled?: boolean, googleEnabled?: boolean, githubEnabled?: boolean, discordEnabled?: boolean }) {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -136,7 +136,7 @@ export default function SignInForm({ showSocialButtons, signUpsDisabled }: { sho
           </div>
 
           <div className="mt-3 flex justify-center">
-            <SocialAuthButtons />
+            <SocialAuthButtons googleEnabled={googleEnabled} githubEnabled={githubEnabled} discordEnabled={discordEnabled} />
           </div>
         </>
       )}

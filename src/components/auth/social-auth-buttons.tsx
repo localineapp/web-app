@@ -6,9 +6,8 @@ import { DiscordIcon, GitHubIcon, GoogleIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { isDiscordLoginEnabled, isGitHubLoginEnabled, isGoogleLoginEnabled } from "@/actions/get-env"
 
-export default function SocialAuthButtons() {
+export default function SocialAuthButtons({ googleEnabled, githubEnabled, discordEnabled }: { googleEnabled?: boolean, githubEnabled?: boolean, discordEnabled?: boolean }) {
   const [loading, setLoading] = useState(false)
   const [lastMethod, setLastMethod] = useState<string | null>(null)
 
@@ -39,20 +38,20 @@ export default function SocialAuthButtons() {
       Icon: GoogleIcon,
       id: "google",
       label: "Google",
-      enabled: isGoogleLoginEnabled(),
+      enabled: !!googleEnabled,
     },
     {
       Icon: GitHubIcon,
       id: "github",
       label: "GitHub",
-      enabled: isGitHubLoginEnabled(),
+      enabled: !!githubEnabled,
     },
     {
       Icon: DiscordIcon,
       iconClassName: "size-discord h-4 w-7",
       id: "discord",
       label: "Discord",
-      enabled: isDiscordLoginEnabled(),
+      enabled: !!discordEnabled,
     },
   ]
 

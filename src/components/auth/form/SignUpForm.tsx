@@ -11,7 +11,6 @@ import SocialAuthButtons from "@/components/auth/social-auth-buttons"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
-import { isAnySocialLoginEnabled } from "@/actions/get-env"
 
 function GoBackButton() {
   return (
@@ -24,7 +23,7 @@ function GoBackButton() {
   )
 }
 
-export default function SignUpForm({ showSocialButtons, signUpsDisabled }: { showSocialButtons?: boolean, signUpsDisabled?: boolean }) {
+export default function SignUpForm({ showSocialButtons, signUpsDisabled, googleEnabled, githubEnabled, discordEnabled }: { showSocialButtons?: boolean, signUpsDisabled?: boolean, googleEnabled?: boolean, githubEnabled?: boolean, discordEnabled?: boolean }) {
   if (signUpsDisabled) {
     return (
       <div className="space-y-4">
@@ -158,7 +157,7 @@ export default function SignUpForm({ showSocialButtons, signUpsDisabled }: { sho
           </div>
 
           <div className="mt-3 flex justify-center">
-            <SocialAuthButtons />
+            <SocialAuthButtons googleEnabled={googleEnabled} githubEnabled={githubEnabled} discordEnabled={discordEnabled} />
           </div>
         </>
       )}

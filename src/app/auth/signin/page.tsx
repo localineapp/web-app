@@ -1,4 +1,4 @@
-import { areSignUpsDisabled, isAnySocialLoginEnabled } from "@/actions/get-env";
+import { areSignUpsDisabled, isGoogleLoginEnabled, isGitHubLoginEnabled, isDiscordLoginEnabled } from "@/actions/get-env";
 import SignInForm from "@/components/auth/form/SignInForm";
 
 export const metadata = {
@@ -6,9 +6,22 @@ export const metadata = {
 };
 
 export default async function SignInPage() {
-  const showSocialButtons = await isAnySocialLoginEnabled();
-  const signUpsDisabled = areSignUpsDisabled();
+  const [googleEnabled, githubEnabled, discordEnabled, signUpsDisabled] = await Promise.all([
+    isGoogleLoginEnabled(),
+    isGitHubLoginEnabled(),
+    isDiscordLoginEnabled(),
+    areSignUpsDisabled(),
+  ]);
+
+  const showSocialButtons = googleEnabled || githubEnabled || discordEnabled;
+
   return (
-    <SignInForm showSocialButtons={showSocialButtons} signUpsDisabled={signUpsDisabled} />
+    <SignInForm
+      showSocialButtons={showSocialButtons}
+      signUpsDisabled={signUpsDisabled}
+      googleEnabled={googleEnabled}
+      githubEnabled={githubEnabled}
+      discordEnabled={discordEnabled}
+    />
   );
 }
