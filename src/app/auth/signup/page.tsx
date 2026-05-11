@@ -1,12 +1,14 @@
+import { areSignUpsDisabled, isAnySocialLoginEnabled } from "@/actions/get-env";
+import SignUpForm from "@/components/auth/form/SignUpForm";
+
 export const metadata = {
   title: "Sign Up",
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  const showSocialButtons = isAnySocialLoginEnabled();
+  const signUpsDisabled = areSignUpsDisabled();
   return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
-      {/* Sign-up form goes here */}
-    </div>
+    <SignUpForm showSocialButtons={showSocialButtons} signUpsDisabled={signUpsDisabled} />
   );
 }

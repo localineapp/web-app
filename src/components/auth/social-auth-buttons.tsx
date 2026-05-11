@@ -5,43 +5,67 @@ import { useEffect, useState } from "react"
 import { DiscordIcon, GitHubIcon, GoogleIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
+import { isDiscordLoginEnabled, isGitHubLoginEnabled, isGoogleLoginEnabled } from "@/actions/get-env"
 
 export default function SocialAuthButtons() {
+  const [loading, setLoading] = useState(false)
   const [lastMethod, setLastMethod] = useState<string | null>(null)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLastMethod(authClient.getLastUsedLoginMethod())
   }, [])
+  
+  const handleSocialSignIn = async (provider: string) => {
+    setLoading(true)
+    await authClient.signIn.social({
+      provider,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success(`Redirecting to ${provider} for authentication...`)
+          setLastMethod(provider)
+        },
+        onError() {
+          toast.error(`Unable to sign in with ${provider}. Please try again.`)
+          setLoading(false)
+        },
+      },
+    })
+  }
 
   const providers = [
     {
       Icon: GoogleIcon,
       id: "google",
       label: "Google",
+      enabled: isGoogleLoginEnabled(),
     },
     {
       Icon: GitHubIcon,
       id: "github",
       label: "GitHub",
+      enabled: isGitHubLoginEnabled(),
     },
     {
       Icon: DiscordIcon,
       iconClassName: "size-discord h-4 w-7",
       id: "discord",
       label: "Discord",
+      enabled: isDiscordLoginEnabled(),
     },
   ]
 
   return (
     <div className="flex items-center justify-center gap-2">
-      {providers.map(({ id, label, Icon, iconClassName }) => (
+      {providers.filter(provider => provider.enabled).map(({ id, label, Icon, iconClassName }) => (
         <Button
           key={id}
           variant="outline"
           className="relative flex items-center justify-center gap-2"
-          onClick={() => authClient.signIn.social({ provider: id })}
+          onClick={async () => handleSocialSignIn(id)}
           aria-label={label}
+          disabled={loading}
         >
           <Icon className={iconClassName ?? "h-4 w-4"} />
           <span className="sr-only sm:not-sr-only">{label}</span>
