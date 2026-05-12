@@ -1,7 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
+import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
+const THEMES = [
+  { icon: SunIcon, label: "Light", value: "light" },
+  { icon: MoonIcon, label: "Dark", value: "dark" },
+  { icon: MonitorIcon, label: "System", value: "system" },
+] as const
 
 function ThemeProvider({
   children,
@@ -20,4 +28,47 @@ function ThemeProvider({
   )
 }
 
-export { ThemeProvider }
+function ThemeModeSelector() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const activeTheme = mounted ? (theme ?? "system") : "system"
+  const ActiveThemeIcon =THEMES.find((entry) => entry.value === activeTheme)?.icon ?? MonitorIcon
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label="Choose theme"
+        className="inline-flex size-9 items-center justify-center rounded-md bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
+      >
+        <ActiveThemeIcon className="h-4 w-4" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" sideOffset={8} className="w-40">
+        {THEMES.map(({ value, label, icon: Icon }) => (
+          <DropdownMenuItem
+            key={value}
+            onClick={() => {
+              setTheme(value)
+            }}
+            className="flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <Icon className="h-4 w-4" aria-hidden />
+              {label}
+            </span>
+            {activeTheme === value ? (
+              <CheckIcon className="h-4 w-4" aria-hidden />
+            ) : null}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+
+export { ThemeProvider, ThemeModeSelector }
