@@ -1,7 +1,10 @@
 "use client"
 
 import {
+  FolderCogIcon,
+  Link2Icon,
   LogOutIcon,
+  MonitorSmartphoneIcon,
   SearchIcon,
   ShieldCogIcon,
   UserCog2Icon,
@@ -22,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 
@@ -31,6 +34,7 @@ export default function Header({
 }: {
   session: ReturnType<typeof useSession>["data"]
 }) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [signingOut, setSigningOut] = useState(false)
 
@@ -44,7 +48,7 @@ export default function Header({
       fetchOptions: {
         onSuccess: () => {
           toast.success("Signed out successfully")
-          redirect("/")
+          router.push("/")
         },
         onError(context) {
           toast.error(
@@ -94,16 +98,40 @@ export default function Header({
           <DropdownMenuContent align="start">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Your Account</DropdownMenuLabel>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account")}> 
                 <UserIcon className="h-4 w-4" aria-hidden />
-                Profile
+                Public Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account/sessions")}>
+                <MonitorSmartphoneIcon className="h-4 w-4" aria-hidden />
+                Sessions
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account/security")}>
                 <ShieldCogIcon className="h-4 w-4" aria-hidden />
                 Security
               </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account/connections")}>
+                <Link2Icon className="h-4 w-4" aria-hidden />
+                Connections
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            {user?.role === "admin" && (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Administration</DropdownMenuLabel>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <UserCog2Icon className="h-4 w-4" aria-hidden />
+                    Users
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <FolderCogIcon className="h-4 w-4" aria-hidden />
+                    Projects
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuGroup>
               <DropdownMenuItem
                 variant="destructive"
