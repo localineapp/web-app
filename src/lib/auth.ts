@@ -1,5 +1,5 @@
 import { APIError, betterAuth } from "better-auth";
-import { admin as adminPlugin, lastLoginMethod } from "better-auth/plugins"
+import { admin as adminPlugin, lastLoginMethod, openAPI } from "better-auth/plugins"
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/prisma";
 import { ac, admin, user } from "@/lib/permission";
@@ -42,7 +42,12 @@ export const auth = betterAuth({
         user,
       },
     }),
-    lastLoginMethod({ storeInDatabase: true })
+    lastLoginMethod({
+      storeInDatabase: true,
+    }),
+    openAPI({
+      disableDefaultReference: process.env.NODE_ENV === "production",
+    })
   ],
   user: {
     changeEmail: {
@@ -60,13 +65,16 @@ export const auth = betterAuth({
     },
     encryptOAuthTokens: true,
   },
+  advanced: {
+    cookiePrefix: "localine",
+  },
   databaseHooks: {
     user: {
       create: {
         before: async (_, ctx) => {
           if (signUpDisabled && ctx?.path != "/admin/create-user") {
             throw new APIError("BAD_REQUEST", {
-              message: "signup is disabled",
+              message: "signup disabled",
             });
           }
         },
