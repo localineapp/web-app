@@ -26,14 +26,17 @@ export const auth = betterAuth({
   },
   socialProviders: {
     discord: {
+      enabled: !!process.env.DISCORD_CLIENT_ID! && !!process.env.DISCORD_CLIENT_SECRET!,
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
     },
     github: {
+      enabled: !!process.env.GITHUB_CLIENT_ID! && !!process.env.GITHUB_CLIENT_SECRET!,
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
     google: {
+      enabled: !!process.env.GOOGLE_CLIENT_ID! && !!process.env.GOOGLE_CLIENT_SECRET!,
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },

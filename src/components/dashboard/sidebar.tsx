@@ -14,6 +14,7 @@ export default function Sidebar() {
             alt="Localine Logo"
             width={32}
             height={32}
+            preload={true}
             className="object-contain h-auto w-auto"
           />
           <span className="text-lg font-semibold">Localine</span>
@@ -22,8 +23,7 @@ export default function Sidebar() {
 
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="flex flex-col gap-1">
-          <p>Hallo</p>
-          <p>Moin</p>
+          
         </nav>
       </ScrollArea>
     </div>

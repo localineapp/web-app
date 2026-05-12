@@ -1,15 +1,40 @@
 "use client"
 
-import { SearchIcon, UserCog2Icon } from "lucide-react";
+import { LogOutIcon, SearchIcon, ShieldCogIcon, UserCog2Icon, UserIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { useSession } from "@/lib/auth-client";
+import { MouseEvent, useState } from "react";
+import { signOut, useSession } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeModeSelector } from "@/components/theme-provider";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { redirect } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
 export default function Header({ session }: { session: ReturnType<typeof useSession>["data"] }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [signingOut, setSigningOut] = useState(false);
+
   const user = session?.user;
+
+  const handleSignOut = async (event: MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setSigningOut(true);
+
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("Signed out successfully")
+          redirect("/")
+        },
+        onError(context) {
+          toast.error(context.error?.message || "Unable to sign out. Please try again.")
+          setSigningOut(false)
+        },
+      }
+    });
+  }
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-4">
@@ -26,20 +51,63 @@ export default function Header({ session }: { session: ReturnType<typeof useSess
       <div className="flex items-center gap-2">
         <ThemeModeSelector />
 
-        <div className="sm:rounded-full sm:bg-muted sm:px-3 sm:py-1 flex items-center gap-2">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={user?.image || ""} alt={user?.name || "Unknown User"} />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-            </AvatarFallback>
-          </Avatar>
-          <span className="hidden sm:inline-block max-w-xs truncate text-sm font-medium text-foreground">
-            {user?.name || "Unknown User"}
-          </span>
-          {user?.role === "admin" && (
-            <UserCog2Icon className="hidden sm:inline h-4 w-4 text-yellow-500" />
-          )}
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="sm:rounded-full sm:bg-muted sm:px-3 sm:py-1 flex items-center gap-2 cursor-pointer hover:bg-muted/80">
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={user?.image || ""} alt={user?.name || "Unknown User"} />
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline-block max-w-xs truncate text-sm font-medium text-foreground">
+                {user?.name || "Unknown User"}
+              </span>
+              {user?.role === "admin" && (
+                <UserCog2Icon className="hidden sm:inline h-4 w-4 text-yellow-500" />
+              )}
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>
+                Your Account
+              </DropdownMenuLabel>
+              <DropdownMenuItem className="cursor-pointer">
+                <UserIcon className="h-4 w-4" aria-hidden />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <ShieldCogIcon className="h-4 w-4" aria-hidden />
+                Security
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem 
+                variant="destructive"
+                className={cn(
+                  "cursor-pointer",
+                  signingOut && "cursor-not-allowed opacity-50"
+                )}
+                disabled={signingOut}
+                onClick={handleSignOut}
+              >
+                {signingOut ? (
+                  <>
+                    <Spinner className="h-4 w-4" aria-hidden />
+                    Signing out...
+                  </>
+                ) : (
+                  <>
+                    <LogOutIcon className="h-4 w-4" aria-hidden />
+                    Sign Out
+                  </>
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )
