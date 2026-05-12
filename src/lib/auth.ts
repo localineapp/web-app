@@ -16,7 +16,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: signUpDisabled,
-    requireEmailVerification: false,
+    requireEmailVerification: false, // TODO: should be true if email service is configured
     autoSignIn: true,
     revokeSessionsOnPasswordReset: true,
   },
@@ -52,7 +52,7 @@ export const auth = betterAuth({
   user: {
     changeEmail: {
       enabled: true,
-      updateEmailWithoutVerification: false, // TODO: should be true if no email service is configured
+      updateEmailWithoutVerification: true, // TODO: should be false if email service is configured
     },
     deleteUser: {
       enabled: true,
