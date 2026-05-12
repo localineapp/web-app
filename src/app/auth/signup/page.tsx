@@ -5,8 +5,9 @@ import {
   isDiscordLoginEnabled,
 } from "@/actions/get-env"
 import SignUpForm from "@/components/auth/form/SignUpForm"
+import { Metadata } from "next"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Sign Up",
 }
 

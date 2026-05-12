@@ -1,7 +1,6 @@
 import { BackgroundPattern } from "@/components/background-pattern"
 import {
   KeyIcon,
-  
   LanguagesIcon,
   UsersIcon,
 } from "lucide-react"

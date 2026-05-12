@@ -57,6 +57,12 @@ export const auth = betterAuth({
     }),
   ],
   user: {
+    additionalFields: {
+      projectsLimit: {
+        type: "number",
+        defaultValue: 5,
+      },
+    },
     changeEmail: {
       enabled: true,
       updateEmailWithoutVerification: true, // TODO: should be false if email service is configured

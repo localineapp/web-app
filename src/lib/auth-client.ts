@@ -1,7 +1,8 @@
 import { createAuthClient } from "better-auth/react"
-import { adminClient, lastLoginMethodClient } from "better-auth/client/plugins"
+import { adminClient, inferAdditionalFields, lastLoginMethodClient } from "better-auth/client/plugins"
 import { toast } from "sonner"
 import { ac, admin, user } from "@/lib/permission"
+import { auth } from "@/lib/auth"
 
 export const authClient = createAuthClient({
   fetchOptions: {
@@ -12,6 +13,7 @@ export const authClient = createAuthClient({
     },
   },
   plugins: [
+    inferAdditionalFields<typeof auth>(),
     adminClient({
       ac,
       roles: {
