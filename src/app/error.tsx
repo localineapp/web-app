@@ -1,16 +1,24 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { BackgroundPattern } from "@/components/background-pattern"
-import { AlertCircleIcon, HomeIcon, LogInIcon } from "lucide-react"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+"use client"
 
-export default async function NotFoundPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-  const isAuthenticated = !!session?.user
+import { BackgroundPattern } from "@/components/background-pattern"
+import { Button } from "@/components/ui/button"
+import {
+  AlertTriangleIcon,
+  HomeIcon,
+  LogInIcon,
+  RefreshCwIcon,
+} from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+
+export default function ErrorPage({
+  error,
+  unstable_retry,
+}: {
+  error: Error & { digest?: string }
+  unstable_retry: () => void
+}) {
+  const isAuthenticated = false
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted">
@@ -30,17 +38,33 @@ export default async function NotFoundPage() {
 
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-4">
-            <AlertCircleIcon className="h-16 w-16 text-muted-foreground" />
-            <h1 className="text-8xl font-bold text-muted-foreground">404</h1>
+            <AlertTriangleIcon className="h-16 w-16 text-muted-foreground" />
+            <h1 className="text-8xl font-bold text-muted-foreground">500</h1>
           </div>
-          <h2 className="text-3xl font-semibold">Page Not Found</h2>
+          <h2 className="text-3xl font-semibold">An Error Occurred</h2>
           <p className="mx-auto max-w-lg text-lg text-muted-foreground">
-            The page you&apos;re looking for doesn&apos;t exist or has been
-            moved.
+            Sorry, an unexpected error has occurred. Please try refreshing the
+            page or contact support if the issue persists.
           </p>
+
+          <details className="mt-4 text-left text-sm text-muted-foreground">
+            <summary className="cursor-pointer">Error Details</summary>
+            <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-4">
+              {error.message}
+              {error.digest && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Error Digest: {error.digest}
+                </div>
+              )}
+            </pre>
+          </details>
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row">
+          <Button variant="outline" size="lg" onClick={() => unstable_retry()}>
+            <RefreshCwIcon className="mr-2 h-5 w-5" />
+            Retry
+          </Button>
           {isAuthenticated ? (
             <Button asChild size="lg">
               <Link href="/">

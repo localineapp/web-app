@@ -7,14 +7,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 
-export default function SocialAuthButtons({ loading, setLoading, googleEnabled, githubEnabled, discordEnabled }: { loading: boolean, setLoading: (loading: boolean) => void, googleEnabled?: boolean, githubEnabled?: boolean, discordEnabled?: boolean }) {
+export default function SocialAuthButtons({
+  loading,
+  setLoading,
+  googleEnabled,
+  githubEnabled,
+  discordEnabled,
+}: {
+  loading: boolean
+  setLoading: (loading: boolean) => void
+  googleEnabled?: boolean
+  githubEnabled?: boolean
+  discordEnabled?: boolean
+}) {
   const [lastMethod, setLastMethod] = useState<string | null>(null)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLastMethod(authClient.getLastUsedLoginMethod())
   }, [])
-  
+
   const handleSocialSignIn = async (provider: string) => {
     setLoading(true)
     await authClient.signIn.social({
@@ -56,28 +68,30 @@ export default function SocialAuthButtons({ loading, setLoading, googleEnabled, 
 
   return (
     <div className="flex items-center justify-center gap-2">
-      {providers.filter(provider => provider.enabled).map(({ id, label, Icon, iconClassName }) => (
-        <Button
-          key={id}
-          variant="outline"
-          className="relative flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-          onClick={async () => handleSocialSignIn(id)}
-          aria-label={label}
-          disabled={loading}
-        >
-          <Icon className={iconClassName ?? "h-4 w-4"} />
-          <span className="sr-only sm:not-sr-only">{label}</span>
-          {lastMethod === id ? (
-            <Badge
-              variant="secondary"
-              className="absolute -top-2 -right-2 px-1 py-0.5 text-[10px] leading-none"
-              aria-hidden
-            >
-              Last used
-            </Badge>
-          ) : null}
-        </Button>
-      ))}
+      {providers
+        .filter((provider) => provider.enabled)
+        .map(({ id, label, Icon, iconClassName }) => (
+          <Button
+            key={id}
+            variant="outline"
+            className="relative flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+            onClick={async () => handleSocialSignIn(id)}
+            aria-label={label}
+            disabled={loading}
+          >
+            <Icon className={iconClassName ?? "h-4 w-4"} />
+            <span className="sr-only sm:not-sr-only">{label}</span>
+            {lastMethod === id ? (
+              <Badge
+                variant="secondary"
+                className="absolute -top-2 -right-2 px-1 py-0.5 text-[10px] leading-none"
+                aria-hidden
+              >
+                Last used
+              </Badge>
+            ) : null}
+          </Button>
+        ))}
     </div>
   )
 }

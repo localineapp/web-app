@@ -1,10 +1,14 @@
-import { APIError, betterAuth } from "better-auth";
-import { admin as adminPlugin, lastLoginMethod, openAPI } from "better-auth/plugins"
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "@/lib/prisma";
-import { ac, admin, user } from "@/lib/permission";
+import { APIError, betterAuth } from "better-auth"
+import {
+  admin as adminPlugin,
+  lastLoginMethod,
+  openAPI,
+} from "better-auth/plugins"
+import { prismaAdapter } from "better-auth/adapters/prisma"
+import { prisma } from "@/lib/prisma"
+import { ac, admin, user } from "@/lib/permission"
 
-const signUpDisabled = process.env.DISABLE_SIGNUP === "true";
+const signUpDisabled = process.env.DISABLE_SIGNUP === "true"
 
 export const auth = betterAuth({
   appName: "Localine",
@@ -47,7 +51,7 @@ export const auth = betterAuth({
     }),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV === "production",
-    })
+    }),
   ],
   user: {
     changeEmail: {
@@ -75,10 +79,10 @@ export const auth = betterAuth({
           if (signUpDisabled && ctx?.path != "/admin/create-user") {
             throw new APIError("BAD_REQUEST", {
               message: "signup disabled",
-            });
+            })
           }
         },
       },
     },
-  }
-});
+  },
+})

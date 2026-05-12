@@ -15,8 +15,8 @@ export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("")
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
+    event.preventDefault()
+    setLoading(true)
 
     await authClient.requestPasswordReset({
       email,
@@ -26,7 +26,10 @@ export default function ForgotPasswordForm() {
           redirect("/auth/signin")
         },
         onError(context) {
-          toast.error(context.error?.message || "Unable to send password reset email. Please check your email.")
+          toast.error(
+            context.error?.message ||
+              "Unable to send password reset email. Please check your email."
+          )
           setLoading(false)
         },
       },
@@ -37,9 +40,10 @@ export default function ForgotPasswordForm() {
   return (
     <>
       <div className="flex flex-col items-center">
-        <h1 className="text-2xl font-bold mb-4">Forgot Password</h1>
+        <h1 className="mb-4 text-2xl font-bold">Forgot Password</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email address and we'll send you a link to reset your password.
+          Enter your email address and we&rsquo;ll send you a link to reset your
+          password.
         </p>
       </div>
 
@@ -56,10 +60,12 @@ export default function ForgotPasswordForm() {
           />
         </div>
 
-        <Button className="w-full disabled:cursor-not-allowed" type="submit" disabled={loading}>
-          {loading && (
-            <Spinner className="mr-2 h-4 w-4 animate-spin" />
-          )}
+        <Button
+          className="w-full disabled:cursor-not-allowed"
+          type="submit"
+          disabled={loading}
+        >
+          {loading && <Spinner className="mr-2 h-4 w-4 animate-spin" />}
           Send Reset Link
         </Button>
       </form>
