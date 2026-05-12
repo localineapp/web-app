@@ -58,6 +58,7 @@ export default function SignUpForm({ showSocialButtons, signUpsDisabled, googleE
       name,
       email,
       password,
+      image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Account created successfully. Please check your email to verify your account.")

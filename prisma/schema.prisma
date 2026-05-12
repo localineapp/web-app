@@ -19,6 +19,10 @@ model User {
   image           String?   @db.Text
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  role            String?   @db.Text
+  banned          Boolean?  @default(false)
+  banReason       String?   @db.Text
+  banExpires      DateTime?
   lastLoginMethod String?   @db.Text
   sessions        Session[]
   accounts        Account[]
@@ -28,15 +32,16 @@ model User {
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?  @db.Text
-  userAgent String?  @db.Text
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?  @db.Text
+  userAgent      String?  @db.Text
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?  @db.Text
 
   @@unique([token])
   @@index([userId(length: 191)])
