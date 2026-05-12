@@ -8,7 +8,7 @@ import { AlertCircleIcon, EyeIcon, EyeOffIcon, LockIcon } from "lucide-react"
 import Link from "next/link"
 import { SubmitEvent, useState } from "react"
 import SocialAuthButtons from "@/components/auth/social-auth-buttons"
-import { authClient } from "@/lib/auth-client"
+import { signUp } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
 
@@ -65,7 +65,7 @@ export default function SignUpForm({
     event.preventDefault()
     setLoading(true)
 
-    await authClient.signUp.email({
+    await signUp.email({
       callbackURL: "/",
       name,
       email,

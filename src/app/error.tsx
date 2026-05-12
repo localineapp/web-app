@@ -2,6 +2,7 @@
 
 import { BackgroundPattern } from "@/components/background-pattern"
 import { Button } from "@/components/ui/button"
+import { useSession } from "@/lib/auth-client"
 import {
   AlertTriangleIcon,
   HomeIcon,
@@ -18,7 +19,8 @@ export default function ErrorPage({
   error: Error & { digest?: string }
   unstable_retry: () => void
 }) {
-  const isAuthenticated = false
+  const { data: session } = useSession()
+  const isAuthenticated = !!session?.user;
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted">
@@ -44,7 +46,7 @@ export default function ErrorPage({
           <h2 className="text-3xl font-semibold">An Error Occurred</h2>
           <p className="mx-auto max-w-lg text-lg text-muted-foreground">
             Sorry, an unexpected error has occurred. Please try refreshing the
-            page or contact support if the issue persists.
+            page or contact your administrator if the problem persists.
           </p>
 
           <details className="mt-4 text-left text-sm text-muted-foreground">

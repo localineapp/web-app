@@ -1,6 +1,6 @@
 "use client"
 
-import { authClient } from "@/lib/auth-client"
+import { authClient, signIn } from "@/lib/auth-client"
 import { useEffect, useState } from "react"
 import { DiscordIcon, GitHubIcon, GoogleIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
@@ -29,7 +29,7 @@ export default function SocialAuthButtons({
 
   const handleSocialSignIn = async (provider: string) => {
     setLoading(true)
-    await authClient.signIn.social({
+    await signIn.social({
       provider,
       fetchOptions: {
         onSuccess: () => {

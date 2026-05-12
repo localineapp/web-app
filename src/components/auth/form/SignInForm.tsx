@@ -9,7 +9,7 @@ import { SubmitEvent, useState } from "react"
 import SocialAuthButtons from "@/components/auth/social-auth-buttons"
 import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
-import { authClient } from "@/lib/auth-client"
+import { signIn } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
 
@@ -36,7 +36,7 @@ export default function SignInForm({
     event.preventDefault()
     setLoading(true)
 
-    await authClient.signIn.email({
+    await signIn.email({
       email,
       password,
       rememberMe,
