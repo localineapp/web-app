@@ -5,12 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
-import {
-  AlertCircleIcon,
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon,
-} from "lucide-react"
+import { AlertCircleIcon, EyeIcon, EyeOffIcon, LockIcon } from "lucide-react"
 import Link from "next/link"
 import { redirect, useSearchParams } from "next/navigation"
 import { SubmitEvent, useState } from "react"

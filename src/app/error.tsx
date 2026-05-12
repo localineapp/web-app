@@ -20,7 +20,7 @@ export default function ErrorPage({
   unstable_retry: () => void
 }) {
   const { data: session } = useSession()
-  const isAuthenticated = !!session?.user;
+  const isAuthenticated = !!session?.user
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted">
@@ -63,7 +63,12 @@ export default function ErrorPage({
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row">
-          <Button asChild variant="outline" size="lg" onClick={() => unstable_retry()}>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            onClick={() => unstable_retry()}
+          >
             <RefreshCwIcon className="mr-2 h-5 w-5" />
             Retry
           </Button>

@@ -3,7 +3,12 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const THEMES = [
   { icon: SunIcon, label: "Light", value: "light" },
@@ -38,7 +43,8 @@ function ThemeModeSelector() {
   }, [])
 
   const activeTheme = mounted ? (theme ?? "system") : "system"
-  const ActiveThemeIcon =THEMES.find((entry) => entry.value === activeTheme)?.icon ?? MonitorIcon
+  const ActiveThemeIcon =
+    THEMES.find((entry) => entry.value === activeTheme)?.icon ?? MonitorIcon
 
   return (
     <DropdownMenu>
@@ -70,6 +76,5 @@ function ThemeModeSelector() {
     </DropdownMenu>
   )
 }
-
 
 export { ThemeProvider, ThemeModeSelector }

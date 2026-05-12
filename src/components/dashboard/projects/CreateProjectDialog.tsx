@@ -1,47 +1,68 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { useSession } from "@/lib/auth-client";
-import { PlusIcon } from "lucide-react";
-import { MouseEvent, useState } from "react";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip"
+import { useSession } from "@/lib/auth-client"
+import { PlusIcon } from "lucide-react"
+import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
-export default function CreateProjectDialog({ session }: { session: ReturnType<typeof useSession>["data"] }) {
-  const [loading, setLoading] = useState(false);
-  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false);
-  const [projectName, setProjectName] = useState("");
-  const [projectDescription, setProjectDescription] = useState("");
+export default function CreateProjectDialog({
+  session,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+}) {
+  const [loading, setLoading] = useState(false)
+  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
+  const [projectName, setProjectName] = useState("")
+  const [projectDescription, setProjectDescription] = useState("")
 
-  const user = session?.user;
+  const user = session?.user
 
-  const projectCount = 0;
-  const projectLimit = user?.projectsLimit ?? 0;
-  const canCreateProject = projectCount < projectLimit;
+  const projectCount = 0
+  const projectLimit = user?.projectsLimit ?? 0
+  const canCreateProject = projectCount < projectLimit
 
   const handleCreateProject = async (event: MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setLoading(true);
+    event.preventDefault()
+    setLoading(true)
 
     // Simulate API call to create project
     setTimeout(() => {
-      setLoading(false);
-      setCreateDialogOpen(false);
-      setProjectName("");
-      setProjectDescription("");
+      setLoading(false)
+      setCreateDialogOpen(false)
+      setProjectName("")
+      setProjectDescription("")
 
-      toast.info("Project created successfully! (This is a demo, no actual project was created.)");
-    }, 2000);
+      toast.info(
+        "Project created successfully! (This is a demo, no actual project was created.)"
+      )
+    }, 2000)
   }
 
   return (
     <Dialog open={isCreateDialogOpen} onOpenChange={setCreateDialogOpen}>
       <Tooltip>
-        <TooltipTrigger asChild className={canCreateProject ? "" : "cursor-not-allowed"}>
+        <TooltipTrigger
+          asChild
+          className={canCreateProject ? "" : "cursor-not-allowed"}
+        >
           <span className="inline-block">
             <DialogTrigger asChild disabled={!canCreateProject}>
               <Button variant="outline" aria-disabled={!canCreateProject}>

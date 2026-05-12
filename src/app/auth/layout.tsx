@@ -1,9 +1,5 @@
 import { BackgroundPattern } from "@/components/background-pattern"
-import {
-  KeyIcon,
-  LanguagesIcon,
-  UsersIcon,
-} from "lucide-react"
+import { KeyIcon, LanguagesIcon, UsersIcon } from "lucide-react"
 import { Metadata } from "next"
 import Image from "next/image"
 

@@ -1,18 +1,25 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CogIcon, ExternalLinkIcon } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { CogIcon, ExternalLinkIcon } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationPrevious,
   PaginationNext,
-} from "@/components/ui/pagination";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+} from "@/components/ui/pagination"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Card,
   CardHeader,
@@ -20,11 +27,14 @@ import {
   CardDescription,
   CardAction,
   CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
-const mockProjects: Array<{ uniqueId: string; name: string; description: string }> = [
+const mockProjects: Array<{
+  uniqueId: string
+  name: string
+  description: string
+}> = [
   {
     uniqueId: "15f3d8a3-a833-486c-bb6a-cedf248fb60b",
     name: "Project Alpha",
@@ -115,53 +125,57 @@ const mockProjects: Array<{ uniqueId: string; name: string; description: string 
     name: "Project Tau",
     description: "A project for testing the tau features.",
   },
-];
+]
 
 interface ProjectsListProps {
-  page: number;
-  setPage: (page: number) => void;
+  page: number
+  setPage: (page: number) => void
 }
 
-const PAGE_SIZE_TABLE: number = 10;
-const PAGE_SIZE_CARDS: number = 9;
-const COOKIE_NAME = "localine.projects_view";
+const PAGE_SIZE_TABLE: number = 10
+const PAGE_SIZE_CARDS: number = 9
+const COOKIE_NAME = "localine.projects_view"
 
 function getCookie(name: string) {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
+  if (typeof document === "undefined") return null
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"))
+  return match ? decodeURIComponent(match[2]) : null
 }
 
 function setCookie(name: string, value: string, days = 365) {
-  if (typeof document === "undefined") return;
-  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; samesite=lax`;
+  if (typeof document === "undefined") return
+  const expires = new Date(
+    Date.now() + days * 24 * 60 * 60 * 1000
+  ).toUTCString()
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; samesite=lax`
 }
 
 export default function ProjectsList() {
-  const [view, setView] = useState<"table" | "cards">("table");
-  const [page, setPage] = useState<number>(1);
+  const [view, setView] = useState<"table" | "cards">("table")
+  const [page, setPage] = useState<number>(1)
 
   useEffect(() => {
-    const v = getCookie(COOKIE_NAME);
-    if (v === "cards" || v === "table") setView(v as "cards" | "table");
-  }, []);
+    const v = getCookie(COOKIE_NAME)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (v === "cards" || v === "table") setView(v as "cards" | "table")
+  }, [])
 
   function selectView(next: "table" | "cards") {
-    setView(next);
-    setCookie(COOKIE_NAME, next, 365);
+    setView(next)
+    setCookie(COOKIE_NAME, next, 365)
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">View</span>
           <ToggleGroup
             type="single"
             value={view}
             onValueChange={(v) => {
-              if (v === "table" || v === "cards") selectView(v as "table" | "cards");
+              if (v === "table" || v === "cards")
+                selectView(v as "table" | "cards")
             }}
             aria-label="Select view"
             className="ml-2"
@@ -172,38 +186,36 @@ export default function ProjectsList() {
         </div>
       </div>
 
-      {view === "table" ?
-        <ProjectsTable
-          page={page}
-          setPage={setPage} /> :
-        <ProjectCards
-          page={page}
-          setPage={setPage} />
-      }
+      {view === "table" ? (
+        <ProjectsTable page={page} setPage={setPage} />
+      ) : (
+        <ProjectCards page={page} setPage={setPage} />
+      )}
     </div>
-  );
+  )
 }
 
 export function ProjectCards({ page, setPage }: ProjectsListProps) {
-  const router = useRouter();
+  const router = useRouter()
 
-  const total = mockProjects.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_CARDS));
-  const startIndex = (page - 1) * PAGE_SIZE_CARDS;
-  const endIndex = Math.min(total, page * PAGE_SIZE_CARDS);
-  const currentProjects = mockProjects.slice(startIndex, endIndex);
+  const total = mockProjects.length
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_CARDS))
+  const startIndex = (page - 1) * PAGE_SIZE_CARDS
+  const endIndex = Math.min(total, page * PAGE_SIZE_CARDS)
+  const currentProjects = mockProjects.slice(startIndex, endIndex)
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {currentProjects.map(({ uniqueId, name, description }) => (
           <Link key={uniqueId} href={`/projects/${uniqueId}`} className="block">
-            <Card key={uniqueId} className="cursor-pointer hover:shadow-sm hover:-translate-y-0.5 hover:opacity-80 transition">
+            <Card
+              key={uniqueId}
+              className="cursor-pointer transition hover:-translate-y-0.5 hover:opacity-80 hover:shadow-sm"
+            >
               <CardHeader>
                 <div>
-                  <CardTitle>
-                    {name}
-                  </CardTitle>
+                  <CardTitle>{name}</CardTitle>
                   <CardDescription>{description}</CardDescription>
                 </div>
 
@@ -214,9 +226,9 @@ export function ProjectCards({ page, setPage }: ProjectsListProps) {
                     className="inline-flex items-center p-1 text-sm"
                     aria-label="Project settings"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      router.push(`/projects/${uniqueId}/settings`);
+                      e.stopPropagation()
+                      e.preventDefault()
+                      router.push(`/projects/${uniqueId}/settings`)
                     }}
                   >
                     <CogIcon size={16} />
@@ -225,32 +237,52 @@ export function ProjectCards({ page, setPage }: ProjectsListProps) {
               </CardHeader>
 
               <CardContent>
-                <div className="text-xs text-muted-foreground">ID: {uniqueId.split("-")[0]}</div>
+                <div className="text-xs text-muted-foreground">
+                  ID: {uniqueId.split("-")[0]}
+                </div>
               </CardContent>
             </Card>
           </Link>
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-4 px-2 text-sm text-muted-foreground">
-        <div>Page {page} of {totalPages}</div>
+      <div className="mt-4 flex items-center justify-between px-2 text-sm text-muted-foreground">
+        <div>
+          Page {page} of {totalPages}
+        </div>
 
         <div className="flex items-center gap-4">
           <Pagination aria-label="Pagination">
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
-                  className={page === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (page > 1) setPage(page - 1)
+                  }}
+                  className={
+                    page === 1
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
 
-              <div className="text-sm text-muted-foreground">Showing {startIndex + 1}-{endIndex} of {total}</div>
+              <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{endIndex} of {total}
+              </div>
 
               <PaginationItem>
                 <PaginationNext
-                  onClick={(e) => { e.preventDefault(); if (page < totalPages) setPage(page + 1); }}
-                  className={page === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (page < totalPages) setPage(page + 1)
+                  }}
+                  className={
+                    page === totalPages
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
             </PaginationContent>
@@ -258,19 +290,19 @@ export function ProjectCards({ page, setPage }: ProjectsListProps) {
         </div>
       </div>
     </>
-  );
+  )
 }
 
 export function ProjectsTable({ page, setPage }: ProjectsListProps) {
-  const total = mockProjects.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_TABLE));
-  const startIndex = (page - 1) * PAGE_SIZE_TABLE;
-  const endIndex = Math.min(total, page * PAGE_SIZE_TABLE);
-  const currentProjects = mockProjects.slice(startIndex, endIndex);
+  const total = mockProjects.length
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_TABLE))
+  const startIndex = (page - 1) * PAGE_SIZE_TABLE
+  const endIndex = Math.min(total, page * PAGE_SIZE_TABLE)
+  const currentProjects = mockProjects.slice(startIndex, endIndex)
 
   return (
     <>
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="overflow-hidden rounded-lg border border-border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -284,29 +316,44 @@ export function ProjectsTable({ page, setPage }: ProjectsListProps) {
           <TableBody>
             {currentProjects.map(({ uniqueId, name, description }) => (
               <TableRow key={uniqueId}>
-                <TableCell className="font-medium text-center">
-                  <Link href={`/projects/${uniqueId}`} className="block w-full h-full">
+                <TableCell className="text-center font-medium">
+                  <Link
+                    href={`/projects/${uniqueId}`}
+                    className="block h-full w-full"
+                  >
                     {uniqueId.split("-")[0]}
                   </Link>
                 </TableCell>
 
                 <TableCell>
-                  <Link href={`/projects/${uniqueId}`} className="block w-full h-full">
+                  <Link
+                    href={`/projects/${uniqueId}`}
+                    className="block h-full w-full"
+                  >
                     {name}
                   </Link>
                 </TableCell>
 
                 <TableCell>
-                  <Link href={`/projects/${uniqueId}`} className="block w-full h-full">
+                  <Link
+                    href={`/projects/${uniqueId}`}
+                    className="block h-full w-full"
+                  >
                     {description}
                   </Link>
                 </TableCell>
 
                 <TableCell className="cursor-default text-center">
-                  <Link href={`/projects/${uniqueId}`} className="inline-flex items-center px-2 py-1 text-sm">
+                  <Link
+                    href={`/projects/${uniqueId}`}
+                    className="inline-flex items-center px-2 py-1 text-sm"
+                  >
                     <ExternalLinkIcon size={16} />
                   </Link>
-                  <Link href={`/projects/${uniqueId}/settings`} className="inline-flex items-center px-2 py-1 text-sm">
+                  <Link
+                    href={`/projects/${uniqueId}/settings`}
+                    className="inline-flex items-center px-2 py-1 text-sm"
+                  >
                     <CogIcon size={16} />
                   </Link>
                 </TableCell>
@@ -316,25 +363,43 @@ export function ProjectsTable({ page, setPage }: ProjectsListProps) {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between mt-2 px-2 text-sm text-muted-foreground">
-        <div>Page {page} of {totalPages}</div>
+      <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
+        <div>
+          Page {page} of {totalPages}
+        </div>
 
         <div className="flex items-center gap-4">
           <Pagination aria-label="Pagination">
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
-                  className={page === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (page > 1) setPage(page - 1)
+                  }}
+                  className={
+                    page === 1
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
 
-              <div className="text-sm text-muted-foreground">Showing {startIndex + 1}-{endIndex} of {total}</div>
+              <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1}-{endIndex} of {total}
+              </div>
 
               <PaginationItem>
                 <PaginationNext
-                  onClick={(e) => { e.preventDefault(); if (page < totalPages) setPage(page + 1); }}
-                  className={page === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (page < totalPages) setPage(page + 1)
+                  }}
+                  className={
+                    page === totalPages
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
             </PaginationContent>
