@@ -3,7 +3,7 @@ import {
   isGitHubLoginEnabled,
   isGoogleLoginEnabled,
 } from "@/actions/get-env"
-import ConnectionsCard from "@/components/dashboard/account/security/ConnectionsCard"
+import ConnectionsCard from "@/components/dashboard/account/connections/ConnectionsCard"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"
 import { headers } from "next/headers"

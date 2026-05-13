@@ -1,10 +1,18 @@
+import ProfileDetailsCard from "@/components/dashboard/account/ProfileDetailsCard"
+import ProfileInformationCard from "@/components/dashboard/account/ProfileInformatioCard"
+import { auth } from "@/lib/auth"
 import { Metadata } from "next"
+import { headers } from "next/headers"
 
 export const metadata: Metadata = {
   title: "Public Profile",
 }
 
 export default async function PublicProfilePage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full gap-4 space-y-2">
@@ -14,8 +22,13 @@ export default async function PublicProfilePage() {
         </p>
       </div>
 
-      <div>
-        <p>Not implemented</p>
+      <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">
+        <div className="w-full min-w-0 xl:flex-1">
+          <ProfileDetailsCard session={session} />
+        </div>
+        <div className="w-full min-w-0 xl:flex-1">
+          <ProfileInformationCard session={session} />
+        </div>
       </div>
     </div>
   )

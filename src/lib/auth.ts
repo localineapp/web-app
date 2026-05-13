@@ -62,6 +62,10 @@ export const auth = betterAuth({
   ],
   user: {
     additionalFields: {
+      lastLoginMethod: {
+        type: "string",
+        required: false,
+      },
       projectsLimit: {
         type: "number",
         defaultValue: 5,
