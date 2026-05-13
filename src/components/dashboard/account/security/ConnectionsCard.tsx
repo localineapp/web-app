@@ -44,7 +44,7 @@ export default function ConnectionsCard({
   }
 
   return (
-    <Card className="w-2xl">
+    <Card className="w-full max-w-2xl">
       <ProviderCardContent
         enabled={isProviderEnabled("google")}
         connected={isProviderConnected("google")}
@@ -136,7 +136,7 @@ function ProviderCardContent({
   }
 
   return (
-    <CardContent className="flex items-center justify-between gap-4">
+    <CardContent className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <div className="flex min-w-0 items-center gap-4">
         <Icon className="h-6 w-6 shrink-0" />
         <div className="min-w-0 space-y-1">
@@ -162,7 +162,7 @@ function ProviderCardContent({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2 self-stretch sm:self-auto">
         {!enabled ? (
           <Tooltip>
             <TooltipTrigger asChild className="cursor-not-allowed">
