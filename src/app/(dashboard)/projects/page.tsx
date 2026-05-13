@@ -30,7 +30,7 @@ export default async function ProjectsPage() {
       </div>
 
       <div>
-        <ProjectsList />
+        <ProjectsList session={session} />
       </div>
     </div>
   )

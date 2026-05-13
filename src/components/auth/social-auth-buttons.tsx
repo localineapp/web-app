@@ -36,8 +36,8 @@ export default function SocialAuthButtons({
           toast.success(`Redirecting to ${provider} for authentication...`)
           setLastMethod(provider)
         },
-        onError() {
-          toast.error(`Unable to sign in with ${provider}. Please try again.`)
+        onError({ error }) {
+          toast.error(`Unable to sign in with ${provider}. (${error?.message || "Please try again."})`)
           setLoading(false)
         },
       },
@@ -59,7 +59,7 @@ export default function SocialAuthButtons({
     },
     {
       Icon: DiscordIcon,
-      iconClassName: "size-discord h-4 w-7",
+      iconClassName: "h-4",
       id: "discord",
       label: "Discord",
       enabled: !!discordEnabled,

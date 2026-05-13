@@ -74,7 +74,9 @@ export default function CreateProjectDialog({
         </TooltipTrigger>
         {!canCreateProject && (
           <TooltipContent>
-            You have reached your project limit ({projectCount}/{projectLimit})
+            {projectLimit === 0
+              ? "The project limit for your account is currently set to 0."
+              : `You have reached your project limit (${projectCount}/${projectLimit})`}
           </TooltipContent>
         )}
       </Tooltip>

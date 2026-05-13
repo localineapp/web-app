@@ -1,5 +1,7 @@
 "use server"
 
+import { auth } from "@/lib/auth"
+
 export async function areSignUpsDisabled(): Promise<boolean> {
   const signUpsDisabled = process.env.DISABLE_SIGNUP === "true"
   return signUpsDisabled
@@ -15,19 +17,13 @@ export async function isAnySocialLoginEnabled(): Promise<boolean> {
 }
 
 export async function isDiscordLoginEnabled(): Promise<boolean> {
-  const discordLoginEnabled =
-    process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET
-  return !!discordLoginEnabled
+  return auth.options.socialProviders.discord.enabled
 }
 
 export async function isGoogleLoginEnabled(): Promise<boolean> {
-  const googleLoginEnabled =
-    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-  return !!googleLoginEnabled
+  return auth.options.socialProviders.google.enabled
 }
 
 export async function isGitHubLoginEnabled(): Promise<boolean> {
-  const githubLoginEnabled =
-    process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-  return !!githubLoginEnabled
+  return auth.options.socialProviders.github.enabled
 }

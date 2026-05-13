@@ -1,5 +1,5 @@
-import { RevokeAllSessionsDialog, RevokeOtherSessionsDialog } from "@/components/dashboard/account/RevokeSessionsDialogs"
-import SessionsTable from "@/components/dashboard/account/SessionsTable"
+import { RevokeAllSessionsDialog, RevokeOtherSessionsDialog } from "@/components/dashboard/account/sessions/RevokeSessionsDialogs"
+import SessionsTable from "@/components/dashboard/account/sessions/SessionsTable"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"
 import { headers } from "next/headers"
