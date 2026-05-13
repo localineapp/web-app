@@ -18,7 +18,8 @@ export default async function PublicProfilePage() {
       <div className="w-full gap-4 space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Public Profile</h1>
         <p className="text-muted-foreground">
-          Manage your public profile information. You can also see details about your account.
+          Manage your public profile information. You can also see details about
+          your account.
         </p>
       </div>
 

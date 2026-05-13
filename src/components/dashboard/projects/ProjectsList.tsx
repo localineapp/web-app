@@ -9,11 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  CogIcon,
-  ExternalLinkIcon,
-  FolderCodeIcon,
-} from "lucide-react"
+import { CogIcon, ExternalLinkIcon, FolderCodeIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
