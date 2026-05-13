@@ -61,7 +61,7 @@ export function RevokeOtherSessionsDialog() {
             Cancel
           </Button>
           <Button
-            variant="outline"
+            variant="destructive"
             onClick={handleRevokeSessions}
             disabled={loading}
           >
