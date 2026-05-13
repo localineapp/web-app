@@ -40,16 +40,17 @@ function formatDate(value: Date | string) {
   return format(date, "PP p")
 }
 
-
 function getDeviceLabel(userAgent?: string | null) {
   if (!userAgent) return "Unknown device"
 
   const normalized = userAgent.toLowerCase()
 
-  if (normalized.includes("iphone") || normalized.includes("ipad")) return "Apple Mobile"
+  if (normalized.includes("iphone") || normalized.includes("ipad"))
+    return "Apple Mobile"
   if (normalized.includes("android")) return "Android"
   if (normalized.includes("windows")) return "Windows"
-  if (normalized.includes("macintosh") || normalized.includes("mac os")) return "Mac"
+  if (normalized.includes("macintosh") || normalized.includes("mac os"))
+    return "Mac"
   if (normalized.includes("linux")) return "Linux"
 
   return "Desktop"
@@ -61,19 +62,27 @@ function getBrowserLabel(userAgent?: string | null) {
   const normalized = userAgent.toLowerCase()
 
   if (normalized.includes("edg/")) return "Edge"
-  if (normalized.includes("chrome/") && !normalized.includes("edg/")) return "Chrome"
+  if (normalized.includes("chrome/") && !normalized.includes("edg/"))
+    return "Chrome"
   if (normalized.includes("firefox/")) return "Firefox"
-  if (normalized.includes("safari/") && !normalized.includes("chrome/")) return "Safari"
+  if (normalized.includes("safari/") && !normalized.includes("chrome/"))
+    return "Safari"
 
   return null
 }
 
-export default function SessionsTable({ session, sessions }: { session: ReturnType<typeof useSession>["data"]; sessions: Awaited<ReturnType<typeof auth.api.listSessions>> }) {
+export default function SessionsTable({
+  session,
+  sessions,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  sessions: Awaited<ReturnType<typeof auth.api.listSessions>>
+}) {
   const router = useRouter()
   const [page, setPage] = useState(1)
 
   const currentSessionId = session?.session?.id
-  
+
   const total = sessions.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const startIndex = (page - 1) * PAGE_SIZE
@@ -84,7 +93,7 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
     try {
       navigator.clipboard.writeText(sessionId)
       toast.success("Session ID copied to clipboard.")
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy session ID.")
     }
   }
@@ -99,8 +108,8 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
         },
         onError: () => {
           toast.error("Failed to revoke session.")
-        }
-      }
+        },
+      },
     })
   }
 
@@ -120,7 +129,7 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
 
           <TableBody>
             {currentSessions.length > 0 ? (
-              currentSessions.map(session => {
+              currentSessions.map((session) => {
                 const isCurrentSession = session.id === currentSessionId
                 const browserLabel = getBrowserLabel(session.userAgent)
 
@@ -135,7 +144,9 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
                           >
                             {session.id.slice(0, 8)}
                           </span>
-                          <Badge variant={isCurrentSession ? "default" : "outline"}>
+                          <Badge
+                            variant={isCurrentSession ? "default" : "outline"}
+                          >
                             {isCurrentSession ? "Current" : "Active"}
                           </Badge>
                         </div>
@@ -154,7 +165,7 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
                         >
                           {browserLabel
                             ? `${browserLabel}${session.userAgent ? ` • ${session.userAgent}` : ""}`
-                            : session.userAgent ?? "No user agent available"}
+                            : (session.userAgent ?? "No user agent available")}
                         </span>
                       </div>
                     </TableCell>
@@ -186,7 +197,10 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
 
                         {isCurrentSession ? (
                           <Tooltip>
-                            <TooltipTrigger asChild className="cursor-not-allowed">
+                            <TooltipTrigger
+                              asChild
+                              className="cursor-not-allowed"
+                            >
                               <span className="inline-block">
                                 <Button
                                   variant="destructive"
@@ -199,7 +213,9 @@ export default function SessionsTable({ session, sessions }: { session: ReturnTy
                                 </Button>
                               </span>
                             </TooltipTrigger>
-                            <TooltipContent>You can't revoke the current session.</TooltipContent>
+                            <TooltipContent>
+                              You can&rsquo;t revoke the current session.
+                            </TooltipContent>
                           </Tooltip>
                         ) : (
                           <Button

@@ -1,4 +1,7 @@
-import { RevokeAllSessionsDialog, RevokeOtherSessionsDialog } from "@/components/dashboard/account/sessions/RevokeSessionsDialogs"
+import {
+  RevokeAllSessionsDialog,
+  RevokeOtherSessionsDialog,
+} from "@/components/dashboard/account/sessions/RevokeSessionsDialogs"
 import SessionsTable from "@/components/dashboard/account/sessions/SessionsTable"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"

@@ -1,8 +1,24 @@
 "use client"
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
@@ -33,7 +49,7 @@ export function RevokeOtherSessionsDialog() {
           setDialogOpen(false)
           setLoading(false)
         },
-      }
+      },
     })
   }
 
@@ -105,7 +121,7 @@ export function RevokeAllSessionsDialog() {
           setDialogOpen(false)
           setLoading(false)
         },
-      }
+      },
     })
   }
 
@@ -122,7 +138,8 @@ export function RevokeAllSessionsDialog() {
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke All Sessions</AlertDialogTitle>
             <AlertDialogDescription>
-              This will revoke all active sessions, including the current one. Are you sure you want to proceed?
+              This will revoke all active sessions, including the current one.
+              Are you sure you want to proceed?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

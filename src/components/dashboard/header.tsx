@@ -98,19 +98,31 @@ export default function Header({
           <DropdownMenuContent align="start">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Your Account</DropdownMenuLabel>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account")}> 
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/account")}
+              >
                 <UserIcon className="h-4 w-4" aria-hidden />
                 Public Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account/sessions")}>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/account/sessions")}
+              >
                 <MonitorSmartphoneIcon className="h-4 w-4" aria-hidden />
                 Sessions
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account/security")}>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/account/security")}
+              >
                 <ShieldCogIcon className="h-4 w-4" aria-hidden />
                 Security
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/account/connections")}>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/account/connections")}
+              >
                 <Link2Icon className="h-4 w-4" aria-hidden />
                 Connections
               </DropdownMenuItem>

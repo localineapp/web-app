@@ -1,18 +1,38 @@
-"use client";
+"use client"
 
-import { DiscordIcon, GitHubIcon, GoogleIcon } from "@/components/icons";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { auth } from "@/lib/auth";
-import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { useState, type ComponentType, type MouseEvent, type SVGProps } from "react";
-import { toast } from "sonner";
+import { DiscordIcon, GitHubIcon, GoogleIcon } from "@/components/icons"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { auth } from "@/lib/auth"
+import { authClient } from "@/lib/auth-client"
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
+import {
+  useState,
+  type ComponentType,
+  type MouseEvent,
+  type SVGProps,
+} from "react"
+import { toast } from "sonner"
 
-export default function ConnectionsCard({ accounts, enabledProviders }: { accounts: Awaited<ReturnType<typeof auth.api.listUserAccounts>>; enabledProviders: string[] }) {
+export default function ConnectionsCard({
+  accounts,
+  enabledProviders,
+}: {
+  accounts: Awaited<ReturnType<typeof auth.api.listUserAccounts>>
+  enabledProviders: string[]
+}) {
   const [loading, setLoading] = useState(false)
 
   function isProviderEnabled(provider: string) {
@@ -20,7 +40,7 @@ export default function ConnectionsCard({ accounts, enabledProviders }: { accoun
   }
 
   function isProviderConnected(provider: string) {
-    return accounts.some(account => account.providerId === provider)
+    return accounts.some((account) => account.providerId === provider)
   }
 
   return (
@@ -55,7 +75,21 @@ export default function ConnectionsCard({ accounts, enabledProviders }: { accoun
   )
 }
 
-function ProviderCardContent({ enabled, connected, Icon, providerName, loading, setLoading }: { enabled: boolean; connected: boolean; Icon: ComponentType<SVGProps<SVGSVGElement>>; providerName: string; loading: boolean; setLoading: (loading: boolean) => void }) {
+function ProviderCardContent({
+  enabled,
+  connected,
+  Icon,
+  providerName,
+  loading,
+  setLoading,
+}: {
+  enabled: boolean
+  connected: boolean
+  Icon: ComponentType<SVGProps<SVGSVGElement>>
+  providerName: string
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
   const router = useRouter()
 
   const handleLink = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -70,7 +104,9 @@ function ProviderCardContent({ enabled, connected, Icon, providerName, loading, 
           toast.success(`Redirecting to ${providerName} for verification...`)
         },
         onError({ error }) {
-          toast.error(`Unable to link ${providerName} account. (${error?.message || "Please try again."})`)
+          toast.error(
+            `Unable to link ${providerName} account. (${error?.message || "Please try again."})`
+          )
           setLoading(false)
         },
       },
@@ -90,7 +126,9 @@ function ProviderCardContent({ enabled, connected, Icon, providerName, loading, 
           router.refresh()
         },
         onError({ error }) {
-          toast.error(`Unable to unlink ${providerName} account. (${error?.message || "Please try again."})`)
+          toast.error(
+            `Unable to unlink ${providerName} account. (${error?.message || "Please try again."})`
+          )
           setLoading(false)
         },
       },
@@ -114,7 +152,11 @@ function ProviderCardContent({ enabled, connected, Icon, providerName, loading, 
                     : "text-red-600 dark:text-red-400"
               )}
             >
-              {!enabled ? "Not configured" : connected ? "Connected" : "Not connected"}
+              {!enabled
+                ? "Not configured"
+                : connected
+                  ? "Connected"
+                  : "Not connected"}
             </span>
           </CardDescription>
         </div>
@@ -125,7 +167,13 @@ function ProviderCardContent({ enabled, connected, Icon, providerName, loading, 
           <Tooltip>
             <TooltipTrigger asChild className="cursor-not-allowed">
               <span className="inline-flex">
-                <Button type="button" variant="outline" size="sm" disabled onClick={handleLink}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  onClick={handleLink}
+                >
                   Link
                 </Button>
               </span>
@@ -133,11 +181,23 @@ function ProviderCardContent({ enabled, connected, Icon, providerName, loading, 
             <TooltipContent>{`${providerName} login is not configured. Please contact your administrator for assistance.`}</TooltipContent>
           </Tooltip>
         ) : connected ? (
-          <Button type="button" variant="destructive" size="sm" disabled={loading} onClick={handleUnlink}>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            disabled={loading}
+            onClick={handleUnlink}
+          >
             Unlink
           </Button>
         ) : (
-          <Button type="button" variant="outline" size="sm" disabled={loading} onClick={handleLink}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={loading}
+            onClick={handleLink}
+          >
             Link
           </Button>
         )}

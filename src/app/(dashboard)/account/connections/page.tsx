@@ -1,4 +1,8 @@
-import { isDiscordLoginEnabled, isGitHubLoginEnabled, isGoogleLoginEnabled } from "@/actions/get-env"
+import {
+  isDiscordLoginEnabled,
+  isGitHubLoginEnabled,
+  isGoogleLoginEnabled,
+} from "@/actions/get-env"
 import ConnectionsCard from "@/components/dashboard/account/security/ConnectionsCard"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"
@@ -13,12 +17,11 @@ export default async function ConnectionsPage() {
     headers: await headers(),
   })
 
-  const [googleEnabled, githubEnabled, discordEnabled] =
-    await Promise.all([
-      isGoogleLoginEnabled(),
-      isGitHubLoginEnabled(),
-      isDiscordLoginEnabled(),
-    ])
+  const [googleEnabled, githubEnabled, discordEnabled] = await Promise.all([
+    isGoogleLoginEnabled(),
+    isGitHubLoginEnabled(),
+    isDiscordLoginEnabled(),
+  ])
   const enabledProviders = [
     googleEnabled ? "google" : null,
     githubEnabled ? "github" : null,
@@ -30,12 +33,16 @@ export default async function ConnectionsPage() {
       <div className="w-full gap-4 space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Connections</h1>
         <p className="text-muted-foreground">
-          Manage your connected accounts. You can connect your account to third-party services for easier sign-in.
+          Manage your connected accounts. You can connect your account to
+          third-party services for easier sign-in.
         </p>
       </div>
 
       <div>
-        <ConnectionsCard accounts={accounts} enabledProviders={enabledProviders} />
+        <ConnectionsCard
+          accounts={accounts}
+          enabledProviders={enabledProviders}
+        />
       </div>
     </div>
   )
