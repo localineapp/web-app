@@ -241,7 +241,7 @@ export default function UsersTable({
         if (updateResult.error) {
           throw new Error(
             updateResult.error.message ||
-              "Failed to update user. Please try again."
+            "Failed to update user. Please try again."
           )
         }
       }
@@ -255,7 +255,7 @@ export default function UsersTable({
         if (roleResult.error) {
           throw new Error(
             roleResult.error.message ||
-              "Failed to update user role. Please try again."
+            "Failed to update user role. Please try again."
           )
         }
       }
@@ -269,7 +269,7 @@ export default function UsersTable({
         if (passwordResult.error) {
           throw new Error(
             passwordResult.error.message ||
-              "Failed to update user password. Please try again."
+            "Failed to update user password. Please try again."
           )
         }
       }
@@ -285,8 +285,8 @@ export default function UsersTable({
             currentBanExpires === ""
               ? undefined
               : Math.ceil(
-                  (new Date(currentBanExpires).getTime() - Date.now()) / 1000
-                )
+                (new Date(currentBanExpires).getTime() - Date.now()) / 1000
+              )
 
           const banResult = await authClient.admin.banUser({
             userId: currentUser.id,
@@ -297,7 +297,7 @@ export default function UsersTable({
           if (banResult.error) {
             throw new Error(
               banResult.error.message ||
-                "Failed to update user ban status. Please try again."
+              "Failed to update user ban status. Please try again."
             )
           }
         } else {
@@ -308,7 +308,7 @@ export default function UsersTable({
           if (unbanResult.error) {
             throw new Error(
               unbanResult.error.message ||
-                "Failed to update user ban status. Please try again."
+              "Failed to update user ban status. Please try again."
             )
           }
         }
@@ -477,29 +477,25 @@ export default function UsersTable({
                                     )
                                   </span>{" "}
                                 </SheetTitle>
-                                <SheetDescription>
-                                  <div className="flex flex-col gap-2">
-                                    <p>
-                                      Here you can edit the user&rsquo;s
-                                      details, change their role, or ban/unban
-                                      the user. Please note that you cannot edit
-                                      your own account from here.
-                                    </p>
-                                    {editingUser?.id === session?.user.id && (
-                                      <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
-                                        <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                                        <AlertTitle>
-                                          Editing Own Profile
-                                        </AlertTitle>
-                                        <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                                          You are currently editing your own
-                                          profile. Changes you make here may
-                                          lock you out of your account or cause
-                                          other issues. Please be careful!
-                                        </AlertDescription>
-                                      </Alert>
-                                    )}
-                                  </div>
+                                <SheetDescription className="flex flex-col gap-2">
+                                  Here you can edit the user&rsquo;s
+                                  details, change their role, or ban/unban
+                                  the user. Please note that you cannot edit
+                                  your own account from here.
+                                  {editingUser?.id === session?.user.id && (
+                                    <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
+                                      <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+                                      <AlertTitle>
+                                        Editing Own Profile
+                                      </AlertTitle>
+                                      <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+                                        You are currently editing your own
+                                        profile. Changes you make here may
+                                        lock you out of your account or cause
+                                        other issues. Please be careful!
+                                      </AlertDescription>
+                                    </Alert>
+                                  )}
                                 </SheetDescription>
                               </SheetHeader>
 
