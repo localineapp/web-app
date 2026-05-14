@@ -78,9 +78,9 @@ export default function SignUpForm({
           )
           redirect("/")
         },
-        onError(context) {
+        onError: ({ error }) => {
           toast.error(
-            context.error?.message ||
+            error?.message ||
               "Unable to create account. Please check your credentials."
           )
           setLoading(false)

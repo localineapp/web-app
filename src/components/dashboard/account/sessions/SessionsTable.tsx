@@ -106,8 +106,10 @@ export default function SessionsTable({
           toast.success("Session revoked.")
           router.refresh()
         },
-        onError: () => {
-          toast.error("Failed to revoke session.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to revoke session. Please try again."
+          )
         },
       },
     })

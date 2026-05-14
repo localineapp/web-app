@@ -25,9 +25,9 @@ export default function ForgotPasswordForm() {
           toast.success("Password reset email sent. Please check your email.")
           redirect("/auth/signin")
         },
-        onError(context) {
+        onError: ({ error }) => {
           toast.error(
-            context.error?.message ||
+            error?.message ||
               "Unable to send password reset email. Please check your email."
           )
           setLoading(false)

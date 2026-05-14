@@ -36,9 +36,9 @@ export default function SocialAuthButtons({
           toast.success(`Redirecting to ${provider} for authentication...`)
           setLastMethod(provider)
         },
-        onError({ error }) {
+        onError: ({ error }) => {
           toast.error(
-            `Unable to sign in with ${provider}. (${error?.message || "Please try again."})`
+            `Unable to sign in with ${provider}. ${`(${error?.message})` || "Please try again."}`
           )
           setLoading(false)
         },

@@ -1,7 +1,6 @@
 "use client"
 
 import {
-  FolderCogIcon,
   Link2Icon,
   LogOutIcon,
   MonitorSmartphoneIcon,
@@ -51,10 +50,8 @@ export default function AppHeader({
           toast.success("Signed out successfully")
           router.push("/")
         },
-        onError(context) {
-          toast.error(
-            context.error?.message || "Unable to sign out. Please try again."
-          )
+        onError: ({ error }) => {
+          toast.error(error?.message || "Unable to sign out. Please try again.")
           setSigningOut(false)
         },
       },
@@ -73,9 +70,9 @@ export default function AppHeader({
           router.push("/admin/users")
           router.refresh()
         },
-        onError: (context) => {
+        onError: ({ error }) => {
           toast.error(
-            context.error?.message || "Unable to stop impersonation. Please try again."
+            error?.message || "Unable to stop impersonation. Please try again."
           )
           setSigningOut(false)
         },
@@ -85,7 +82,7 @@ export default function AppHeader({
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-4">
-      <div className="flex flex-1 min-w-0 items-center gap-4">
+      <div className="flex min-w-0 flex-1 items-center gap-4">
         <SidebarTrigger className="shrink-0 lg:hidden" />
         <div className="relative flex w-full max-w-md items-center">
           <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

@@ -44,8 +44,10 @@ export function RevokeOtherSessionsDialog() {
           setLoading(false)
           router.refresh()
         },
-        onError() {
-          toast.error("Failed to revoke sessions.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to revoke sessions. Please try again."
+          )
           setDialogOpen(false)
           setLoading(false)
         },
@@ -117,8 +119,10 @@ export function RevokeAllSessionsDialog() {
           setLoading(false)
           router.refresh()
         },
-        onError() {
-          toast.error("Failed to revoke sessions.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to revoke sessions. Please try again."
+          )
           setDialogOpen(false)
           setLoading(false)
         },

@@ -45,9 +45,9 @@ export default function SignInForm({
           toast.success("Signed in successfully")
           redirect("/")
         },
-        onError(context) {
+        onError: ({ error }) => {
           toast.error(
-            context.error?.message ||
+            error?.message ||
               "Unable to sign in. Please check your credentials."
           )
           setLoading(false)

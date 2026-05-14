@@ -55,9 +55,9 @@ export default function ResetPasswordForm() {
           )
           redirect("/auth/signin")
         },
-        onError(context) {
+        onError: ({ error }) => {
           toast.error(
-            context.error?.message ||
+            error?.message ||
               "Unable to reset password. The reset link may be invalid or expired."
           )
           setLoading(false)

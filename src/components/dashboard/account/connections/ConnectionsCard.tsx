@@ -103,9 +103,9 @@ function ProviderCardContent({
         onSuccess: () => {
           toast.success(`Redirecting to ${providerName} for verification...`)
         },
-        onError({ error }) {
+        onError: ({ error }) => {
           toast.error(
-            `Unable to link ${providerName} account. (${error?.message || "Please try again."})`
+            `Unable to link ${providerName} account. ${`(${error?.message})` || "Please try again."}`
           )
           setLoading(false)
         },
@@ -125,9 +125,9 @@ function ProviderCardContent({
           setLoading(false)
           router.refresh()
         },
-        onError({ error }) {
+        onError: ({ error }) => {
           toast.error(
-            `Unable to unlink ${providerName} account. (${error?.message || "Please try again."})`
+            `Unable to unlink ${providerName} account. ${`(${error?.message})` || "Please try again."}`
           )
           setLoading(false)
         },

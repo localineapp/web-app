@@ -17,7 +17,9 @@ export default async function PublicProfilePage() {
     headers: requestHeaders,
   })
 
-  const githubAccount = accounts.find((account) => account.providerId === "github")
+  const githubAccount = accounts.find(
+    (account) => account.providerId === "github"
+  )
 
   return (
     <div className="flex flex-col gap-4">

@@ -1,22 +1,59 @@
 "use client"
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Spinner } from "@/components/ui/spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { auth } from "@/lib/auth";
-import { authClient, useSession } from "@/lib/auth-client";
-import { PencilIcon, ScanFaceIcon, TrashIcon, UserCogIcon, UserIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { auth } from "@/lib/auth"
+import { authClient, useSession } from "@/lib/auth-client"
+import {
+  PencilIcon,
+  ScanFaceIcon,
+  TrashIcon,
+  UserCogIcon,
+  UserIcon,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
-export default function UsersTable({ session, users }: { session: ReturnType<typeof useSession>["data"]; users: Awaited<ReturnType<typeof auth.api.listUsers>> }) {
+export default function UsersTable({
+  session,
+  users,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  users: Awaited<ReturnType<typeof auth.api.listUsers>>
+}) {
   const router = useRouter()
 
   const [page, setPage] = useState(1)
@@ -29,24 +66,32 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
   const endIndex = Math.min(total, page * PAGE_SIZE)
   const currentUsers = users.users.slice(startIndex, endIndex)
 
-  function handleImpersonateUser({ user }: { user: typeof users.users[number] }) {
+  function handleImpersonateUser({
+    user,
+  }: {
+    user: (typeof users.users)[number]
+  }) {
     setLoading(true)
     authClient.admin.impersonateUser({
       userId: user.id,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`Started impersonating ${user.name} (${user.id.slice(0, 8)}).`)
+          toast.success(
+            `Started impersonating ${user.name} (${user.id.slice(0, 8)}).`
+          )
           router.refresh()
         },
-        onError: () => {
-          toast.error("Failed to impersonate user. Please try again.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to impersonate user. Please try again."
+          )
           setLoading(false)
         },
       },
     })
   }
 
-  function handleDeleteUser({ user }: { user: typeof users.users[number] }) {
+  function handleDeleteUser({ user }: { user: (typeof users.users)[number] }) {
     setLoading(true)
     authClient.admin.removeUser({
       userId: user.id,
@@ -55,8 +100,10 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
           toast.success(`Deleted user ${user.name} (${user.id.slice(0, 8)}).`)
           router.refresh()
         },
-        onError: () => {
-          toast.error("Failed to delete user. Please try again.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to delete user. Please try again."
+          )
           setLoading(false)
         },
       },
@@ -80,7 +127,6 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
           <TableBody>
             {currentUsers.length > 0 ? (
               currentUsers.map((user) => {
-
                 return (
                   <TableRow key={user.id}>
                     <TableCell className="text-center">
@@ -89,12 +135,8 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
 
                     <TableCell className="min-w-40">
                       <div className="flex gap-2">
-                        <span className="font-mono text-sm">
-                          {user.name}
-                        </span>
-                        {user.id === session?.user.id && (
-                          <Badge>You</Badge>
-                        )}
+                        <span className="font-mono text-sm">{user.name}</span>
+                        {user.id === session?.user.id && <Badge>You</Badge>}
                       </div>
                     </TableCell>
 
@@ -108,7 +150,8 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
                           <UserIcon className="mr-1 h-4 w-4" />
                         )}
                         <span className="font-mono text-sm">
-                          {((user.role?.trim().charAt(0).toUpperCase() || "") + user.role?.trim().slice(1)) || "N/A"}
+                          {(user.role?.trim().charAt(0).toUpperCase() || "") +
+                            user.role?.trim().slice(1) || "N/A"}
                         </span>
                       </div>
                     </TableCell>
@@ -180,7 +223,10 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
                             </TooltipContent>
                           </Tooltip>
                         ) : (
-                          <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                          <AlertDialog
+                            open={isDialogOpen}
+                            onOpenChange={setDialogOpen}
+                          >
                             <AlertDialogTrigger asChild>
                               <Button
                                 variant="destructive"
@@ -193,9 +239,17 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete the user account <span className="font-mono">{user.name} ({user.id.slice(0, 8)})</span> and all associated data. Please confirm that you want to proceed.
+                                  This action cannot be undone. This will
+                                  permanently delete the user account{" "}
+                                  <span className="font-mono">
+                                    {user.name} ({user.id.slice(0, 8)})
+                                  </span>{" "}
+                                  and all associated data. Please confirm that
+                                  you want to proceed.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -292,6 +346,6 @@ export default function UsersTable({ session, users }: { session: ReturnType<typ
           </Pagination>
         </div>
       </div>
-    </div >
+    </div>
   )
 }

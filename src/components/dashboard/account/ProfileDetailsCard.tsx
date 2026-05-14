@@ -12,11 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -79,15 +75,17 @@ export default function ProfileDetailsCard({
   githubAccount,
 }: {
   session: ReturnType<typeof useSession>["data"]
-  githubAccount: {
-    scopes: string[];
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    providerId: string;
-    accountId: string;
-  } | undefined
+  githubAccount:
+    | {
+        scopes: string[]
+        id: string
+        createdAt: Date
+        updatedAt: Date
+        userId: string
+        providerId: string
+        accountId: string
+      }
+    | undefined
 }) {
   const router = useRouter()
 
@@ -97,7 +95,8 @@ export default function ProfileDetailsCard({
   const githubAvatarUrl = githubAccount
     ? `${GITHUB_IMAGE_PREFIX}${githubAccount.accountId}?v=4`
     : undefined
-  const avatarFallbackInitial = user?.name?.trim().charAt(0) || user?.email?.trim().charAt(0) || "U"
+  const avatarFallbackInitial =
+    user?.name?.trim().charAt(0) || user?.email?.trim().charAt(0) || "U"
 
   const [nameLoading, setNameLoading] = useState(false)
   const [avatarLoading, setAvatarLoading] = useState(false)
@@ -105,8 +104,11 @@ export default function ProfileDetailsCard({
   const [isAvatarDialogOpen, setAvatarDialogOpen] = useState(false)
   const [name, setName] = useState(user?.name ?? "")
   const [isEmailVisible, setEmailVisible] = useState(false)
-  const [avatarSource, setAvatarSource] = useState<AvatarSource>(currentAvatarSource)
-  const [gravatarAvatarUrl, setGravatarAvatarUrl] = useState<string | undefined>()
+  const [avatarSource, setAvatarSource] =
+    useState<AvatarSource>(currentAvatarSource)
+  const [gravatarAvatarUrl, setGravatarAvatarUrl] = useState<
+    string | undefined
+  >()
 
   useEffect(() => {
     if (user?.email) {
@@ -119,10 +121,10 @@ export default function ProfileDetailsCard({
   const selectedAvatarUrl =
     avatarSource === "gravatar"
       ? gravatarAvatarUrl ||
-      (currentAvatarSource === "gravatar" ? currentAvatarUrl : undefined)
+        (currentAvatarSource === "gravatar" ? currentAvatarUrl : undefined)
       : avatarSource === "github"
         ? githubAvatarUrl ||
-        (currentAvatarSource === "github" ? currentAvatarUrl : undefined)
+          (currentAvatarSource === "github" ? currentAvatarUrl : undefined)
         : avatarSource === "custom"
           ? currentAvatarUrl
           : undefined
@@ -140,8 +142,10 @@ export default function ProfileDetailsCard({
           setNameLoading(false)
           router.refresh()
         },
-        onError: () => {
-          toast.error("Failed to update your name.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to update your name. Please try again."
+          )
           setNameDialogOpen(false)
           setNameLoading(false)
         },
@@ -154,7 +158,7 @@ export default function ProfileDetailsCard({
     setAvatarLoading(true)
 
     await authClient.updateUser({
-      image: avatarSource === "none" ? null : selectedAvatarUrl ?? null,
+      image: avatarSource === "none" ? null : (selectedAvatarUrl ?? null),
       fetchOptions: {
         onSuccess: () => {
           toast.success("Your avatar has been successfully updated.")
@@ -162,8 +166,10 @@ export default function ProfileDetailsCard({
           setAvatarLoading(false)
           router.refresh()
         },
-        onError: () => {
-          toast.error("Failed to update your avatar.")
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to update your avatar. Please try again."
+          )
           setAvatarLoading(false)
         },
       },
@@ -340,8 +346,8 @@ export default function ProfileDetailsCard({
                     <AlertTitle>Custom avatar URL</AlertTitle>
                     <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
                       This profile is using a custom avatar URL. If you save a
-                      different avatar source, this URL will be replaced and
-                      you will not be able to revert to this exact URL.
+                      different avatar source, this URL will be replaced and you
+                      will not be able to revert to this exact URL.
                     </AlertDescription>
                   </Alert>
                 ) : null}
@@ -392,7 +398,7 @@ export default function ProfileDetailsCard({
                     className={cn(
                       "flex items-start gap-3 rounded-lg border p-3 transition",
                       avatarSource === "gravatar" &&
-                      "border-primary bg-primary/5"
+                        "border-primary bg-primary/5"
                     )}
                   >
                     <RadioGroupItem
@@ -413,7 +419,7 @@ export default function ProfileDetailsCard({
                     className={cn(
                       "flex items-start gap-3 rounded-lg border p-3 transition",
                       avatarSource === "github" &&
-                      "border-primary bg-primary/5",
+                        "border-primary bg-primary/5",
                       !githubAvatarUrl && "cursor-not-allowed opacity-60"
                     )}
                   >
@@ -428,9 +434,7 @@ export default function ProfileDetailsCard({
                         <GitHubIcon className="size-4" />
                         GitHub
                         {!githubAvatarUrl && (
-                          <Badge variant="outline">
-                            Not linked
-                          </Badge>
+                          <Badge variant="outline">Not linked</Badge>
                         )}
                       </span>
                       <p className="text-xs text-muted-foreground">

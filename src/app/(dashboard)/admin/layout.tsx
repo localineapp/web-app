@@ -1,7 +1,17 @@
 import { Button } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { auth } from "@/lib/auth"
-import { AlertTriangleIcon, ArrowUpRightIcon, FolderCodeIcon, HomeIcon } from "lucide-react"
+import {
+  AlertTriangleIcon,
+  HomeIcon,
+} from "lucide-react"
 import { headers } from "next/headers"
 import Link from "next/link"
 

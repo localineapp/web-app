@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function AdminUsersPage() {
   const requestHeaders = await headers()
-  
+
   const session = await auth.api.getSession({
     headers: requestHeaders,
   })

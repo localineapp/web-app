@@ -5,9 +5,21 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { FolderOpenIcon, FoldersIcon, HomeIcon, LucideIcon, UsersIcon } from "lucide-react"
+import {
+  FolderOpenIcon,
+  FoldersIcon,
+  HomeIcon,
+  LucideIcon,
+  UsersIcon,
+} from "lucide-react"
 import { useSession } from "@/lib/auth-client"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader } from "@/components/ui/sidebar"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+} from "@/components/ui/sidebar"
 
 type NavigationItem = {
   name: string
@@ -22,10 +34,14 @@ const navigationItems: NavigationItem[] = [
 
 const adminNavigationItems: NavigationItem[] = [
   { name: "Users", icon: UsersIcon, href: "/admin/users" },
-  { name: "Projects", icon: FoldersIcon, href: "/admin/projects" }
+  { name: "Projects", icon: FoldersIcon, href: "/admin/projects" },
 ]
 
-export default function AppSidebar({ session }: { session: ReturnType<typeof useSession>["data"] }) {
+export default function AppSidebar({
+  session,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+}) {
   const pathname = usePathname()
 
   const user = session?.user
