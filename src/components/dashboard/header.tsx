@@ -36,13 +36,13 @@ export default function AppHeader({
 }) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
-  const [signingOut, setSigningOut] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const user = session?.user
 
   const handleSignOut = async (event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setSigningOut(true)
+    setLoading(true)
 
     await signOut({
       fetchOptions: {
@@ -52,7 +52,7 @@ export default function AppHeader({
         },
         onError: ({ error }) => {
           toast.error(error?.message || "Unable to sign out. Please try again.")
-          setSigningOut(false)
+          setLoading(false)
         },
       },
     })
@@ -60,13 +60,13 @@ export default function AppHeader({
 
   const handleStopImpersonation = async (event: MouseEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setSigningOut(true)
+    setLoading(true)
 
     await authClient.admin.stopImpersonating({
       fetchOptions: {
         onSuccess: () => {
           toast.success("Stopped impersonation successfully")
-          setSigningOut(false)
+          setLoading(false)
           router.push("/admin/users")
           router.refresh()
         },
@@ -74,7 +74,7 @@ export default function AppHeader({
           toast.error(
             error?.message || "Unable to stop impersonation. Please try again."
           )
-          setSigningOut(false)
+          setLoading(false)
         },
       },
     })
@@ -152,38 +152,39 @@ export default function AppHeader({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem
-                variant="destructive"
-                className={cn(
-                  "cursor-pointer",
-                  signingOut && "cursor-not-allowed opacity-50"
-                )}
-                disabled={signingOut}
-                onClick={handleSignOut}
-              >
-                {signingOut ? (
-                  <>
-                    <Spinner className="h-4 w-4" aria-hidden />
-                    Signing out...
-                  </>
-                ) : (
-                  <>
-                    <LogOutIcon className="h-4 w-4" aria-hidden />
-                    Sign Out
-                  </>
-                )}
-              </DropdownMenuItem>
-              {session?.session.impersonatedBy != null && (
+              {session?.session.impersonatedBy === null ? (
                 <DropdownMenuItem
                   variant="destructive"
                   className={cn(
                     "cursor-pointer",
-                    signingOut && "cursor-not-allowed opacity-50"
+                    loading && "cursor-not-allowed opacity-50"
                   )}
-                  disabled={signingOut}
+                  disabled={loading}
+                  onClick={handleSignOut}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner className="h-4 w-4" aria-hidden />
+                      Signing out...
+                    </>
+                  ) : (
+                    <>
+                      <LogOutIcon className="h-4 w-4" aria-hidden />
+                      Sign Out
+                    </>
+                  )}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  variant="destructive"
+                  className={cn(
+                    "cursor-pointer",
+                    loading && "cursor-not-allowed opacity-50"
+                  )}
+                  disabled={loading}
                   onClick={handleStopImpersonation}
                 >
-                  {signingOut ? (
+                  {loading ? (
                     <>
                       <Spinner className="h-4 w-4" aria-hidden />
                       Stopping impersonation...

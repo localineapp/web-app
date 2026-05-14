@@ -35,6 +35,8 @@ import {
 import { auth } from "@/lib/auth"
 import { authClient, useSession } from "@/lib/auth-client"
 import {
+  BadgeCheckIcon,
+  BadgeXIcon,
   PencilIcon,
   ScanFaceIcon,
   TrashIcon,
@@ -79,6 +81,7 @@ export default function UsersTable({
           toast.success(
             `Started impersonating ${user.name} (${user.id.slice(0, 8)}).`
           )
+          router.push("/")
           router.refresh()
         },
         onError: ({ error }) => {
@@ -98,13 +101,15 @@ export default function UsersTable({
       fetchOptions: {
         onSuccess: () => {
           toast.success(`Deleted user ${user.name} (${user.id.slice(0, 8)}).`)
-          router.refresh()
+          setLoading(false)
+          setDialogOpen(false)
         },
         onError: ({ error }) => {
           toast.error(
             error?.message || "Failed to delete user. Please try again."
           )
           setLoading(false)
+          setDialogOpen(false)
         },
       },
     })
@@ -120,6 +125,7 @@ export default function UsersTable({
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead className="text-center">Role</TableHead>
+              <TableHead className="text-center">Banned</TableHead>
               <TableHead className="w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -140,19 +146,36 @@ export default function UsersTable({
                       </div>
                     </TableCell>
 
-                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm">{user.email}</span>
+                        {user.emailVerified ?
+                          <BadgeCheckIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" /> :
+                          <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />}
+                      </div>
+                    </TableCell>
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
                         {user.role === "admin" ? (
-                          <UserCogIcon className="mr-1 h-4 w-4" />
+                          <UserCogIcon className="mr-1 size-4" />
                         ) : (
-                          <UserIcon className="mr-1 h-4 w-4" />
+                          <UserIcon className="mr-1 size-4" />
                         )}
                         <span className="font-mono text-sm">
                           {(user.role?.trim().charAt(0).toUpperCase() || "") +
                             user.role?.trim().slice(1) || "N/A"}
                         </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center justify-center">
+                        {user.banned ? (
+                          <BadgeCheckIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                        ) : (
+                          <BadgeXIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                        )}
                       </div>
                     </TableCell>
 
@@ -166,7 +189,7 @@ export default function UsersTable({
                         >
                           <PencilIcon size={16} />
                         </Button>
-                        {user.id === session?.user.id ? (
+                        {user.id === session?.user.id || user.banned ? (
                           <Tooltip>
                             <TooltipTrigger
                               asChild
@@ -184,7 +207,9 @@ export default function UsersTable({
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              You can&rsquo;t impersonate yourself.
+                              {user.id === session?.user.id
+                                ? "You can't impersonate yourself."
+                                : "You can't impersonate a banned user."}
                             </TooltipContent>
                           </Tooltip>
                         ) : (

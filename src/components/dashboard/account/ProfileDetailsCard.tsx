@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge"
 
 type AvatarSource = "none" | "gravatar" | "github" | "custom"
 
+const UI_AVATAR_IMAGE_PREFIX = "https://ui-avatars.com/api/"
 const GRAVATAR_IMAGE_PREFIX = "https://www.gravatar.com/avatar/"
 const GITHUB_IMAGE_PREFIX = "https://avatars.githubusercontent.com/u/"
 
@@ -64,7 +65,7 @@ function getAvatarSource({
 }: {
   currentAvatarUrl?: string
 }): AvatarSource {
-  if (!currentAvatarUrl) return "none"
+  if (!currentAvatarUrl || currentAvatarUrl.startsWith(UI_AVATAR_IMAGE_PREFIX)) return "none"
   else if (currentAvatarUrl.startsWith(GRAVATAR_IMAGE_PREFIX)) return "gravatar"
   else if (currentAvatarUrl.startsWith(GITHUB_IMAGE_PREFIX)) return "github"
   else return "custom"
@@ -92,11 +93,13 @@ export default function ProfileDetailsCard({
   const user = session?.user
   const currentAvatarUrl = user?.image || undefined
   const currentAvatarSource = getAvatarSource({ currentAvatarUrl })
+
+  const uiAvatarUrl = user?.name
+    ? `${UI_AVATAR_IMAGE_PREFIX}?name=${encodeURIComponent(user.name.trim())}&background=random&color=fff`
+    : undefined
   const githubAvatarUrl = githubAccount
     ? `${GITHUB_IMAGE_PREFIX}${githubAccount.accountId}?v=4`
     : undefined
-  const avatarFallbackInitial =
-    user?.name?.trim().charAt(0) || user?.email?.trim().charAt(0) || "U"
 
   const [nameLoading, setNameLoading] = useState(false)
   const [avatarLoading, setAvatarLoading] = useState(false)
@@ -119,7 +122,9 @@ export default function ProfileDetailsCard({
   }, [user?.email])
 
   const selectedAvatarUrl =
-    avatarSource === "gravatar"
+    avatarSource === "none"
+      ? uiAvatarUrl
+      : avatarSource === "gravatar"
       ? gravatarAvatarUrl ||
         (currentAvatarSource === "gravatar" ? currentAvatarUrl : undefined)
       : avatarSource === "github"
@@ -158,7 +163,7 @@ export default function ProfileDetailsCard({
     setAvatarLoading(true)
 
     await authClient.updateUser({
-      image: avatarSource === "none" ? null : (selectedAvatarUrl ?? null),
+      image: selectedAvatarUrl ?? null,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Your avatar has been successfully updated.")
@@ -314,9 +319,6 @@ export default function ProfileDetailsCard({
               src={currentAvatarUrl}
               alt={`${user?.name ?? "User"} avatar`}
             />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {avatarFallbackInitial}
-            </AvatarFallback>
           </Avatar>
 
           <Dialog open={isAvatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
@@ -358,9 +360,6 @@ export default function ProfileDetailsCard({
                       src={selectedAvatarUrl}
                       alt={`${user?.name ?? "User"} avatar preview`}
                     />
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      {avatarFallbackInitial}
-                    </AvatarFallback>
                   </Avatar>
 
                   <p className="font-medium">Preview</p>
@@ -388,7 +387,7 @@ export default function ProfileDetailsCard({
                     <div className="space-y-1">
                       <span className="text-sm font-medium">None</span>
                       <p className="text-xs text-muted-foreground">
-                        Remove the avatar and fall back to your initials.
+                        Use a generated avatar based on your name.
                       </p>
                     </div>
                   </Label>
@@ -458,11 +457,7 @@ export default function ProfileDetailsCard({
                   type="button"
                   variant="outline"
                   onClick={handleUpdateAvatar}
-                  disabled={
-                    avatarLoading ||
-                    avatarSource === currentAvatarSource ||
-                    (avatarSource !== "none" && !selectedAvatarUrl)
-                  }
+                  disabled={avatarLoading || !selectedAvatarUrl || selectedAvatarUrl === currentAvatarUrl}
                 >
                   {avatarLoading ? (
                     <>

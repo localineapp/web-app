@@ -39,7 +39,7 @@ export default function ProfileInformationCard({
 
         <div className="flex min-w-0 items-center gap-2">
           <p className="min-w-0 font-mono text-sm break-all text-foreground">
-            {user?.id ?? "Unknown"}
+            {user?.id.slice(0, 8)}
           </p>
 
           <Button

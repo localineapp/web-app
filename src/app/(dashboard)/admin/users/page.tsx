@@ -15,7 +15,10 @@ export default async function AdminUsersPage() {
   })
   const users = await auth.api.listUsers({
     headers: requestHeaders,
-    query: {},
+    query: {
+      sortBy: "createdAt",
+      sortDirection: "asc",
+    },
   })
 
   return (
