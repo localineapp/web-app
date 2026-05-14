@@ -477,26 +477,26 @@ export default function UsersTable({
                                     )
                                   </span>{" "}
                                 </SheetTitle>
-                                <SheetDescription className="flex flex-col gap-2">
+                                <SheetDescription>
                                   Here you can edit the user&rsquo;s
                                   details, change their role, or ban/unban
                                   the user. Please note that you cannot edit
                                   your own account from here.
-                                  {editingUser?.id === session?.user.id && (
-                                    <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
-                                      <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                                      <AlertTitle>
-                                        Editing Own Profile
-                                      </AlertTitle>
-                                      <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                                        You are currently editing your own
-                                        profile. Changes you make here may
-                                        lock you out of your account or cause
-                                        other issues. Please be careful!
-                                      </AlertDescription>
-                                    </Alert>
-                                  )}
                                 </SheetDescription>
+                                {session?.user.id === editingUser?.id && (
+                                  <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50 mt-2">
+                                    <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+                                    <AlertTitle>
+                                      Editing Own Profile
+                                    </AlertTitle>
+                                    <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+                                      You are currently editing your own
+                                      profile. Changes you make here may
+                                      lock you out of your account or cause
+                                      other issues. Please be careful!
+                                    </AlertDescription>
+                                  </Alert>
+                                )}
                               </SheetHeader>
 
                               <ScrollArea className="min-h-0 flex-1 overflow-hidden">
