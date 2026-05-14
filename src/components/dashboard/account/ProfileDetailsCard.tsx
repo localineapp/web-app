@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -65,7 +65,8 @@ function getAvatarSource({
 }: {
   currentAvatarUrl?: string
 }): AvatarSource {
-  if (!currentAvatarUrl || currentAvatarUrl.startsWith(UI_AVATAR_IMAGE_PREFIX)) return "none"
+  if (!currentAvatarUrl || currentAvatarUrl.startsWith(UI_AVATAR_IMAGE_PREFIX))
+    return "none"
   else if (currentAvatarUrl.startsWith(GRAVATAR_IMAGE_PREFIX)) return "gravatar"
   else if (currentAvatarUrl.startsWith(GITHUB_IMAGE_PREFIX)) return "github"
   else return "custom"
@@ -125,14 +126,14 @@ export default function ProfileDetailsCard({
     avatarSource === "none"
       ? uiAvatarUrl
       : avatarSource === "gravatar"
-      ? gravatarAvatarUrl ||
-        (currentAvatarSource === "gravatar" ? currentAvatarUrl : undefined)
-      : avatarSource === "github"
-        ? githubAvatarUrl ||
-          (currentAvatarSource === "github" ? currentAvatarUrl : undefined)
-        : avatarSource === "custom"
-          ? currentAvatarUrl
-          : undefined
+        ? gravatarAvatarUrl ||
+          (currentAvatarSource === "gravatar" ? currentAvatarUrl : undefined)
+        : avatarSource === "github"
+          ? githubAvatarUrl ||
+            (currentAvatarSource === "github" ? currentAvatarUrl : undefined)
+          : avatarSource === "custom"
+            ? currentAvatarUrl
+            : undefined
 
   const handleUpdateName = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -457,7 +458,11 @@ export default function ProfileDetailsCard({
                   type="button"
                   variant="outline"
                   onClick={handleUpdateAvatar}
-                  disabled={avatarLoading || !selectedAvatarUrl || selectedAvatarUrl === currentAvatarUrl}
+                  disabled={
+                    avatarLoading ||
+                    !selectedAvatarUrl ||
+                    selectedAvatarUrl === currentAvatarUrl
+                  }
                 >
                   {avatarLoading ? (
                     <>
