@@ -181,7 +181,7 @@ export default function SessionsTable({
                       </div>
                     </TableCell>
 
-                    <TableCell className="text-center">
+                    <TableCell>
                       <div className="flex items-center justify-center gap-2">
                         <Button
                           variant="ghost"
@@ -223,7 +223,8 @@ export default function SessionsTable({
                             size="icon"
                             className="inline-flex items-center p-1 text-sm"
                             aria-label="Revoke session"
-                            onClick={() => {
+                            onClick={(event) => {
+                              event.preventDefault()
                               void handleRevokeSession(session.token)
                             }}
                           >

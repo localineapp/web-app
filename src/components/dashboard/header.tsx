@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { MouseEvent, useState } from "react"
-import { signOut, useSession } from "@/lib/auth-client"
+import { authClient, signOut, useSession } from "@/lib/auth-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeModeSelector } from "@/components/theme-provider"
 import {
@@ -28,8 +28,9 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
-export default function Header({
+export default function AppHeader({
   session,
 }: {
   session: ReturnType<typeof useSession>["data"]
@@ -60,19 +61,44 @@ export default function Header({
     })
   }
 
+  const handleStopImpersonation = async (event: MouseEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    setSigningOut(true)
+
+    await authClient.admin.stopImpersonating({
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("Stopped impersonation successfully")
+          setSigningOut(false)
+          router.push("/admin/users")
+          router.refresh()
+        },
+        onError: (context) => {
+          toast.error(
+            context.error?.message || "Unable to stop impersonation. Please try again."
+          )
+          setSigningOut(false)
+        },
+      },
+    })
+  }
+
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-4">
-      <div className="relative flex items-center gap-4">
-        <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search projects..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
+      <div className="flex flex-1 min-w-0 items-center gap-4">
+        <SidebarTrigger className="shrink-0 lg:hidden" />
+        <div className="relative flex w-full max-w-md items-center">
+          <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <ThemeModeSelector />
 
         <DropdownMenu>
@@ -95,7 +121,7 @@ export default function Header({
               )}
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent align="start" className="min-w-fit">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Your Account</DropdownMenuLabel>
               <DropdownMenuItem
@@ -128,22 +154,6 @@ export default function Header({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            {user?.role === "admin" && (
-              <>
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>Administration</DropdownMenuLabel>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <UserCog2Icon className="h-4 w-4" aria-hidden />
-                    Users
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <FolderCogIcon className="h-4 w-4" aria-hidden />
-                    Projects
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-              </>
-            )}
             <DropdownMenuGroup>
               <DropdownMenuItem
                 variant="destructive"
@@ -166,6 +176,29 @@ export default function Header({
                   </>
                 )}
               </DropdownMenuItem>
+              {session?.session.impersonatedBy != null && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  className={cn(
+                    "cursor-pointer",
+                    signingOut && "cursor-not-allowed opacity-50"
+                  )}
+                  disabled={signingOut}
+                  onClick={handleStopImpersonation}
+                >
+                  {signingOut ? (
+                    <>
+                      <Spinner className="h-4 w-4" aria-hidden />
+                      Stopping impersonation...
+                    </>
+                  ) : (
+                    <>
+                      <UserCog2Icon className="h-4 w-4" aria-hidden />
+                      Stop Impersonation
+                    </>
+                  )}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

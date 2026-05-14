@@ -3,18 +3,32 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { FolderOpenIcon, HomeIcon, LucideIcon } from "lucide-react"
+import { FolderOpenIcon, FoldersIcon, HomeIcon, LucideIcon, UsersIcon } from "lucide-react"
+import { useSession } from "@/lib/auth-client"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader } from "@/components/ui/sidebar"
 
-const navigationItems: { name: string; icon: LucideIcon; href: string }[] = [
+type NavigationItem = {
+  name: string
+  icon: LucideIcon
+  href: string
+}
+
+const navigationItems: NavigationItem[] = [
   { name: "Dashboard", icon: HomeIcon, href: "/" },
   { name: "Projects", icon: FolderOpenIcon, href: "/projects" },
 ]
 
-export default function Sidebar() {
+const adminNavigationItems: NavigationItem[] = [
+  { name: "Users", icon: UsersIcon, href: "/admin/users" },
+  { name: "Projects", icon: FoldersIcon, href: "/admin/projects" }
+]
+
+export default function AppSidebar({ session }: { session: ReturnType<typeof useSession>["data"] }) {
   const pathname = usePathname()
+
+  const user = session?.user
 
   const isActive = (href: string) => {
     if (!pathname) return false
@@ -23,8 +37,8 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="flex h-full w-64 flex-col border-r bg-card">
-      <div className="flex h-16 items-center justify-center border-b px-4">
+    <Sidebar>
+      <SidebarHeader className="flex h-16 items-center justify-center border-b px-4">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
@@ -36,14 +50,14 @@ export default function Sidebar() {
           />
           <span className="text-lg font-semibold">Localine</span>
         </Link>
-      </div>
-
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="flex flex-col gap-1">
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
           {navigationItems.map(({ name, icon: Icon, href }) => (
-            <Link key={href} href={href}>
+            <Link key={name} href={href} passHref>
               <Button
                 variant="ghost"
+                size="sm"
                 className={cn(
                   "w-full justify-start gap-4 py-4 text-base",
                   isActive(href)
@@ -51,13 +65,35 @@ export default function Sidebar() {
                     : "hover:bg-accent hover:text-accent-foreground"
                 )}
               >
-                <Icon className="h-6 w-6" />
+                <Icon className="h-4 w-4" />
                 {name}
               </Button>
             </Link>
           ))}
-        </nav>
-      </ScrollArea>
-    </div>
+        </SidebarGroup>
+        {user?.role === "admin" && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            {adminNavigationItems.map(({ name, icon: Icon, href }) => (
+              <Link key={name} href={href} passHref>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "w-full justify-start gap-4 py-4 text-base",
+                    isActive(href)
+                      ? "bg-primary/10 text-primary hover:bg-primary/20"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {name}
+                </Button>
+              </Link>
+            ))}
+          </SidebarGroup>
+        )}
+      </SidebarContent>
+    </Sidebar>
   )
 }

@@ -100,9 +100,10 @@ export function RevokeOtherSessionsDialog() {
 }
 
 export function RevokeAllSessionsDialog() {
+  const router = useRouter()
+
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const router = useRouter()
 
   const handleRevokeSessions = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
