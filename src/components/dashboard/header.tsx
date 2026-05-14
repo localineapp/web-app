@@ -80,7 +80,7 @@ export default function Header({
             <div className="flex cursor-pointer items-center gap-2 hover:bg-muted/80 sm:rounded-full sm:bg-muted sm:px-3 sm:py-1">
               <Avatar className="h-9 w-9">
                 <AvatarImage
-                  src={user?.image || ""}
+                  src={user?.image || undefined}
                   alt={user?.name || "Unknown User"}
                 />
                 <AvatarFallback className="bg-primary text-primary-foreground">
