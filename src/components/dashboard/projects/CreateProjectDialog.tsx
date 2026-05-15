@@ -89,18 +89,18 @@ export default function CreateProjectDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Project name</Label>
+            <Label htmlFor="projectName">Project name</Label>
             <Input
-              id="name"
+              id="projectName"
               placeholder="My Project"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description (optional)</Label>
+            <Label htmlFor="projectDescription">Description (optional)</Label>
             <Input
-              id="description"
+              id="projectDescription"
               placeholder="A brief description of your project"
               value={projectDescription}
               onChange={(e) => setProjectDescription(e.target.value)}
