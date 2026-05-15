@@ -221,7 +221,6 @@ export default function ProfileDetailsCard({
                   value={name}
                   placeholder="Enter your name"
                   disabled={nameLoading}
-                  autoFocus
                   onChange={(event) => setName(event.target.value)}
                 />
               </div>

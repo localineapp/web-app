@@ -90,7 +90,7 @@ export default function AppHeader({
             placeholder="Search projects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 sm:mr-4"
           />
         </div>
       </div>
