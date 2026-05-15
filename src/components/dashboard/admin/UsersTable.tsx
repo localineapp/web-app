@@ -55,6 +55,7 @@ import {
   BadgeXIcon,
   PencilIcon,
   ScanFaceIcon,
+  SearchIcon,
   TrashIcon,
   UserCogIcon,
   UserIcon,
@@ -91,6 +92,7 @@ export default function UsersTable({
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UserRow | null>(null)
 
@@ -104,11 +106,22 @@ export default function UsersTable({
   const [banExpires, setBanExpires] = useState("")
   const [projectsLimit, setProjectsLimit] = useState("")
 
-  const total = users.total
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase()
+  const filteredUsers = normalizedSearchQuery
+    ? users.users.filter((user) =>
+        (user.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (user.name ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (user.email ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
+    : users.users
+
+  const total = filteredUsers.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const startIndex = (page - 1) * PAGE_SIZE
-  const endIndex = Math.min(total, page * PAGE_SIZE)
-  const currentUsers = users.users.slice(startIndex, endIndex)
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * PAGE_SIZE
+  const endIndex = Math.min(total, currentPage * PAGE_SIZE)
+  const currentUsers = filteredUsers.slice(startIndex, endIndex)
+  const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
   function getProjectsLimit(user: UserRow) {
     /** @ts-expect-error - projectsLimit is a custom field added to the user object, which is not reflected in this type definition. */
@@ -377,6 +390,19 @@ export default function UsersTable({
 
   return (
     <div>
+      <div className="relative flex w-full max-w-md items-center mb-2">
+        <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="search"
+          className="pl-10"
+          placeholder="Search users by name, email, or ID..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            setPage(1)
+          }}
+        />
+      </div>
       <div className="overflow-hidden rounded-lg border border-border">
         <Table>
           <TableHeader>
@@ -833,10 +859,12 @@ export default function UsersTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No users found.
+                  {searchQuery
+                    ? "No users found matching your search."
+                    : "No users found."}
                 </TableCell>
               </TableRow>
             )}
@@ -846,7 +874,7 @@ export default function UsersTable({
 
       <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
         <div>
-          Page {page} of {totalPages}
+          Page {currentPage} of {totalPages}
         </div>
 
         <div className="flex items-center gap-4">
@@ -856,10 +884,10 @@ export default function UsersTable({
                 <PaginationPrevious
                   onClick={(event) => {
                     event.preventDefault()
-                    if (page > 1) setPage(page - 1)
+                    if (currentPage > 1) setPage(currentPage - 1)
                   }}
                   className={
-                    page === 1
+                    currentPage === 1
                       ? "cursor-not-allowed opacity-50"
                       : "cursor-pointer"
                   }
@@ -867,17 +895,17 @@ export default function UsersTable({
               </PaginationItem>
 
               <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1}-{endIndex} of {total}
+                Showing {displayStartIndex}-{endIndex} of {total}
               </div>
 
               <PaginationItem>
                 <PaginationNext
                   onClick={(event) => {
                     event.preventDefault()
-                    if (page < totalPages) setPage(page + 1)
+                    if (currentPage < totalPages) setPage(currentPage + 1)
                   }}
                   className={
-                    page === totalPages
+                    currentPage === totalPages
                       ? "cursor-not-allowed opacity-50"
                       : "cursor-pointer"
                   }
