@@ -39,9 +39,9 @@ export async function createLocale({
 }: {
   displayName: string
   language: string
-  region?: string
+  region?: string | null
   code: string
-  flag?: string
+  flag?: string | null
   enabled?: boolean
 }): Promise<Locale> {
   const hasPermission = await auth.api.userHasPermission({
@@ -57,7 +57,7 @@ export async function createLocale({
     return unauthorized()
   }
 
-  if (await prisma.locale.count({ where: { code } }) > 0) {
+  if ((await prisma.locale.count({ where: { code } })) > 0) {
     throw new Error(`Locale with code ${code} already exists.`)
   }
 
@@ -86,7 +86,7 @@ export async function updateLocale(
   }: {
     displayName?: string
     language?: string
-    region?: string
+    region?: string | null
     code?: string
     flag?: string | null
     enabled?: boolean

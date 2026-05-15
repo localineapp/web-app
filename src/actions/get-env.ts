@@ -2,6 +2,10 @@
 
 import { auth } from "@/lib/auth"
 
+export async function isProduction(): Promise<boolean> {
+  return process.env.NODE_ENV === "production"
+}
+
 export async function areSignUpsDisabled(): Promise<boolean> {
   const signUpsDisabled = process.env.DISABLE_SIGNUP === "true"
   return signUpsDisabled

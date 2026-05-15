@@ -66,6 +66,7 @@ export default async function AdminLocalesPage() {
       <div>
         <LocalesTable
           locales={locales}
+          canCreateLocale={canCreateLocale}
           canUpdateLocales={canUpdateLocales}
           canDeleteLocales={canDeleteLocales}
         />

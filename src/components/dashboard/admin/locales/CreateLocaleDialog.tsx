@@ -34,21 +34,21 @@ export default function CreateLocaleDialog({
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [language, setLanguage] = useState("")
-  const [region, setRegion] = useState("")
+  const [region, setRegion] = useState<string | null>(null)
   const [code, setCode] = useState("")
 
   const handleCreateLocale = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
 
-    const displayName = `${language} ${region ? `(${region})` : ""}`
+    const displayName = `${language}${region ? ` (${region})` : ""}`
 
     await createLocale({
       displayName,
       language,
-      region,
+      region: region || undefined,
       code,
-      enabled: true
+      enabled: true,
     })
       .then(() => {
         toast.success(`Created locale ${displayName} (${code}).`)
@@ -63,7 +63,7 @@ export default function CreateLocaleDialog({
         setLoading(false)
         setDialogOpen(false)
         setLanguage("")
-        setRegion("")
+        setRegion(null)
         setCode("")
       })
   }
@@ -113,7 +113,7 @@ export default function CreateLocaleDialog({
             <Input
               id="localeRegion"
               placeholder="e.g. United States"
-              value={region}
+              value={region || ""}
               onChange={(e) => setRegion(e.target.value)}
             />
           </div>

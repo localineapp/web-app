@@ -1,10 +1,29 @@
 "use client"
 
 import { deleteLocale, updateLocale } from "@/actions/locales"
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -15,7 +34,16 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Spinner } from "@/components/ui/spinner"
 import {
   Table,
@@ -26,21 +54,36 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Locale } from "@prisma/client"
-import { BadgeCheckIcon, BadgeXIcon, PencilIcon, SearchIcon, TrashIcon } from "lucide-react"
+import {
+  BadgeCheckIcon,
+  BadgeXIcon,
+  GlobeIcon,
+  PencilIcon,
+  SearchIcon,
+  TrashIcon,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
+import CreateLocaleDialog from "./CreateLocaleDialog"
+import { cn } from "@/lib/utils"
 
 const PAGE_SIZE = 10
 
 export default function LocalesTable({
   locales,
+  canCreateLocale,
   canUpdateLocales,
   canDeleteLocales,
 }: {
   locales: Locale[]
+  canCreateLocale: boolean
   canUpdateLocales: boolean
   canDeleteLocales: boolean
 }) {
@@ -54,7 +97,7 @@ export default function LocalesTable({
 
   const [displayName, setDisplayName] = useState("")
   const [language, setLanguage] = useState("")
-  const [region, setRegion] = useState("")
+  const [region, setRegion] = useState<string | null>(null)
   const [code, setCode] = useState("")
   const [flag, setFlag] = useState<string | null>(null)
   const [enabled, setEnabled] = useState(false)
@@ -62,13 +105,17 @@ export default function LocalesTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredLocales = normalizedSearchQuery
     ? locales.filter(
-      (locale) =>
-        (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (locale.displayName ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (locale.language ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (locale) =>
+          (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (locale.displayName ?? "")
+            .toLowerCase()
+            .includes(normalizedSearchQuery) ||
+          (locale.language ?? "")
+            .toLowerCase()
+            .includes(normalizedSearchQuery) ||
+          (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : locales
 
   const total = filteredLocales.length
@@ -82,7 +129,7 @@ export default function LocalesTable({
   function openEditor(locale: Locale) {
     setDisplayName(locale.displayName ?? "")
     setLanguage(locale.language ?? "")
-    setRegion(locale.region ?? "")
+    setRegion(locale.region)
     setCode(locale.code ?? "")
     setFlag(locale.flag)
     setEnabled(locale.enabled)
@@ -98,13 +145,15 @@ export default function LocalesTable({
     await updateLocale(editingLocale.id, {
       displayName,
       language,
-      region,
+      region: region || undefined,
       code,
-      flag,
+      flag: flag || undefined,
       enabled,
     })
       .then(() => {
-        toast.success(`Updated locale ${displayName} (${editingLocale.id.slice(0, 8)}).`)
+        toast.success(
+          `Updated locale ${displayName} (${editingLocale.id.slice(0, 8)}).`
+        )
         router.refresh()
       })
       .catch((error) => {
@@ -123,7 +172,9 @@ export default function LocalesTable({
 
     await deleteLocale(locale.id)
       .then(() => {
-        toast.success(`Deleted locale ${locale.displayName} (${locale.id.slice(0, 8)}).`)
+        toast.success(
+          `Deleted locale ${locale.displayName} (${locale.id.slice(0, 8)}).`
+        )
         router.refresh()
       })
       .catch((error) => {
@@ -135,6 +186,25 @@ export default function LocalesTable({
         setLoading(false)
         setDeletingLocale(null)
       })
+  }
+
+  if (total === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <GlobeIcon />
+          </EmptyMedia>
+          <EmptyTitle>No Locales Yet</EmptyTitle>
+          <EmptyDescription>
+            There have been no locales created yet.
+          </EmptyDescription>
+          <EmptyDescription>
+            <CreateLocaleDialog canCreateLocale={canCreateLocale} />
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
   }
 
   return (
@@ -169,7 +239,8 @@ export default function LocalesTable({
                     <Button variant="ghost">Enabled</Button>
                   </HoverCardTrigger>
                   <HoverCardContent>
-                    Indicates whether the locale can be selected by users in their projects.
+                    Indicates whether the locale can be selected by users in
+                    their projects.
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
@@ -186,18 +257,33 @@ export default function LocalesTable({
                       {locale.id.slice(0, 8)}
                     </TableCell>
 
-                    <TableCell className="min-w-40">{locale.displayName}</TableCell>
-
-                    <TableCell className="min-w-32">{locale.language}</TableCell>
-                    <TableCell className="min-w-32">{locale.region}</TableCell>
-
-                    <TableCell className="min-w-32">
-                      <Badge variant="outline">
-                        {locale.code}
-                      </Badge>
+                    <TableCell className="min-w-40">
+                      {locale.displayName}
                     </TableCell>
 
-                    <TableCell className="max-w-16 text-center">
+                    <TableCell className="min-w-32">
+                      {locale.language}
+                    </TableCell>
+
+                    <TableCell
+                      className={cn(
+                        "min-w-32",
+                        !locale.region && "text-muted-foreground italic"
+                      )}
+                    >
+                      {locale.region ?? "None"}
+                    </TableCell>
+
+                    <TableCell className="min-w-32">
+                      <Badge variant="outline">{locale.code}</Badge>
+                    </TableCell>
+
+                    <TableCell
+                      className={cn(
+                        "max-w-16 text-center",
+                        !locale.flag && "text-muted-foreground italic"
+                      )}
+                    >
                       {locale.flag ?? "None"}
                     </TableCell>
 
@@ -244,18 +330,22 @@ export default function LocalesTable({
                                   <SheetTitle>
                                     Edit{" "}
                                     <span className="font-mono">
-                                      {editingLocale?.displayName} ({editingLocale?.id.slice(0, 8)})
+                                      {editingLocale?.displayName} (
+                                      {editingLocale?.id.slice(0, 8)})
                                     </span>{" "}
                                   </SheetTitle>
                                   <SheetDescription>
-                                    Here you can edit the locale&rsquo;s details.
+                                    Here you can edit the locale&rsquo;s
+                                    details.
                                   </SheetDescription>
                                 </SheetHeader>
 
                                 <ScrollArea className="min-h-0 flex-1 overflow-hidden">
                                   <div className="grid auto-rows-min gap-6 px-4 py-4">
                                     <div className="grid gap-3">
-                                      <Label htmlFor="localeName">Display Name</Label>
+                                      <Label htmlFor="localeName">
+                                        Display Name
+                                      </Label>
                                       <Input
                                         id="localeName"
                                         value={displayName}
@@ -267,7 +357,9 @@ export default function LocalesTable({
                                       />
                                     </div>
                                     <div className="grid gap-3">
-                                      <Label htmlFor="localeLanguage">Language</Label>
+                                      <Label htmlFor="localeLanguage">
+                                        Language
+                                      </Label>
                                       <Input
                                         id="language"
                                         value={language}
@@ -279,10 +371,12 @@ export default function LocalesTable({
                                       />
                                     </div>
                                     <div className="grid gap-3">
-                                      <Label htmlFor="localeRegion">Region (optional)</Label>
+                                      <Label htmlFor="localeRegion">
+                                        Region (optional)
+                                      </Label>
                                       <Input
                                         id="region"
-                                        value={region}
+                                        value={region || ""}
                                         disabled={loading}
                                         onChange={(event) =>
                                           setRegion(event.target.value)
@@ -290,7 +384,9 @@ export default function LocalesTable({
                                       />
                                     </div>
                                     <div className="grid gap-3">
-                                      <Label htmlFor="localeCode">Locale Code</Label>
+                                      <Label htmlFor="localeCode">
+                                        Locale Code
+                                      </Label>
                                       <Input
                                         id="localeCode"
                                         value={code}
@@ -313,9 +409,7 @@ export default function LocalesTable({
                                       />
                                     </div>
                                     <div className="grid gap-3">
-                                      <Label htmlFor="enabled">
-                                        Enabled
-                                      </Label>
+                                      <Label htmlFor="enabled">Enabled</Label>
                                       <ToggleGroup
                                         type="single"
                                         className="grid w-full grid-cols-2 border-2"
@@ -424,15 +518,19 @@ export default function LocalesTable({
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete the
-                                  locale{" "}
+                                  This action cannot be undone. This will
+                                  permanently delete the locale{" "}
                                   <span className="font-mono">
-                                    {deletingLocale?.displayName} ({deletingLocale?.id.slice(0, 8)})
+                                    {deletingLocale?.displayName} (
+                                    {deletingLocale?.id.slice(0, 8)})
                                   </span>{" "}
-                                  and all associated translations in all projects. Please confirm
-                                  that you want to proceed.
+                                  and all associated translations in all
+                                  projects. Please confirm that you want to
+                                  proceed.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

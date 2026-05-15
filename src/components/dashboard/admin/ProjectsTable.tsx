@@ -1,5 +1,12 @@
 "use client"
 
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import {
   Pagination,
@@ -16,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { SearchIcon } from "lucide-react"
+import { FoldersIcon, SearchIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -53,6 +60,22 @@ export default function ProjectsTable({
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentProjects = filteredProjects.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  if (total === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FoldersIcon />
+          </EmptyMedia>
+          <EmptyTitle>No Projects Yet</EmptyTitle>
+          <EmptyDescription>
+            There have been no projects created yet.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
+  }
 
   return (
     <div>
