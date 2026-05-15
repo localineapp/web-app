@@ -28,6 +28,8 @@ model User {
   sessions        Session[]
   accounts        Account[]
 
+  projectMembers ProjectMember[]
+
   @@unique([email])
   @@map("user")
 }
@@ -79,4 +81,130 @@ model Verification {
 
   @@index([identifier(length: 191)])
   @@map("verification")
+}
+
+model Locale {
+  id          String   @id
+  displayName String
+  language    String   @db.Text
+  region      String?  @db.Text
+  code        String   @unique
+  flag        String?  @db.Text
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projects     Project[]
+  members      ProjectMember[]
+  translations ProjectTranslation[]
+
+  @@map("locale")
+}
+
+model Project {
+  id          String   @id
+  name        String   @db.Text
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     ProjectMember[]
+  memberRoles ProjectMemberRole[]
+  locales     Locale[]
+  terms       ProjectTerm[]
+  labels      ProjectLabel[]
+
+  @@map("project")
+}
+
+model ProjectTerm {
+  id        String   @id
+  projectId String
+  value     String
+  context   String?  @db.Text
+  locked    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  translations ProjectTranslation[]
+  labels       ProjectLabel[]
+
+  @@unique([projectId, value])
+  @@index([projectId(length: 191)])
+  @@map("project_term")
+}
+
+model ProjectTranslation {
+  id        String   @id
+  termId    String
+  localeId  String
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  term   ProjectTerm @relation(fields: [termId], references: [id], onDelete: Cascade)
+  locale Locale      @relation(fields: [localeId], references: [id], onDelete: Cascade)
+
+  @@unique([termId, localeId])
+  @@index([termId(length: 191)])
+  @@index([localeId(length: 191)])
+  @@map("project_translation")
+}
+
+model ProjectLabel {
+  id          String   @id
+  projectId   String
+  name        String
+  description String?  @db.Text
+  color       String
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  terms   ProjectTerm[]
+
+  @@unique([projectId, name])
+  @@index([projectId(length: 191)])
+  @@map("project_label")
+}
+
+model ProjectMember {
+  id        String   @id
+  projectId String
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role    ProjectMemberRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  locales Locale[]
+
+  @@unique([projectId, userId])
+  @@index([projectId(length: 191)])
+  @@index([userId(length: 191)])
+  @@index([roleId(length: 191)])
+  @@map("project_member")
+}
+
+model ProjectMemberRole {
+  id          String   @id
+  projectId   String
+  name        String
+  icon        String?
+  color       String
+  permissions BigInt   @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  members ProjectMember[]
+
+  @@unique([projectId, name])
+  @@index([projectId(length: 191)])
+  @@map("project_member_role")
 }

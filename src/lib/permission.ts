@@ -6,12 +6,14 @@ import {
 } from "better-auth/plugins/admin/access"
 
 export const statement = {
+  locales: ["create", "update", "delete"],
   ...defaultStatements,
 } as const
 
 export const ac = createAccessControl(statement)
 
 export const admin = ac.newRole({
+  locales: ["create", "update", "delete"],
   ...adminAc.statements,
 })
 

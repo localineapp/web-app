@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import {
   FolderOpenIcon,
   FoldersIcon,
+  GlobeIcon,
   HomeIcon,
   LucideIcon,
   UsersIcon,
@@ -35,6 +36,7 @@ const navigationItems: NavigationItem[] = [
 const adminNavigationItems: NavigationItem[] = [
   { name: "Users", icon: UsersIcon, href: "/admin/users" },
   { name: "Projects", icon: FoldersIcon, href: "/admin/projects" },
+  { name: "Locales", icon: GlobeIcon, href: "/admin/locales" },
 ]
 
 export default function AppSidebar({

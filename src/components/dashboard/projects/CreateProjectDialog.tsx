@@ -29,7 +29,7 @@ export default function CreateProjectDialog({
   session: ReturnType<typeof useSession>["data"]
 }) {
   const [loading, setLoading] = useState(false)
-  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
+  const [isDialogOpen, setDialogOpen] = useState(false)
   const [projectName, setProjectName] = useState("")
   const [projectDescription, setProjectDescription] = useState("")
 
@@ -46,7 +46,7 @@ export default function CreateProjectDialog({
     // Simulate API call to create project
     setTimeout(() => {
       setLoading(false)
-      setCreateDialogOpen(false)
+      setDialogOpen(false)
       setProjectName("")
       setProjectDescription("")
 
@@ -57,15 +57,18 @@ export default function CreateProjectDialog({
   }
 
   return (
-    <Dialog open={isCreateDialogOpen} onOpenChange={setCreateDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreateProject ? "" : "cursor-not-allowed"}
+          className={canCreateProject || loading ? "" : "cursor-not-allowed"}
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={!canCreateProject}>
-              <Button variant="outline" aria-disabled={!canCreateProject}>
+            <DialogTrigger asChild disabled={!canCreateProject || loading}>
+              <Button
+                variant="outline"
+                aria-disabled={!canCreateProject || loading}
+              >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New Project
               </Button>
@@ -110,7 +113,11 @@ export default function CreateProjectDialog({
         <DialogFooter>
           <Button
             variant="outline"
-            onClick={() => setCreateDialogOpen(false)}
+            onClick={() => {
+              setDialogOpen(false)
+              setProjectName("")
+              setProjectDescription("")
+            }}
             disabled={loading}
           >
             Cancel

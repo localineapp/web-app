@@ -167,13 +167,7 @@ function ProviderCardContent({
           <Tooltip>
             <TooltipTrigger asChild className="cursor-not-allowed">
               <span className="inline-flex">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  onClick={handleLink}
-                >
+                <Button type="button" variant="outline" size="sm" disabled>
                   Link
                 </Button>
               </span>

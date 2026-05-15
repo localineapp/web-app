@@ -31,6 +31,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet"
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -93,8 +94,8 @@ export default function UsersTable({
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [isDialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UserRow | null>(null)
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -368,22 +369,27 @@ export default function UsersTable({
     })
   }
 
-  function handleDeleteUser({ user }: { user: (typeof users.users)[number] }) {
+  async function handleDeleteUser({
+    user,
+  }: {
+    user: (typeof users.users)[number]
+  }) {
     setLoading(true)
-    authClient.admin.removeUser({
+    await authClient.admin.removeUser({
       userId: user.id,
       fetchOptions: {
         onSuccess: () => {
           toast.success(`Deleted user ${user.name} (${user.id.slice(0, 8)}).`)
           setLoading(false)
-          setDialogOpen(false)
+          setDeleteDialogOpen(false)
+          router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
             error?.message || "Failed to delete user. Please try again."
           )
           setLoading(false)
-          setDialogOpen(false)
+          setDeleteDialogOpen(false)
         },
       },
     })
@@ -479,16 +485,18 @@ export default function UsersTable({
                             }
                           }}
                         >
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="inline-flex items-center p-1 text-sm"
-                            disabled={loading}
-                            onClick={() => openEditor(user)}
-                          >
-                            <PencilIcon size={16} />
-                          </Button>
+                          <SheetTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="inline-flex items-center p-1 text-sm"
+                              disabled={loading}
+                              onClick={() => openEditor(user)}
+                            >
+                              <PencilIcon size={16} />
+                            </Button>
+                          </SheetTrigger>
 
                           <SheetContent className="flex flex-col overflow-hidden">
                             <form
@@ -499,10 +507,8 @@ export default function UsersTable({
                                 <SheetTitle>
                                   Edit{" "}
                                   <span className="font-mono">
-                                    {editingUser?.name ?? user.name} (
-                                    {editingUser?.id.slice(0, 8) ??
-                                      user.id.slice(0, 8)}
-                                    )
+                                    {editingUser?.name} (
+                                    {editingUser?.id.slice(0, 8)})
                                   </span>{" "}
                                 </SheetTitle>
                                 <SheetDescription>
@@ -791,8 +797,8 @@ export default function UsersTable({
                           </Tooltip>
                         ) : (
                           <AlertDialog
-                            open={isDialogOpen}
-                            onOpenChange={setDialogOpen}
+                            open={isDeleteDialogOpen}
+                            onOpenChange={setDeleteDialogOpen}
                           >
                             <AlertDialogTrigger asChild>
                               <Button
@@ -823,7 +829,7 @@ export default function UsersTable({
                                 <Button
                                   variant="outline"
                                   disabled={loading}
-                                  onClick={() => setDialogOpen(false)}
+                                  onClick={() => setDeleteDialogOpen(false)}
                                 >
                                   Cancel
                                 </Button>
