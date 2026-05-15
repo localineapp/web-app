@@ -403,6 +403,7 @@ export default function UsersTable({
           }}
         />
       </div>
+
       <div className="overflow-hidden rounded-lg border border-border">
         <Table>
           <TableHeader>

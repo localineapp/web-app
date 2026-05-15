@@ -1,3 +1,4 @@
+import ProjectsTable from "@/components/dashboard/admin/ProjectsTable"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export default async function AdminProjectsPage() {
       </div>
 
       <div>
-        <p>Not implemented</p>
+        <ProjectsTable projects={[]} />
       </div>
     </div>
   )
