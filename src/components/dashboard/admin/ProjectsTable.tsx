@@ -1,9 +1,21 @@
 "use client"
 
 import { Input } from "@/components/ui/input"
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { auth } from "@/lib/auth"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { SearchIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -27,10 +39,11 @@ export default function ProjectsTable({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjects = normalizedSearchQuery
-    ? projects.filter((project) =>
-      (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-      (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+    ? projects.filter(
+        (project) =>
+          (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : projects
 
   const total = filteredProjects.length
@@ -43,7 +56,7 @@ export default function ProjectsTable({
 
   return (
     <div>
-      <div className="relative flex w-full max-w-md items-center mb-2">
+      <div className="relative mb-2 flex w-full max-w-md items-center">
         <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
@@ -77,9 +90,7 @@ export default function ProjectsTable({
                       {project.id.slice(0, 8)}
                     </TableCell>
 
-                    <TableCell className="min-w-40">
-                      {project.name}
-                    </TableCell>
+                    <TableCell className="min-w-40">{project.name}</TableCell>
 
                     <TableCell className="text-muted-foreground">
                       {project.description ?? "No description"}

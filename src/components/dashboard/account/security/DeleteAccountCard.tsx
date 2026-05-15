@@ -10,17 +10,23 @@ import {
   AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { authClient, useSession } from "@/lib/auth-client";
-import { TrashIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { MouseEvent, useState } from "react";
-import { toast } from "sonner";
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Spinner } from "@/components/ui/spinner"
+import { authClient } from "@/lib/auth-client"
+import { TrashIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
-export default function DeleteAccountCard({ session }: { session: ReturnType<typeof useSession>["data"] }) {
+export default function DeleteAccountCard() {
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
@@ -36,7 +42,7 @@ export default function DeleteAccountCard({ session }: { session: ReturnType<typ
           toast.success("Your account has been successfully deleted.")
           setDialogOpen(false)
           setLoading(false)
-          
+
           router.push("/")
         },
         onError: ({ error }) => {
@@ -55,17 +61,16 @@ export default function DeleteAccountCard({ session }: { session: ReturnType<typ
       <CardHeader>
         <CardTitle>Delete Account</CardTitle>
         <CardDescription>
-          Once you delete your account, there is no going back. Deleting your account will remove all attached data, including projects, from the system.
+          Once you delete your account, there is no going back. Deleting your
+          account will remove all attached data, including projects, from the
+          system.
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              disabled={loading}
-            >
+            <Button variant="destructive" disabled={loading}>
               <TrashIcon className="me-1" />
               Delete Account
             </Button>
@@ -77,7 +82,8 @@ export default function DeleteAccountCard({ session }: { session: ReturnType<typ
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your account and remove your data from the system.
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from the system.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

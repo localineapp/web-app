@@ -108,10 +108,11 @@ export default function UsersTable({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredUsers = normalizedSearchQuery
-    ? users.users.filter((user) =>
-        (user.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (user.name ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (user.email ?? "").toLowerCase().includes(normalizedSearchQuery)
+    ? users.users.filter(
+        (user) =>
+          (user.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (user.name ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (user.email ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
     : users.users
 
@@ -254,7 +255,7 @@ export default function UsersTable({
         if (updateResult.error) {
           throw new Error(
             updateResult.error.message ||
-            "Failed to update user. Please try again."
+              "Failed to update user. Please try again."
           )
         }
       }
@@ -268,7 +269,7 @@ export default function UsersTable({
         if (roleResult.error) {
           throw new Error(
             roleResult.error.message ||
-            "Failed to update user role. Please try again."
+              "Failed to update user role. Please try again."
           )
         }
       }
@@ -282,7 +283,7 @@ export default function UsersTable({
         if (passwordResult.error) {
           throw new Error(
             passwordResult.error.message ||
-            "Failed to update user password. Please try again."
+              "Failed to update user password. Please try again."
           )
         }
       }
@@ -298,8 +299,8 @@ export default function UsersTable({
             currentBanExpires === ""
               ? undefined
               : Math.ceil(
-                (new Date(currentBanExpires).getTime() - Date.now()) / 1000
-              )
+                  (new Date(currentBanExpires).getTime() - Date.now()) / 1000
+                )
 
           const banResult = await authClient.admin.banUser({
             userId: currentUser.id,
@@ -310,7 +311,7 @@ export default function UsersTable({
           if (banResult.error) {
             throw new Error(
               banResult.error.message ||
-              "Failed to update user ban status. Please try again."
+                "Failed to update user ban status. Please try again."
             )
           }
         } else {
@@ -321,7 +322,7 @@ export default function UsersTable({
           if (unbanResult.error) {
             throw new Error(
               unbanResult.error.message ||
-              "Failed to update user ban status. Please try again."
+                "Failed to update user ban status. Please try again."
             )
           }
         }
@@ -390,7 +391,7 @@ export default function UsersTable({
 
   return (
     <div>
-      <div className="relative flex w-full max-w-md items-center mb-2">
+      <div className="relative mb-2 flex w-full max-w-md items-center">
         <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
@@ -505,22 +506,20 @@ export default function UsersTable({
                                   </span>{" "}
                                 </SheetTitle>
                                 <SheetDescription>
-                                  Here you can edit the user&rsquo;s
-                                  details, change their role, or ban/unban
-                                  the user. Please note that you cannot edit
-                                  your own account from here.
+                                  Here you can edit the user&rsquo;s details,
+                                  change their role, or ban/unban the user.
+                                  Please note that you cannot edit your own
+                                  account from here.
                                 </SheetDescription>
                                 {session?.user.id === editingUser?.id && (
-                                  <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50 mt-2">
+                                  <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                                     <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                                    <AlertTitle>
-                                      Editing Own Profile
-                                    </AlertTitle>
+                                    <AlertTitle>Editing Own Profile</AlertTitle>
                                     <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
                                       You are currently editing your own
-                                      profile. Changes you make here may
-                                      lock you out of your account or cause
-                                      other issues. Please be careful!
+                                      profile. Changes you make here may lock
+                                      you out of your account or cause other
+                                      issues. Please be careful!
                                     </AlertDescription>
                                   </Alert>
                                 )}

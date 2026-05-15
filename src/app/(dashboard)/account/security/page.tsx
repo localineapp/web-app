@@ -18,7 +18,9 @@ export default async function SecurityPage() {
     headers: requestHeaders,
   })
 
-  const hasPassword = accounts.some((account) => account.providerId === "credential")
+  const hasPassword = accounts.some(
+    (account) => account.providerId === "credential"
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -33,9 +35,9 @@ export default async function SecurityPage() {
         <div className="w-full min-w-0 xl:flex-1">
           <SecurityDetailsCard session={session} hasPassword={hasPassword} />
         </div>
-        <div className="w-full min-w-0 xl:flex-1 flex-col gap-4 space-y-4">
+        <div className="w-full min-w-0 flex-col gap-4 space-y-4 xl:flex-1">
           <DataExportCard session={session} />
-          <DeleteAccountCard session={session} />
+          <DeleteAccountCard />
         </div>
       </div>
     </div>

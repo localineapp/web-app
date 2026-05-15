@@ -1,19 +1,41 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { authClient, useSession } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
-import { EyeIcon, EyeOffIcon, FingerprintIcon, KeyIcon, LockKeyholeIcon, MailIcon, PencilIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { MouseEvent, useState } from "react";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
+import { authClient, useSession } from "@/lib/auth-client"
+import { cn } from "@/lib/utils"
+import {
+  EyeIcon,
+  EyeOffIcon,
+  FingerprintIcon,
+  KeyIcon,
+  LockKeyholeIcon,
+  MailIcon,
+  PencilIcon,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
-export default function SecurityDetailsCard({ session, hasPassword }: { session: ReturnType<typeof useSession>["data"], hasPassword: boolean }) {
+export default function SecurityDetailsCard({
+  session,
+  hasPassword,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  hasPassword: boolean
+}) {
   const router = useRouter()
 
   const user = session?.user
@@ -75,7 +97,8 @@ export default function SecurityDetailsCard({ session, hasPassword }: { session:
         },
         onError: ({ error }) => {
           toast.error(
-            error?.message || "Failed to update your password. Please try again."
+            error?.message ||
+              "Failed to update your password. Please try again."
           )
           setPasswordDialogOpen(false)
           setLoading(false)
@@ -92,9 +115,7 @@ export default function SecurityDetailsCard({ session, hasPassword }: { session:
     setLoading(true)
 
     setTimeout(() => {
-      toast.error(
-        "Adding a password to an account is not supported yet."
-      )
+      toast.error("Adding a password to an account is not supported yet.")
       setPasswordDialogOpen(false)
       setLoading(false)
 
@@ -226,18 +247,20 @@ export default function SecurityDetailsCard({ session, hasPassword }: { session:
 
         <div className="flex min-w-0 items-center gap-2">
           {hasPassword ? (
-            <Dialog open={isPasswordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+            <Dialog
+              open={isPasswordDialogOpen}
+              onOpenChange={setPasswordDialogOpen}
+            >
               <DialogTrigger asChild>
-                <Button variant="outline">
-                  Change password
-                </Button>
+                <Button variant="outline">Change password</Button>
               </DialogTrigger>
 
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Change password</DialogTitle>
                   <DialogDescription>
-                    Update your account password. Make sure to choose a strong and unique password to enhance the security of your account.
+                    Update your account password. Make sure to choose a strong
+                    and unique password to enhance the security of your account.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -305,18 +328,21 @@ export default function SecurityDetailsCard({ session, hasPassword }: { session:
               </DialogContent>
             </Dialog>
           ) : (
-            <Dialog open={isPasswordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+            <Dialog
+              open={isPasswordDialogOpen}
+              onOpenChange={setPasswordDialogOpen}
+            >
               <DialogTrigger asChild>
-                <Button variant="outline">
-                  Add password
-                </Button>
+                <Button variant="outline">Add password</Button>
               </DialogTrigger>
 
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add password</DialogTitle>
                   <DialogDescription>
-                    Your account is currently using a passwordless authentication method. To add a password, please enter a new password below.
+                    Your account is currently using a passwordless
+                    authentication method. To add a password, please enter a new
+                    password below.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -398,9 +424,7 @@ export default function SecurityDetailsCard({ session, hasPassword }: { session:
 
         <div className="flex min-w-0 items-center gap-2">
           {false ? (
-            <Button variant="outline">
-              Manage 2FA
-            </Button>
+            <Button variant="outline">Manage 2FA</Button>
           ) : (
             <Button variant="outline" disabled>
               Setup 2FA
@@ -420,9 +444,7 @@ export default function SecurityDetailsCard({ session, hasPassword }: { session:
 
         <div className="flex min-w-0 items-center gap-2">
           {false ? (
-            <Button variant="outline">
-              Manage Passkey
-            </Button>
+            <Button variant="outline">Manage Passkey</Button>
           ) : (
             <Button variant="outline" disabled>
               Setup Passkey
