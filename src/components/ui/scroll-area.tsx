@@ -8,21 +8,57 @@ import { cn } from "@/lib/utils"
 function ScrollArea({
   className,
   children,
+  scrollbarOrientation = "vertical",
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
+  scrollbarOrientation?: React.ComponentProps<
+    typeof ScrollAreaPrimitive.ScrollAreaScrollbar
+  >["orientation"]
+}) {
+  const viewportRef = React.useRef<HTMLDivElement>(null)
+
+  const handleWheel = React.useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      if (scrollbarOrientation !== "horizontal") {
+        return
+      }
+
+      const viewport = viewportRef.current
+
+      if (!viewport) {
+        return
+      }
+
+      const horizontalDelta =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+          ? event.deltaX
+          : event.deltaY
+
+      if (horizontalDelta === 0) {
+        return
+      }
+
+      viewport.scrollLeft += horizontalDelta
+      event.preventDefault()
+    },
+    [scrollbarOrientation]
+  )
+
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
-      className={cn("relative", className)}
+      className={cn("relative overflow-hidden", className)}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
         className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        ref={viewportRef}
+        onWheel={handleWheel}
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
+      <ScrollBar orientation={scrollbarOrientation} />
       <ScrollAreaPrimitive.Corner />
     </ScrollAreaPrimitive.Root>
   )
