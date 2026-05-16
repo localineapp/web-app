@@ -50,6 +50,7 @@ export default function CreateProjectDialog({
     await createProject({
       name: projectName,
       description: projectDescription || undefined,
+      planId: "", // TODO
     })
       .then((project) => {
         toast.success(

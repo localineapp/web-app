@@ -8,7 +8,8 @@ import {
 export const statement = {
   dashboard: ["admin"],
   locales: ["create", "update", "delete"],
-  projects: ["read:all"],
+  plans: ["create", "update", "delete"],
+  projects: ["read", "update", "delete"],
   ...defaultStatements,
 } as const
 
@@ -17,7 +18,8 @@ export const ac = createAccessControl(statement)
 export const admin = ac.newRole({
   dashboard: ["admin"],
   locales: ["create", "update", "delete"],
-  projects: ["read:all"],
+  plans: ["create", "update", "delete"],
+  projects: ["read", "update", "delete"],
   ...adminAc.statements,
 })
 
