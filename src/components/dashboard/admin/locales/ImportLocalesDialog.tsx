@@ -1,5 +1,7 @@
 "use client"
 
+import { importLocales } from "@/actions/locales"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Label } from "@/components/ui/label"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -20,8 +23,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ImportIcon } from "lucide-react"
-import { useState } from "react"
+import { AlertTriangleIcon, ImportIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
 type ImportableLocaleProps = {
   language: string
@@ -669,6 +674,7 @@ export default function ImportLocalesDialog({
 }: {
   canCreateLocale: boolean
 }) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [selectedLocales, setSelectedLocales] = useState<
@@ -698,14 +704,36 @@ export default function ImportLocalesDialog({
     })
   }
 
-  const handleImportLocales = () => {
+  const handleImportLocales = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
     setLoading(true)
 
-    setTimeout(() => {
+    try {
+      const result = await importLocales(
+        selectedLocales.map((locale) => ({
+          displayName: `${locale.language}${locale.region ? ` (${locale.region})` : ""}`,
+          language: locale.language,
+          region: locale.region ?? null,
+          code: locale.code,
+          enabled: true,
+        }))
+      )
+
+      toast.success(
+        `Imported ${result.total} locales (${result.created} created, ${result.updated} updated).`
+      )
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to import locales. Please try again."
+      )
+    } finally {
       setLoading(false)
       setDialogOpen(false)
       setSelectedLocales([])
-    }, 1000)
+    }
   }
 
   return (
@@ -742,25 +770,68 @@ export default function ImportLocalesDialog({
         )}
       </Tooltip>
       <DialogContent className="sm:max-w-5xl">
-        <DialogHeader>
-          <DialogTitle>Import Locales</DialogTitle>
-          <DialogDescription>
-            Select which locales you want to import into your system.
-          </DialogDescription>
+        <DialogHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:pr-12">
+          <div className="space-y-1">
+            <DialogTitle>Import Locales</DialogTitle>
+            <DialogDescription>
+              Select which locales you want to import into your system.
+            </DialogDescription>
+          </div>
+
+          <div className="flex gap-2 space-y-1">
+            <Button
+              variant="outline"
+              onClick={() => setSelectedLocales(IMPORTABLE_LOCALES)}
+              disabled={loading}
+              size="sm"
+              className="self-start"
+            >
+              Select All
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setSelectedLocales([])}
+              disabled={loading}
+              size="sm"
+              className="self-start"
+            >
+              Deselect All
+            </Button>
+          </div>
         </DialogHeader>
 
-        <Tabs defaultValue={IMPORTABLE_LOCALE_GROUPS[0]?.language ?? ""}>
-          <TabsList className="flex h-auto w-full flex-wrap items-start justify-start gap-1 p-1">
-            {IMPORTABLE_LOCALE_GROUPS.map((group) => (
-              <TabsTrigger
-                key={group.language}
-                value={group.language}
-                className="flex-none px-3"
-              >
-                {group.language}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        {selectedLocales.length > 150 && (
+          <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
+            <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+            <AlertTitle>Importing Many Locales</AlertTitle>
+            <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+              You are about to import a large number of locales (
+              {selectedLocales.length}). This may take a few seconds and could
+              impact system performance temporarily.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <Tabs
+          className="min-w-0"
+          defaultValue={IMPORTABLE_LOCALE_GROUPS[0]?.language ?? ""}
+        >
+          <ScrollArea
+            className="w-full max-w-full min-w-0 rounded-md border"
+            scrollbarOrientation="horizontal"
+          >
+            <TabsList className="flex w-max flex-row flex-nowrap items-start gap-1 p-1">
+              {IMPORTABLE_LOCALE_GROUPS.map((group) => (
+                <TabsTrigger
+                  key={group.language}
+                  value={group.language}
+                  className="px-3"
+                >
+                  {group.language}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </ScrollArea>
           {IMPORTABLE_LOCALE_GROUPS.map((group) => (
             <TabsContent key={group.language} value={group.language}>
               <FieldGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -810,7 +881,7 @@ export default function ImportLocalesDialog({
             ) : (
               <>
                 <ImportIcon className="h-4 w-4" />
-                Import Locales
+                Import Locales ({selectedLocales.length})
               </>
             )}
           </Button>

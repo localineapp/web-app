@@ -74,6 +74,89 @@ export async function createLocale({
   })
 }
 
+function chunkArray<T>(items: T[], size: number) {
+  const chunks: T[][] = []
+
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size))
+  }
+
+  return chunks
+}
+
+export async function importLocales(
+  locales: {
+    displayName: string
+    language: string
+    region?: string | null
+    code: string
+    flag?: string | null
+    enabled?: boolean
+  }[]
+): Promise<{
+  total: number
+  created: number
+  updated: number
+}> {
+  const hasPermission = await auth.api.userHasPermission({
+    headers: await headers(),
+    body: {
+      permissions: {
+        locales: ["create"],
+      },
+    },
+  })
+
+  if (!hasPermission) {
+    return unauthorized()
+  }
+
+  const startTime = Date.now()
+  for (const batch of chunkArray(locales, 25)) {
+    await Promise.all(
+      batch.map(
+        async (locale) =>
+          await prisma.locale.upsert({
+            where: {
+              code: locale.code,
+            },
+            update: {
+              displayName: `${locale.language}${locale.region ? ` (${locale.region})` : ""}`,
+              language: locale.language,
+              region: locale.region ?? null,
+              flag: locale.flag ?? null,
+              enabled: locale.enabled ?? true,
+            },
+            create: {
+              id: generateId(),
+              displayName: `${locale.language}${locale.region ? ` (${locale.region})` : ""}`,
+              language: locale.language,
+              region: locale.region ?? null,
+              code: locale.code,
+              flag: locale.flag ?? null,
+              enabled: locale.enabled ?? true,
+            },
+          })
+      )
+    )
+  }
+
+  const total = locales.length
+  const created = await prisma.locale.count({
+    where: {
+      code: {
+        in: locales.map((locale) => locale.code),
+      },
+      createdAt: {
+        gte: new Date(startTime),
+      },
+    },
+  })
+  const updated = total - created
+
+  return { total, created, updated }
+}
+
 export async function updateLocale(
   id: string,
   {
