@@ -1,5 +1,6 @@
 "use client"
 
+import { createProject } from "@/actions/projects"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -20,14 +21,18 @@ import {
 } from "@/components/ui/tooltip"
 import { useSession } from "@/lib/auth-client"
 import { PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateProjectDialog({
   session,
+  projectCount,
 }: {
   session: ReturnType<typeof useSession>["data"]
+  projectCount: number
 }) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [projectName, setProjectName] = useState("")
@@ -35,7 +40,6 @@ export default function CreateProjectDialog({
 
   const user = session?.user
 
-  const projectCount = 0
   const projectLimit = user?.projectsLimit ?? 0
   const canCreateProject = projectCount < projectLimit
 
@@ -43,17 +47,25 @@ export default function CreateProjectDialog({
     event.preventDefault()
     setLoading(true)
 
-    // Simulate API call to create project
-    setTimeout(() => {
-      setLoading(false)
-      setDialogOpen(false)
-      setProjectName("")
-      setProjectDescription("")
-
-      toast.info(
-        "Project created successfully! (This is a demo, no actual project was created.)"
-      )
-    }, 2000)
+    await createProject({
+      name: projectName,
+      description: projectDescription || undefined,
+    })
+      .then(project => {
+        toast.success(`Created project ${projectName} (${project.id.slice(0, 8)}).`)
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to create project. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDialogOpen(false)
+        setProjectName("")
+        setProjectDescription("")
+      })
   }
 
   return (

@@ -1,3 +1,4 @@
+import { getProjects } from "@/actions/projects"
 import ProjectsTable from "@/components/dashboard/admin/ProjectsTable"
 import { Metadata } from "next"
 
@@ -6,6 +7,10 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminProjectsPage() {
+  const projects = await getProjects({
+    includeAll: true,
+  })
+
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full gap-4 space-y-2">
@@ -16,7 +21,7 @@ export default async function AdminProjectsPage() {
       </div>
 
       <div>
-        <ProjectsTable projects={[]} />
+        <ProjectsTable projects={projects} />
       </div>
     </div>
   )

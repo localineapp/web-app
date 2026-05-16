@@ -1,3 +1,4 @@
+import { getProjects } from "@/actions/projects"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import ProjectsList from "@/components/dashboard/projects/ProjectsList"
 import { auth } from "@/lib/auth"
@@ -13,6 +14,10 @@ export default async function ProjectsPage() {
     headers: await headers(),
   })
 
+  const projects = await getProjects({
+    includeAll: false,
+  })
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -25,12 +30,12 @@ export default async function ProjectsPage() {
         </div>
 
         <div>
-          <CreateProjectDialog session={session} />
+          <CreateProjectDialog session={session} projectCount={projects.length} />
         </div>
       </div>
 
       <div>
-        <ProjectsList session={session} />
+        <ProjectsList session={session} projects={projects} />
       </div>
     </div>
   )

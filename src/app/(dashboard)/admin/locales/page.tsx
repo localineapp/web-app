@@ -36,7 +36,6 @@ export default async function AdminLocalesPage() {
   ).success
   const canDeleteLocales = (
     await auth.api.userHasPermission({
-      headers: await headers(),
       body: {
         // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
         role: session?.user.role ?? "user",
