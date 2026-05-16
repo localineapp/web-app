@@ -42,7 +42,11 @@ export default async function ProjectsPage() {
       </div>
 
       <div>
-        <ProjectsList session={session} projects={projects} defaultPlan={defaultPlan} />
+        <ProjectsList
+          session={session}
+          projects={projects}
+          defaultPlan={defaultPlan}
+        />
       </div>
     </div>
   )

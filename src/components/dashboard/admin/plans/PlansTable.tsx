@@ -102,13 +102,13 @@ export default function PlansTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredPlans = normalizedSearchQuery
     ? plans.filter(
-      (plan) =>
-        (plan.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (plan.displayName ?? "")
-          .toLowerCase()
-          .includes(normalizedSearchQuery) ||
-        (plan.description ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (plan) =>
+          (plan.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (plan.displayName ?? "")
+            .toLowerCase()
+            .includes(normalizedSearchQuery) ||
+          (plan.description ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : plans
 
   const total = filteredPlans.length
@@ -131,7 +131,9 @@ export default function PlansTable({
 
   async function handleUpdateDefaultPlan(plan: Plan) {
     if (plan.default) {
-      toast.error(`Plan ${plan.displayName} (${plan.id.slice(0, 8)}) is already the default plan.`)
+      toast.error(
+        `Plan ${plan.displayName} (${plan.id.slice(0, 8)}) is already the default plan.`
+      )
       return
     }
 
@@ -232,7 +234,9 @@ export default function PlansTable({
           <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
           <AlertTitle>No Default Plan</AlertTitle>
           <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-            There is currently no default plan set. This means that new projects can&rsquo;t be created because every project must be associated with a plan.
+            There is currently no default plan set. This means that new projects
+            can&rsquo;t be created because every project must be associated with
+            a plan.
           </AlertDescription>
         </Alert>
       )}

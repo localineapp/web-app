@@ -273,7 +273,9 @@ export default function SecurityDetailsCard({
                       value={currentPassword}
                       placeholder="Enter your current password"
                       disabled={loading}
-                      onChange={({ target: { value } }) => setCurrentPassword(value)}
+                      onChange={({ target: { value } }) =>
+                        setCurrentPassword(value)
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -284,7 +286,9 @@ export default function SecurityDetailsCard({
                       value={newPassword}
                       placeholder="Enter your new password"
                       disabled={loading}
-                      onChange={({ target: { value } }) => setNewPassword(value)}
+                      onChange={({ target: { value } }) =>
+                        setNewPassword(value)
+                      }
                     />
                   </div>
                 </div>
@@ -355,7 +359,9 @@ export default function SecurityDetailsCard({
                       value={newPassword}
                       placeholder="Enter your new password"
                       disabled={loading}
-                      onChange={({ target: { value } }) => setNewPassword(value)}
+                      onChange={({ target: { value } }) =>
+                        setNewPassword(value)
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -366,7 +372,9 @@ export default function SecurityDetailsCard({
                       value={confirmNewPassword}
                       placeholder="Confirm your new password"
                       disabled={loading}
-                      onChange={({ target: { value } }) => setConfirmNewPassword(value)}
+                      onChange={({ target: { value } }) =>
+                        setConfirmNewPassword(value)
+                      }
                     />
                   </div>
                 </div>

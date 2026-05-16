@@ -79,10 +79,17 @@ export default function CreateProjectDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreateProject && defaultPlan && !loading ? "" : "cursor-not-allowed"}
+          className={
+            canCreateProject && defaultPlan && !loading
+              ? ""
+              : "cursor-not-allowed"
+          }
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={!canCreateProject || !defaultPlan || loading}>
+            <DialogTrigger
+              asChild
+              disabled={!canCreateProject || !defaultPlan || loading}
+            >
               <Button
                 variant="outline"
                 disabled={!canCreateProject || !defaultPlan || loading}
@@ -95,11 +102,11 @@ export default function CreateProjectDialog({
         </TooltipTrigger>
         {(!canCreateProject || !defaultPlan) && (
           <TooltipContent>
-            {!defaultPlan ? (
-              "No default plan found. Please contact your administrator."
-            ) : projectLimit === 0
-              ? "The project limit for your account is currently set to 0."
-              : `You have reached your project limit (${projectCount}/${projectLimit})`}
+            {!defaultPlan
+              ? "No default plan found. Please contact your administrator."
+              : projectLimit === 0
+                ? "The project limit for your account is currently set to 0."
+                : `You have reached your project limit (${projectCount}/${projectLimit})`}
           </TooltipContent>
         )}
       </Tooltip>

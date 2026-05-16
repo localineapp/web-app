@@ -77,10 +77,7 @@ export default function CreateLocaleDialog({
         >
           <span className="inline-block">
             <DialogTrigger asChild disabled={!canCreateLocales || loading}>
-              <Button
-                variant="outline"
-                disabled={!canCreateLocales || loading}
-              >
+              <Button variant="outline" disabled={!canCreateLocales || loading}>
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New Locale
               </Button>
