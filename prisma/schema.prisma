@@ -103,10 +103,10 @@ model Plan {
   id           String   @id
   displayName  String   @unique
   description  String?  @db.Text
-  localesLimit Int      @default(10)
-  termsLimit   Int      @default(100)
-  labelsLimit  Int      @default(20)
-  membersLimit Int      @default(10)
+  localesLimit Int?     @db.Int
+  termsLimit   Int?     @db.Int
+  labelsLimit  Int?     @db.Int
+  membersLimit Int?     @db.Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

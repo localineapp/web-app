@@ -1,6 +1,42 @@
 "use client"
 
-import { deleteLocale, updateLocale } from "@/actions/locales"
+import { deletePlan, updatePlan } from "@/actions/plans"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { Plan } from "@prisma/client"
+import { PackageIcon, PencilIcon, SearchIcon, TrashIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { SubmitEvent, useState } from "react"
+import { toast } from "sonner"
+import CreatePlanDialog from "@/components/dashboard/admin/plans/CreatePlanDialog"
+import { Input } from "@/components/ui/input"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   AlertDialog,
   AlertDialogContent,
@@ -10,30 +46,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Sheet,
   SheetClose,
@@ -44,147 +57,116 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Spinner } from "@/components/ui/spinner"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Locale } from "@prisma/client"
-import {
-  BadgeCheckIcon,
-  BadgeXIcon,
-  GlobeIcon,
-  PencilIcon,
-  SearchIcon,
-  TrashIcon,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
-import { SubmitEvent, useState } from "react"
-import { toast } from "sonner"
-import CreateLocaleDialog from "@/components/dashboard/admin/locales/CreateLocaleDialog"
-import { cn } from "@/lib/utils"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Label } from "@/components/ui/label"
 
 const PAGE_SIZE = 10
 
-export default function LocalesTable({
-  locales,
-  canCreateLocales,
-  canUpdateLocales,
-  canDeleteLocales,
+export default function PlansTable({
+  plans,
+  canCreatePlans,
+  canUpdatePlans,
+  canDeletePlans,
 }: {
-  locales: Locale[]
-  canCreateLocales: boolean
-  canUpdateLocales: boolean
-  canDeleteLocales: boolean
+  plans: Plan[]
+  canCreatePlans: boolean
+  canUpdatePlans: boolean
+  canDeletePlans: boolean
 }) {
   const router = useRouter()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
-  const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
+  const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
 
   const [displayName, setDisplayName] = useState("")
-  const [language, setLanguage] = useState("")
-  const [region, setRegion] = useState<string | null>(null)
-  const [code, setCode] = useState("")
-  const [flag, setFlag] = useState<string | null>(null)
-  const [enabled, setEnabled] = useState(false)
+  const [description, setDescription] = useState<string | null>(null)
+  const [localesLimit, setLocalesLimit] = useState<number | null>(null)
+  const [termsLimit, setTermsLimit] = useState<number | null>(null)
+  const [labelsLimit, setLabelsLimit] = useState<number | null>(null)
+  const [membersLimit, setMembersLimit] = useState<number | null>(null)
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
-  const filteredLocales = normalizedSearchQuery
-    ? locales.filter(
-        (locale) =>
-          (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (locale.displayName ?? "")
+  const filteredPlans = normalizedSearchQuery
+    ? plans.filter(
+        (plan) =>
+          (plan.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (plan.displayName ?? "")
             .toLowerCase()
             .includes(normalizedSearchQuery) ||
-          (locale.language ?? "")
-            .toLowerCase()
-            .includes(normalizedSearchQuery) ||
-          (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
+          (plan.description ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : locales
+    : plans
 
-  const total = filteredLocales.length
+  const total = filteredPlans.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const startIndex = (currentPage - 1) * PAGE_SIZE
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
-  const currentLocales = filteredLocales.slice(startIndex, endIndex)
+  const currentPlans = filteredPlans.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  function openEditor(locale: Locale) {
-    setDisplayName(locale.displayName ?? "")
-    setLanguage(locale.language ?? "")
-    setRegion(locale.region)
-    setCode(locale.code ?? "")
-    setFlag(locale.flag)
-    setEnabled(locale.enabled)
-    setEditingLocale(locale)
+  function openEditor(plan: Plan) {
+    setDisplayName(plan.displayName ?? "")
+    setDescription(plan.description)
+    setLocalesLimit(plan.localesLimit)
+    setTermsLimit(plan.termsLimit)
+    setLabelsLimit(plan.labelsLimit)
+    setMembersLimit(plan.membersLimit)
+    setEditingPlan(plan)
   }
 
-  async function handleUpdateLocale(event: SubmitEvent<HTMLFormElement>) {
+  async function handleUpdatePlan(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!editingLocale) return
+    if (!editingPlan) return
 
     setLoading(true)
-    await updateLocale(editingLocale.id, {
+    await updatePlan(editingPlan.id, {
       displayName,
-      language,
-      region: region || null,
-      code,
-      flag: flag || null,
-      enabled,
+      description: description || null,
+      localesLimit: localesLimit || null,
+      termsLimit: termsLimit || null,
+      labelsLimit: labelsLimit || null,
+      membersLimit: membersLimit || null,
     })
       .then(() => {
         toast.success(
-          `Updated locale ${displayName} (${editingLocale.id.slice(0, 8)}).`
+          `Updated plan ${displayName} (${editingPlan.id.slice(0, 8)}).`
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update locale. Please try again."
+          error?.message || "Failed to update plan. Please try again."
         )
       })
       .finally(() => {
         setLoading(false)
-        setEditingLocale(null)
+        setEditingPlan(null)
       })
   }
 
-  async function handleDeleteLocale(locale: Locale) {
+  async function handleDeletePlan(plan: Plan) {
     setLoading(true)
 
-    await deleteLocale(locale.id)
+    await deletePlan(plan.id)
       .then(() => {
         toast.success(
-          `Deleted locale ${locale.displayName} (${locale.id.slice(0, 8)}).`
+          `Deleted plan ${plan.displayName} (${plan.id.slice(0, 8)}).`
         )
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to delete locale. Please try again."
+          error?.message || "Failed to delete plan. Please try again."
         )
       })
       .finally(() => {
         setLoading(false)
-        setDeletingLocale(null)
+        setDeletingPlan(null)
       })
   }
 
@@ -193,14 +175,14 @@ export default function LocalesTable({
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <GlobeIcon />
+            <PackageIcon />
           </EmptyMedia>
-          <EmptyTitle>No Locales Yet</EmptyTitle>
+          <EmptyTitle>No Plans Yet</EmptyTitle>
           <EmptyDescription>
-            There have been no locales created yet.
+            There have been no plans created yet.
           </EmptyDescription>
           <EmptyDescription>
-            <CreateLocaleDialog canCreateLocales={canCreateLocales} />
+            <CreatePlanDialog canCreatePlans={canCreatePlans} />
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -214,7 +196,7 @@ export default function LocalesTable({
         <Input
           type="search"
           className="pl-10"
-          placeholder="Search locales by name or ID..."
+          placeholder="Search plans by name or ID..."
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value)
@@ -229,79 +211,66 @@ export default function LocalesTable({
             <TableRow>
               <TableHead className="w-28 text-center">ID</TableHead>
               <TableHead>Display Name</TableHead>
-              <TableHead>Language</TableHead>
-              <TableHead>Region</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead className="text-center">Flag</TableHead>
-              <TableHead className="text-center">
-                <HoverCard openDelay={10} closeDelay={10}>
-                  <HoverCardTrigger asChild>
-                    <Button variant="ghost">Enabled</Button>
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    Indicates whether the locale can be selected by users in
-                    their projects.
-                  </HoverCardContent>
-                </HoverCard>
-              </TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="text-center">Locales</TableHead>
+              <TableHead className="text-center">Terms</TableHead>
+              <TableHead className="text-center">Labels</TableHead>
+              <TableHead className="text-center">Members</TableHead>
               <TableHead className="w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {currentLocales.length > 0 ? (
-              currentLocales.map((locale) => (
-                <TableRow key={locale.id}>
+            {currentPlans.length > 0 ? (
+              currentPlans.map((plan) => (
+                <TableRow key={plan.id}>
                   <TableCell className="text-center">
-                    {locale.id.slice(0, 8)}
+                    {plan.id.slice(0, 8)}
                   </TableCell>
 
-                  <TableCell className="min-w-40">
-                    {locale.displayName}
-                  </TableCell>
-
-                  <TableCell className="min-w-32">{locale.language}</TableCell>
+                  <TableCell className="min-w-40">{plan.displayName}</TableCell>
 
                   <TableCell
                     className={cn(
                       "min-w-32",
-                      !locale.region && "text-muted-foreground italic"
+                      !plan.description && "text-muted-foreground italic"
                     )}
                   >
-                    {locale.region ?? "None"}
-                  </TableCell>
-
-                  <TableCell className="min-w-32">
-                    <Badge variant="outline">{locale.code}</Badge>
-                  </TableCell>
-
-                  <TableCell
-                    className={cn(
-                      "max-w-16 text-center",
-                      !locale.flag && "text-muted-foreground italic"
-                    )}
-                  >
-                    {locale.flag ?? "None"}
+                    {plan.description ?? "None"}
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <div className="flex items-center justify-center">
-                      {locale.enabled ? (
-                        <BadgeCheckIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                      ) : (
-                        <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
-                      )}
-                    </div>
+                    {plan.localesLimit
+                      ? plan.localesLimit.toLocaleString("en-US")
+                      : "∞"}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    {plan.termsLimit
+                      ? plan.termsLimit.toLocaleString("en-US")
+                      : "∞"}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    {plan.labelsLimit
+                      ? plan.labelsLimit.toLocaleString("en-US")
+                      : "∞"}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    {plan.membersLimit
+                      ? plan.membersLimit.toLocaleString("en-US")
+                      : "∞"}
                   </TableCell>
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      {canUpdateLocales ? (
+                      {canUpdatePlans ? (
                         <Sheet
-                          open={editingLocale !== null}
+                          open={editingPlan !== null}
                           onOpenChange={(open) => {
                             if (!open) {
-                              setEditingLocale(null)
+                              setEditingPlan(null)
                             }
                           }}
                         >
@@ -312,7 +281,7 @@ export default function LocalesTable({
                               size="icon"
                               className="inline-flex items-center p-1 text-sm"
                               disabled={loading}
-                              onClick={() => openEditor(locale)}
+                              onClick={() => openEditor(plan)}
                             >
                               <PencilIcon size={16} />
                             </Button>
@@ -321,29 +290,29 @@ export default function LocalesTable({
                           <SheetContent className="flex flex-col overflow-hidden">
                             <form
                               className="flex min-h-0 flex-1 flex-col overflow-hidden"
-                              onSubmit={handleUpdateLocale}
+                              onSubmit={handleUpdatePlan}
                             >
                               <SheetHeader className="shrink-0">
                                 <SheetTitle>
                                   Edit{" "}
                                   <span className="font-mono">
-                                    {editingLocale?.displayName} (
-                                    {editingLocale?.id.slice(0, 8)})
+                                    {editingPlan?.displayName} (
+                                    {editingPlan?.id.slice(0, 8)})
                                   </span>{" "}
                                 </SheetTitle>
                                 <SheetDescription>
-                                  Here you can edit the locale&rsquo;s details.
+                                  Here you can edit the plan&rsquo;s details.
                                 </SheetDescription>
                               </SheetHeader>
 
                               <ScrollArea className="min-h-0 flex-1 overflow-hidden">
                                 <div className="grid auto-rows-min gap-6 px-4 py-4">
                                   <div className="grid gap-3">
-                                    <Label htmlFor="localeName">
+                                    <Label htmlFor="planName">
                                       Display Name
                                     </Label>
                                     <Input
-                                      id="localeName"
+                                      id="planName"
                                       value={displayName}
                                       required
                                       disabled={loading}
@@ -353,86 +322,93 @@ export default function LocalesTable({
                                     />
                                   </div>
                                   <div className="grid gap-3">
-                                    <Label htmlFor="localeLanguage">
-                                      Language
+                                    <Label htmlFor="planDescription">
+                                      Description (optional)
                                     </Label>
                                     <Input
-                                      id="language"
-                                      value={language}
-                                      required
+                                      id="planDescription"
+                                      value={description || ""}
                                       disabled={loading}
                                       onChange={(event) =>
-                                        setLanguage(event.target.value)
+                                        setDescription(event.target.value)
                                       }
                                     />
                                   </div>
                                   <div className="grid gap-3">
-                                    <Label htmlFor="localeRegion">
-                                      Region (optional)
+                                    <Label htmlFor="planLocalesLimit">
+                                      Locales Limit (Empty for unlimited)
                                     </Label>
                                     <Input
-                                      id="region"
-                                      value={region || ""}
+                                      id="planLocalesLimit"
+                                      type="number"
+                                      value={localesLimit ?? ""}
+                                      placeholder="Enter locales limit..."
                                       disabled={loading}
                                       onChange={(event) =>
-                                        setRegion(event.target.value)
+                                        setLocalesLimit(
+                                          event.target.value
+                                            ? Number(event.target.value)
+                                            : null
+                                        )
                                       }
                                     />
                                   </div>
                                   <div className="grid gap-3">
-                                    <Label htmlFor="localeCode">
-                                      Locale Code
+                                    <Label htmlFor="planTermsLimit">
+                                      Terms Limit (Empty for unlimited)
                                     </Label>
                                     <Input
-                                      id="localeCode"
-                                      value={code}
-                                      required
+                                      id="planTermsLimit"
+                                      type="number"
+                                      value={termsLimit ?? ""}
+                                      placeholder="Enter terms limit..."
                                       disabled={loading}
                                       onChange={(event) =>
-                                        setCode(event.target.value)
+                                        setTermsLimit(
+                                          event.target.value
+                                            ? Number(event.target.value)
+                                            : null
+                                        )
                                       }
                                     />
                                   </div>
                                   <div className="grid gap-3">
-                                    <Label htmlFor="flag">Flag</Label>
+                                    <Label htmlFor="planLabelsLimit">
+                                      Labels Limit (Empty for unlimited)
+                                    </Label>
                                     <Input
-                                      id="flag"
-                                      value={flag ?? ""}
+                                      id="planLabelsLimit"
+                                      type="number"
+                                      value={labelsLimit ?? ""}
+                                      placeholder="Enter labels limit..."
                                       disabled={loading}
                                       onChange={(event) =>
-                                        setFlag(event.target.value)
+                                        setLabelsLimit(
+                                          event.target.value
+                                            ? Number(event.target.value)
+                                            : null
+                                        )
                                       }
                                     />
                                   </div>
                                   <div className="grid gap-3">
-                                    <Label htmlFor="enabled">Enabled</Label>
-                                    <ToggleGroup
-                                      type="single"
-                                      className="grid w-full grid-cols-2 border-2"
-                                      value={enabled ? "true" : "false"}
+                                    <Label htmlFor="planMembersLimit">
+                                      Members Limit (Empty for unlimited)
+                                    </Label>
+                                    <Input
+                                      id="planMembersLimit"
+                                      type="number"
+                                      value={membersLimit ?? ""}
+                                      placeholder="Enter members limit..."
                                       disabled={loading}
-                                      onValueChange={(value) => {
-                                        if (
-                                          value === "true" ||
-                                          value === "false"
-                                        ) {
-                                          setEnabled(value === "true")
-                                        }
-                                      }}
-                                    >
-                                      <ToggleGroupItem
-                                        value="true"
-                                        className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
-                                      >
-                                        Yes
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem
-                                        value="false"
-                                        className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
-                                      >
-                                        No
-                                      </ToggleGroupItem>
-                                    </ToggleGroup>
+                                      onChange={(event) =>
+                                        setMembersLimit(
+                                          event.target.value
+                                            ? Number(event.target.value)
+                                            : null
+                                        )
+                                      }
+                                    />
                                   </div>
                                 </div>
                               </ScrollArea>
@@ -441,11 +417,7 @@ export default function LocalesTable({
                                 <Button
                                   type="submit"
                                   disabled={
-                                    loading ||
-                                    !editingLocale ||
-                                    !displayName ||
-                                    !language ||
-                                    !code
+                                    loading || !editingPlan || !displayName
                                   }
                                 >
                                   {loading ? (
@@ -488,16 +460,16 @@ export default function LocalesTable({
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            You don&rsquo;t have permission to edit locales.
+                            You don&rsquo;t have permission to edit plans.
                           </TooltipContent>
                         </Tooltip>
                       )}
-                      {canDeleteLocales ? (
+                      {canDeletePlans ? (
                         <AlertDialog
-                          open={deletingLocale !== null}
+                          open={deletingPlan !== null}
                           onOpenChange={(open) => {
                             if (!open) {
-                              setDeletingLocale(null)
+                              setDeletingPlan(null)
                             }
                           }}
                         >
@@ -507,7 +479,7 @@ export default function LocalesTable({
                               size="icon"
                               className="inline-flex items-center p-1 text-sm"
                               disabled={loading}
-                              onClick={() => setDeletingLocale(locale)}
+                              onClick={() => setDeletingPlan(plan)}
                             >
                               <TrashIcon size={16} />
                             </Button>
@@ -519,10 +491,10 @@ export default function LocalesTable({
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 This action cannot be undone. This will
-                                permanently delete the locale{" "}
+                                permanently delete the plan{" "}
                                 <span className="font-mono">
-                                  {deletingLocale?.displayName} (
-                                  {deletingLocale?.id.slice(0, 8)})
+                                  {deletingPlan?.displayName} (
+                                  {deletingPlan?.id.slice(0, 8)})
                                 </span>{" "}
                                 and all associated translations in all projects.
                                 Please confirm that you want to proceed.
@@ -532,31 +504,31 @@ export default function LocalesTable({
                               <Button
                                 variant="outline"
                                 disabled={loading}
-                                onClick={() => setDeletingLocale(null)}
+                                onClick={() => setDeletingPlan(null)}
                               >
                                 Cancel
                               </Button>
                               <Button
                                 variant="destructive"
-                                disabled={loading || deletingLocale === null}
+                                disabled={loading || deletingPlan === null}
                                 onClick={(event) => {
                                   event.preventDefault()
-                                  if (!deletingLocale) {
+                                  if (!deletingPlan) {
                                     return
                                   }
 
-                                  void handleDeleteLocale(deletingLocale)
+                                  void handleDeletePlan(deletingPlan)
                                 }}
                               >
                                 {loading ? (
                                   <>
                                     <Spinner className="h-4 w-4" />
-                                    Deleting locale...
+                                    Deleting plan...
                                   </>
                                 ) : (
                                   <>
                                     <TrashIcon className="h-4 w-4" />
-                                    Delete Locale
+                                    Delete Plan
                                   </>
                                 )}
                               </Button>
@@ -581,7 +553,7 @@ export default function LocalesTable({
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            You don&rsquo;t have permission to delete locales.
+                            You don&rsquo;t have permission to delete this plan.
                           </TooltipContent>
                         </Tooltip>
                       )}
@@ -596,8 +568,8 @@ export default function LocalesTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No locales found matching your search."
-                    : "No locales found."}
+                    ? "No plans found matching your search."
+                    : "No plans found."}
                 </TableCell>
               </TableRow>
             )}

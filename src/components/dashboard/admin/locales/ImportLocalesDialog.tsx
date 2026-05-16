@@ -670,11 +670,12 @@ const IMPORTABLE_LOCALE_GROUPS = IMPORTABLE_LOCALES.reduce<
 }, [])
 
 export default function ImportLocalesDialog({
-  canCreateLocale,
+  canCreateLocales,
 }: {
-  canCreateLocale: boolean
+  canCreateLocales: boolean
 }) {
   const router = useRouter()
+
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [selectedLocales, setSelectedLocales] = useState<
@@ -749,26 +750,24 @@ export default function ImportLocalesDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreateLocale || loading ? "" : "cursor-not-allowed"}
+          className={canCreateLocales || loading ? "" : "cursor-not-allowed"}
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={!canCreateLocale || loading}>
-              <Button
-                variant="outline"
-                aria-disabled={!canCreateLocale || loading}
-              >
+            <DialogTrigger asChild disabled={!canCreateLocales || loading}>
+              <Button variant="outline" disabled={!canCreateLocales || loading}>
                 <ImportIcon className="mr-2 h-4 w-4" />
                 Import Locales
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {!canCreateLocale && (
+        {!canCreateLocales && (
           <TooltipContent>
             You don&rsquo;t have permission to create new locales.
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent className="sm:max-w-5xl">
         <DialogHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:pr-12">
           <div className="space-y-1">

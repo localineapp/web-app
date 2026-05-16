@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { notFound, unauthorized } from "next/navigation"
 import { generateId } from "better-auth"
+import { chunkArray } from "@/lib/utils"
 
 export async function getLocales({
   includeDisabled,
@@ -73,16 +74,6 @@ export async function createLocale({
       enabled,
     },
   })
-}
-
-function chunkArray<T>(items: T[], size: number) {
-  const chunks: T[][] = []
-
-  for (let index = 0; index < items.length; index += size) {
-    chunks.push(items.slice(index, index + size))
-  }
-
-  return chunks
 }
 
 export async function importLocales(

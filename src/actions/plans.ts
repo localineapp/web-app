@@ -1,9 +1,12 @@
+"use server"
+
 import { auth } from "@/lib/auth"
 import { Plan } from "@prisma/client"
 import { headers } from "next/headers"
 import { unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
+import { chunkArray } from "@/lib/utils"
 
 export async function getPlans(): Promise<Plan[]> {
   const session = await auth.api.getSession({
@@ -30,11 +33,11 @@ export async function createPlan({
   membersLimit,
 }: {
   displayName: string
-  description?: string
-  localesLimit?: number
-  termsLimit?: number
-  labelsLimit?: number
-  membersLimit?: number
+  description?: string | null
+  localesLimit?: number | null
+  termsLimit?: number | null
+  labelsLimit?: number | null
+  membersLimit?: number | null
 }): Promise<Plan> {
   const hasPermission = await auth.api.userHasPermission({
     headers: await headers(),
@@ -62,6 +65,42 @@ export async function createPlan({
   })
 }
 
+export async function createPlans(
+  plans: {
+    displayName: string
+    description?: string | null
+    localesLimit?: number | null
+    termsLimit?: number | null
+    labelsLimit?: number | null
+    membersLimit?: number | null
+  }[]
+): Promise<ReturnType<typeof prisma.plan.createMany>> {
+  const hasPermission = await auth.api.userHasPermission({
+    headers: await headers(),
+    body: {
+      permissions: {
+        plans: ["create"],
+      },
+    },
+  })
+
+  if (!hasPermission) {
+    return unauthorized()
+  }
+
+  return await prisma.plan.createMany({
+    data: plans.map((plan) => ({
+      id: generateId(),
+      displayName: plan.displayName,
+      description: plan.description,
+      localesLimit: plan.localesLimit,
+      termsLimit: plan.termsLimit,
+      labelsLimit: plan.labelsLimit,
+      membersLimit: plan.membersLimit,
+    })),
+  })
+}
+
 export async function updatePlan(
   id: string,
   {
@@ -73,11 +112,11 @@ export async function updatePlan(
     membersLimit,
   }: {
     displayName?: string
-    description?: string
-    localesLimit?: number
-    termsLimit?: number
-    labelsLimit?: number
-    membersLimit?: number
+    description?: string | null
+    localesLimit?: number | null
+    termsLimit?: number | null
+    labelsLimit?: number | null
+    membersLimit?: number | null
   }
 ): Promise<Plan> {
   const hasPermission = await auth.api.userHasPermission({

@@ -105,7 +105,7 @@ export default function UsersTable({
   const [banned, setBanned] = useState(false)
   const [banReason, setBanReason] = useState("")
   const [banExpires, setBanExpires] = useState("")
-  const [projectsLimit, setProjectsLimit] = useState("")
+  const [projectsLimit, setProjectsLimit] = useState<number>()
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredUsers = normalizedSearchQuery
@@ -139,7 +139,7 @@ export default function UsersTable({
     setBanned(Boolean(user.banned))
     setBanReason(user.banReason ?? "")
     setBanExpires(toDateTimeLocalValue(user.banExpires))
-    setProjectsLimit(String(getProjectsLimit(user) ?? ""))
+    setProjectsLimit(getProjectsLimit(user))
     setEditingUser(user)
   }
 
@@ -153,7 +153,7 @@ export default function UsersTable({
     setBanned(false)
     setBanReason("")
     setBanExpires("")
-    setProjectsLimit("")
+    setProjectsLimit(undefined)
   }
 
   async function handleUpdateUser(event: SubmitEvent<HTMLFormElement>) {
@@ -176,20 +176,22 @@ export default function UsersTable({
     const currentPassword = password.trim()
     const currentBanReason = banReason.trim()
     const currentBanExpires = banExpires.trim()
-    const currentProjectsLimit = projectsLimit.trim()
-    const parsedProjectsLimit = Number(currentProjectsLimit)
+    const currentProjectsLimit = projectsLimit
 
     if (!currentName || !currentEmail) {
       toast.error("Name and email are required.")
       return
     }
 
-    if (currentProjectsLimit !== "" && Number.isNaN(parsedProjectsLimit)) {
+    if (
+      currentProjectsLimit !== undefined &&
+      Number.isNaN(currentProjectsLimit)
+    ) {
       toast.error("Projects limit must be a valid number.")
       return
     }
 
-    if (currentProjectsLimit === "" && initialProjectsLimit !== null) {
+    if (currentProjectsLimit === undefined && initialProjectsLimit !== null) {
       toast.error("Projects limit cannot be empty.")
       return
     }
@@ -218,7 +220,7 @@ export default function UsersTable({
       (banned &&
         (currentBanReason !== initialBanReason ||
           currentBanExpires !== initialBanExpires)) ||
-      parsedProjectsLimit !== initialProjectsLimit
+      currentProjectsLimit !== initialProjectsLimit
 
     if (!hasChanges) {
       toast.info("No changes to save.")
@@ -243,8 +245,8 @@ export default function UsersTable({
         updateData.emailVerified = emailVerified
       }
 
-      if (parsedProjectsLimit !== initialProjectsLimit) {
-        updateData.projectsLimit = parsedProjectsLimit
+      if (currentProjectsLimit !== initialProjectsLimit) {
+        updateData.projectsLimit = currentProjectsLimit
       }
 
       if (Object.keys(updateData).length > 0) {
@@ -698,7 +700,11 @@ export default function UsersTable({
                                       placeholder="Enter projects limit..."
                                       disabled={loading}
                                       onChange={(event) =>
-                                        setProjectsLimit(event.target.value)
+                                        setProjectsLimit(
+                                          event.target.value
+                                            ? Number(event.target.value)
+                                            : undefined
+                                        )
                                       }
                                     />
                                   </div>

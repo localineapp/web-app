@@ -11,6 +11,7 @@ import {
   GlobeIcon,
   HomeIcon,
   LucideIcon,
+  PackageIcon,
   UsersIcon,
 } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
@@ -37,6 +38,7 @@ const adminNavigationItems: NavigationItem[] = [
   { name: "Users", icon: UsersIcon, href: "/admin/users" },
   { name: "Projects", icon: FoldersIcon, href: "/admin/projects" },
   { name: "Locales", icon: GlobeIcon, href: "/admin/locales" },
+  { name: "Plans", icon: PackageIcon, href: "/admin/plans" },
 ]
 
 export default function AppSidebar({

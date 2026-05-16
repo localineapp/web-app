@@ -37,7 +37,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import CreateProjectDialog from "./CreateProjectDialog"
+import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import { useSession } from "@/lib/auth-client"
 import { Project } from "@prisma/client"
 import { cn } from "@/lib/utils"
