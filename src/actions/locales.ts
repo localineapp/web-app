@@ -6,15 +6,16 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { notFound, unauthorized } from "next/navigation"
 import { generateId } from "better-auth"
-import { useSession } from "@/lib/auth-client"
 
 export async function getLocales({
-  session,
   includeDisabled,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   includeDisabled?: boolean
 }): Promise<Locale[]> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
   if (!session || !session.user) {
     return unauthorized()
   }

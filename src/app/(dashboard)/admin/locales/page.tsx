@@ -10,7 +10,7 @@ export default async function AdminLocalesPage() {
     headers: await headers(),
   })
 
-  const locales = await getLocales({ session, includeDisabled: true })
+  const locales = await getLocales({ includeDisabled: true })
 
   const canCreateLocale = (
     await auth.api.userHasPermission({
