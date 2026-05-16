@@ -30,7 +30,10 @@ export default async function ProjectsPage() {
         </div>
 
         <div>
-          <CreateProjectDialog session={session} projectCount={projects.length} />
+          <CreateProjectDialog
+            session={session}
+            projectCount={projects.length}
+          />
         </div>
       </div>
 

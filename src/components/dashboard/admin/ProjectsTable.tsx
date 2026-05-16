@@ -26,7 +26,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { Project, User } from "@prisma/client"
 import { ExternalLinkIcon, FoldersIcon, SearchIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -48,10 +47,10 @@ export default function ProjectsTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjects = normalizedSearchQuery
     ? projects.filter(
-      (project) =>
-        (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (project) =>
+          (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : projects
 
   const total = filteredProjects.length
@@ -109,7 +108,9 @@ export default function ProjectsTable({
           <TableBody>
             {currentProjects.length > 0 ? (
               currentProjects.map(({ id, name, description, members }) => {
-                const owner = members.find((member) => member.roleId === id)?.user
+                const owner = members.find(
+                  (member) => member.roleId === id
+                )?.user
 
                 return (
                   <TableRow key={id}>
@@ -119,9 +120,11 @@ export default function ProjectsTable({
 
                     <TableCell className="min-w-40">{name}</TableCell>
 
-                    <TableCell className={cn(
-                      !description && "text-muted-foreground italic"
-                    )}>
+                    <TableCell
+                      className={cn(
+                        !description && "text-muted-foreground italic"
+                      )}
+                    >
                       {description ?? "None"}
                     </TableCell>
 
@@ -139,7 +142,9 @@ export default function ProjectsTable({
                                 alt={owner.name || "Unknown User"}
                               />
                               <AvatarFallback className="bg-primary text-primary-foreground">
-                                {owner.name ? owner.name.charAt(0).toUpperCase() : "U"}
+                                {owner.name
+                                  ? owner.name.charAt(0).toUpperCase()
+                                  : "U"}
                               </AvatarFallback>
                             </Avatar>
                             <span className="max-w-full truncate text-sm font-medium text-foreground">
@@ -148,7 +153,9 @@ export default function ProjectsTable({
                           </div>
                         </>
                       ) : (
-                        <span className="text-sm italic text-muted-foreground">No owner</span>
+                        <span className="text-sm text-muted-foreground italic">
+                          No owner
+                        </span>
                       )}
                     </TableCell>
 

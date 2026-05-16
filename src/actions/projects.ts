@@ -1,11 +1,11 @@
 "use server"
 
-import { auth } from "@/lib/auth";
-import { Prisma, Project } from "@prisma/client";
-import { headers } from "next/headers";
-import { unauthorized } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { generateId } from "better-auth";
+import { auth } from "@/lib/auth"
+import { Prisma, Project } from "@prisma/client"
+import { headers } from "next/headers"
+import { unauthorized } from "next/navigation"
+import { prisma } from "@/lib/prisma"
+import { generateId } from "better-auth"
 
 const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
   include: {
@@ -13,7 +13,11 @@ const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
       include: {
         translations: {
           include: {
-            locale: true,
+            locale: {
+              include: {
+                locale: true,
+              },
+            },
           },
         },
         labels: true,
@@ -22,13 +26,34 @@ const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
     labels: true,
     members: {
       include: {
-        user: true,
+        user: {
+          omit: {
+            banned: true,
+            banReason: true,
+            banExpires: true,
+            email: true,
+            emailVerified: true,
+            lastLoginMethod: true,
+            projectsLimit: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
         role: true,
-        locales: true,
+        locales: {
+          include: {
+            locale: true,
+          },
+        },
       },
     },
     memberRoles: true,
-    locales: true,
+    locales: {
+      include: {
+        locale: true,
+      },
+    },
   },
 })
 
@@ -36,7 +61,11 @@ export type FullProject = Prisma.ProjectGetPayload<{
   include: typeof fullProjectArgs.include
 }>
 
-export async function getProjects({ includeAll }: { includeAll?: boolean }): Promise<FullProject[]> {
+export async function getProjects({
+  includeAll,
+}: {
+  includeAll?: boolean
+}): Promise<FullProject[]> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -48,15 +77,17 @@ export async function getProjects({ includeAll }: { includeAll?: boolean }): Pro
   const user = session.user
 
   if (includeAll) {
-    const hasPermission = (await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
-        role: session?.user.role ?? "user",
-        permissions: {
-          projects: ["read:all"],
+    const hasPermission = (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+          role: session?.user.role ?? "user",
+          permissions: {
+            projects: ["read:all"],
+          },
         },
-      },
-    })).success
+      })
+    ).success
     if (!hasPermission) {
       return unauthorized()
     }
@@ -67,19 +98,21 @@ export async function getProjects({ includeAll }: { includeAll?: boolean }): Pro
     where: includeAll
       ? undefined
       : {
-        members: {
-          some: {
-            userId: user.id,
+          members: {
+            some: {
+              userId: user.id,
+            },
           },
         },
-      },
     orderBy: {
       createdAt: "asc",
     },
   })
 }
 
-export async function getProject(projectId: string): Promise<FullProject | null> {
+export async function getProject(
+  projectId: string
+): Promise<FullProject | null> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -89,15 +122,17 @@ export async function getProject(projectId: string): Promise<FullProject | null>
   }
 
   const user = session.user
-  const hasPermission = (await auth.api.userHasPermission({
-    body: {
-      // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
-      role: user.role ?? "user",
-      permissions: {
-        projects: ["read:all"],
+  const hasPermission = (
+    await auth.api.userHasPermission({
+      body: {
+        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        role: user.role ?? "user",
+        permissions: {
+          projects: ["read:all"],
+        },
       },
-    },
-  })).success
+    })
+  ).success
 
   if (hasPermission) {
     return await prisma.project.findUnique({
@@ -121,7 +156,13 @@ export async function getProject(projectId: string): Promise<FullProject | null>
   }
 }
 
-export async function createProject({ name, description }: { name: string; description?: string }): Promise<Project> {
+export async function createProject({
+  name,
+  description,
+}: {
+  name: string
+  description?: string
+}): Promise<Project> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -139,14 +180,16 @@ export async function createProject({ name, description }: { name: string; descr
           userId: user.id,
           role: {
             name: "Owner",
-          }
+          },
         },
       },
     },
   })
 
   if (projectsLimit !== null && projectsCount >= projectsLimit) {
-    throw new Error("You have reached the maximum number of projects you can create.")
+    throw new Error(
+      "You have reached the maximum number of projects you can create."
+    )
   }
 
   const projectId = generateId()

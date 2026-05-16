@@ -1,3 +1,4 @@
+import { getProjects } from "@/actions/projects"
 import AppHeader from "@/components/dashboard/header"
 import AppSidebar from "@/components/dashboard/sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
@@ -12,6 +13,9 @@ export default async function DashboardLayout({
   const session = await auth.api.getSession({
     headers: await headers(),
   })
+  const projects = await getProjects({
+    includeAll: false,
+  })
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -19,7 +23,7 @@ export default async function DashboardLayout({
         <AppSidebar session={session} />
 
         <div className="flex flex-1 flex-col overflow-hidden">
-          <AppHeader session={session} />
+          <AppHeader session={session} projects={projects} />
 
           <main className="flex-1 overflow-auto bg-muted/30 p-4 lg:p-6">
             {children}

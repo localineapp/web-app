@@ -7,14 +7,16 @@ export default async function AdminDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const hasPermission = (await auth.api.userHasPermission({
-    headers: await headers(),
-    body: {
-      permissions: {
-        dashboard: ["admin"],
+  const hasPermission = (
+    await auth.api.userHasPermission({
+      headers: await headers(),
+      body: {
+        permissions: {
+          dashboard: ["admin"],
+        },
       },
-    },
-  })).success
+    })
+  ).success
 
   if (!hasPermission) {
     return unauthorized()

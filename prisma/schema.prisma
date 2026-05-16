@@ -94,9 +94,7 @@ model Locale {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  projects     Project[]
-  members      ProjectMember[]
-  translations ProjectTranslation[]
+  projectLocales ProjectLocale[]
 
   @@map("locale")
 }
@@ -110,11 +108,30 @@ model Project {
 
   members     ProjectMember[]
   memberRoles ProjectMemberRole[]
-  locales     Locale[]
+  locales     ProjectLocale[]
   terms       ProjectTerm[]
   labels      ProjectLabel[]
 
   @@map("project")
+}
+
+model ProjectLocale {
+  id        String   @id
+  projectId String
+  localeId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  locale  Locale  @relation(fields: [localeId], references: [id], onDelete: Cascade)
+
+  members      ProjectMember[]
+  translations ProjectTranslation[]
+
+  @@unique([projectId, localeId])
+  @@index([projectId(length: 191)])
+  @@index([localeId(length: 191)])
+  @@map("project_locale")
 }
 
 model ProjectTerm {
@@ -144,8 +161,8 @@ model ProjectTranslation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  term   ProjectTerm @relation(fields: [termId], references: [id], onDelete: Cascade)
-  locale Locale      @relation(fields: [localeId], references: [id], onDelete: Cascade)
+  term   ProjectTerm   @relation(fields: [termId], references: [id], onDelete: Cascade)
+  locale ProjectLocale @relation(fields: [localeId], references: [id], onDelete: Cascade)
 
   @@unique([termId, localeId])
   @@index([termId(length: 191)])
@@ -182,7 +199,7 @@ model ProjectMember {
   project Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   role    ProjectMemberRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  locales Locale[]
+  locales ProjectLocale[]
 
   @@unique([projectId, userId])
   @@index([projectId(length: 191)])

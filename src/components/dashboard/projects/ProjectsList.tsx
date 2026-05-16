@@ -101,7 +101,10 @@ export default function ProjectsList({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <CreateProjectDialog session={session} projectCount={projects.length} />
+          <CreateProjectDialog
+            session={session}
+            projectCount={projects.length}
+          />
         </EmptyContent>
       </Empty>
     )
@@ -158,9 +161,11 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
               <CardHeader>
                 <div>
                   <CardTitle>{name}</CardTitle>
-                  <CardDescription className={cn(
-                    !description && "text-muted-foreground italic"
-                  )}>
+                  <CardDescription
+                    className={cn(
+                      !description && "text-muted-foreground italic"
+                    )}
+                  >
                     {description ?? "No description."}
                   </CardDescription>
                 </div>

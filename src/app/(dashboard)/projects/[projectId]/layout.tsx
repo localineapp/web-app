@@ -1,6 +1,13 @@
 import { getProject } from "@/actions/projects"
 import { Button } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { AlertTriangleIcon, HomeIcon } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
@@ -21,7 +28,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: { default: projectId, template: `%s | ${projectId}` },
+    title: { default: project.name, template: `%s | ${project.name}` },
     robots: "noindex",
   }
 }
@@ -30,7 +37,7 @@ export default async function ProjectLayout({
   children,
   params,
 }: {
-  children: React.ReactNode,
+  children: React.ReactNode
   params: Promise<{ projectId: string }>
 }) {
   const { projectId } = await params

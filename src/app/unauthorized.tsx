@@ -1,13 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { auth } from "@/lib/auth";
-import { AlertTriangleIcon, HomeIcon, LogInIcon } from "lucide-react";
-import { headers } from "next/headers";
-import Link from "next/link";
+import { Button } from "@/components/ui/button"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { auth } from "@/lib/auth"
+import { AlertTriangleIcon, HomeIcon, LogInIcon } from "lucide-react"
+import { headers } from "next/headers"
+import Link from "next/link"
 
 export default async function UnauthorizedPage() {
   const session = await auth.api.getSession({
-    headers: await headers()
+    headers: await headers(),
   })
   const isAuthenticated = !!session?.user
 

@@ -51,8 +51,10 @@ export default function CreateProjectDialog({
       name: projectName,
       description: projectDescription || undefined,
     })
-      .then(project => {
-        toast.success(`Created project ${projectName} (${project.id.slice(0, 8)}).`)
+      .then((project) => {
+        toast.success(
+          `Created project ${projectName} (${project.id.slice(0, 8)}).`
+        )
         router.refresh()
       })
       .catch((error) => {
