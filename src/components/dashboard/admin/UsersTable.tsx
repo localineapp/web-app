@@ -406,8 +406,8 @@ export default function UsersTable({
           className="pl-10"
           placeholder="Search users by name, email, or ID..."
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value)
+          onChange={({ target: { value } }) => {
+            setSearchQuery(value)
             setPage(1)
           }}
         />
@@ -890,7 +890,7 @@ export default function UsersTable({
         </div>
 
         <div className="flex items-center gap-4">
-          <Pagination aria-label="Pagination">
+          <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious

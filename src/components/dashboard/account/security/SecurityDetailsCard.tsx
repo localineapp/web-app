@@ -273,7 +273,7 @@ export default function SecurityDetailsCard({
                       value={currentPassword}
                       placeholder="Enter your current password"
                       disabled={loading}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      onChange={({ target: { value } }) => setCurrentPassword(value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -284,7 +284,7 @@ export default function SecurityDetailsCard({
                       value={newPassword}
                       placeholder="Enter your new password"
                       disabled={loading}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      onChange={({ target: { value } }) => setNewPassword(value)}
                     />
                   </div>
                 </div>
@@ -355,7 +355,7 @@ export default function SecurityDetailsCard({
                       value={newPassword}
                       placeholder="Enter your new password"
                       disabled={loading}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      onChange={({ target: { value } }) => setNewPassword(value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -366,7 +366,7 @@ export default function SecurityDetailsCard({
                       value={confirmNewPassword}
                       placeholder="Confirm your new password"
                       disabled={loading}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      onChange={({ target: { value } }) => setConfirmNewPassword(value)}
                     />
                   </div>
                 </div>

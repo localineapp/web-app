@@ -98,7 +98,7 @@ export default function CreatePlanDialog({
               id="planName"
               placeholder="e.g. Basic"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              onChange={({ target: { value } }) => setDisplayName(value)}
             />
           </div>
           <div className="space-y-2">
@@ -107,7 +107,7 @@ export default function CreatePlanDialog({
               id="planDescription"
               placeholder="e.g. A basic plan with essential features"
               value={description || ""}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={({ target: { value } }) => setDescription(value)}
             />
           </div>
         </div>

@@ -92,7 +92,7 @@ export default function ResetPasswordForm() {
               value={password}
               disabled={loading}
               className="pr-10 pl-10"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={({ target: { value } }) => setPassword(value)}
             />
             <button
               type="button"

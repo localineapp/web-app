@@ -107,6 +107,7 @@ model Plan {
   termsLimit   Int?     @db.Int
   labelsLimit  Int?     @db.Int
   membersLimit Int?     @db.Int
+  default      Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

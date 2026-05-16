@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/empty"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import { useSession } from "@/lib/auth-client"
-import { Project } from "@prisma/client"
+import { Plan, Project } from "@prisma/client"
 import { cn } from "@/lib/utils"
 
 interface ProjectsListProps {
@@ -69,9 +69,11 @@ function setCookie(name: string, value: string, days = 365) {
 export default function ProjectsList({
   session,
   projects = [],
+  defaultPlan,
 }: {
   session: ReturnType<typeof useSession>["data"]
   projects: Project[]
+  defaultPlan: Plan | null
 }) {
   const [view, setView] = useState<"table" | "cards">("table")
   const [page, setPage] = useState<number>(1)
@@ -104,6 +106,7 @@ export default function ProjectsList({
           <CreateProjectDialog
             session={session}
             projectCount={projects.length}
+            defaultPlan={defaultPlan}
           />
         </EmptyContent>
       </Empty>
@@ -122,7 +125,6 @@ export default function ProjectsList({
               if (v === "table" || v === "cards")
                 selectView(v as "table" | "cards")
             }}
-            aria-label="Select view"
             className="ml-2"
           >
             <ToggleGroupItem value="table">Table</ToggleGroupItem>
@@ -175,10 +177,9 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
                     variant="ghost"
                     size="icon"
                     className="inline-flex items-center p-1 text-sm"
-                    aria-label="Project settings"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      e.preventDefault()
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      event.preventDefault()
                       router.push(`/projects/${id}/settings`)
                     }}
                   >
@@ -203,12 +204,12 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <Pagination aria-label="Pagination">
+          <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={(e) => {
-                    e.preventDefault()
+                  onClick={(event) => {
+                    event.preventDefault()
                     if (page > 1) setPage(page - 1)
                   }}
                   className={
@@ -225,8 +226,8 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
 
               <PaginationItem>
                 <PaginationNext
-                  onClick={(e) => {
-                    e.preventDefault()
+                  onClick={(event) => {
+                    event.preventDefault()
                     if (page < totalPages) setPage(page + 1)
                   }}
                   className={
@@ -323,12 +324,12 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <Pagination aria-label="Pagination">
+          <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={(e) => {
-                    e.preventDefault()
+                  onClick={(event) => {
+                    event.preventDefault()
                     if (page > 1) setPage(page - 1)
                   }}
                   className={
@@ -345,8 +346,8 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
 
               <PaginationItem>
                 <PaginationNext
-                  onClick={(e) => {
-                    e.preventDefault()
+                  onClick={(event) => {
+                    event.preventDefault()
                     if (page < totalPages) setPage(page + 1)
                   }}
                   className={

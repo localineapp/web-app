@@ -74,7 +74,7 @@ export default function SignInForm({
             required
             value={email}
             disabled={loading}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={({ target: { value } }) => setEmail(value)}
           />
         </div>
 
@@ -100,7 +100,7 @@ export default function SignInForm({
               value={password}
               disabled={loading}
               className="pr-10 pl-10"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={({ target: { value } }) => setPassword(value)}
             />
             <button
               type="button"

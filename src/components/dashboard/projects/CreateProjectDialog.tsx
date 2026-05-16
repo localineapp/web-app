@@ -20,6 +20,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip"
 import { useSession } from "@/lib/auth-client"
+import { Plan } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
@@ -28,9 +29,11 @@ import { toast } from "sonner"
 export default function CreateProjectDialog({
   session,
   projectCount,
+  defaultPlan,
 }: {
   session: ReturnType<typeof useSession>["data"]
   projectCount: number
+  defaultPlan: Plan | null
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -50,7 +53,7 @@ export default function CreateProjectDialog({
     await createProject({
       name: projectName,
       description: projectDescription || undefined,
-      planId: "", // TODO
+      planId: defaultPlan?.id || "",
     })
       .then((project) => {
         toast.success(
@@ -76,13 +79,13 @@ export default function CreateProjectDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreateProject || loading ? "" : "cursor-not-allowed"}
+          className={canCreateProject && defaultPlan && !loading ? "" : "cursor-not-allowed"}
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={!canCreateProject || loading}>
+            <DialogTrigger asChild disabled={!canCreateProject || !defaultPlan || loading}>
               <Button
                 variant="outline"
-                aria-disabled={!canCreateProject || loading}
+                disabled={!canCreateProject || !defaultPlan || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New Project
@@ -90,9 +93,11 @@ export default function CreateProjectDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {!canCreateProject && (
+        {(!canCreateProject || !defaultPlan) && (
           <TooltipContent>
-            {projectLimit === 0
+            {!defaultPlan ? (
+              "No default plan found. Please contact your administrator."
+            ) : projectLimit === 0
               ? "The project limit for your account is currently set to 0."
               : `You have reached your project limit (${projectCount}/${projectLimit})`}
           </TooltipContent>
@@ -112,7 +117,7 @@ export default function CreateProjectDialog({
               id="projectName"
               placeholder="My Project"
               value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
+              onChange={({ target: { value } }) => setProjectName(value)}
             />
           </div>
           <div className="space-y-2">
@@ -121,7 +126,7 @@ export default function CreateProjectDialog({
               id="projectDescription"
               placeholder="A brief description of your project"
               value={projectDescription}
-              onChange={(e) => setProjectDescription(e.target.value)}
+              onChange={({ target: { value } }) => setProjectDescription(value)}
             />
           </div>
         </div>

@@ -56,7 +56,7 @@ export default function ForgotPasswordForm() {
             required
             value={email}
             disabled={loading}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={({ target: { value } }) => setEmail(value)}
           />
         </div>
 

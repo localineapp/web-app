@@ -78,7 +78,6 @@ export default function SocialAuthButtons({
             variant="outline"
             className="relative flex items-center justify-center gap-2 disabled:cursor-not-allowed"
             onClick={async () => handleSocialSignIn(id)}
-            aria-label={label}
             disabled={loading}
           >
             <Icon className={iconClassName ?? "h-4 w-4"} />

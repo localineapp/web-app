@@ -69,6 +69,7 @@ export default async function AdminPlansPage() {
           canCreatePlans={canCreatePlans}
           canUpdatePlans={canUpdatePlans}
           canDeletePlans={canDeletePlans}
+          existsDefaultPlan={plans.some((plan) => plan.default)}
         />
       </div>
     </div>

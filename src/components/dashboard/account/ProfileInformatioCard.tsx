@@ -47,7 +47,6 @@ export default function ProfileInformationCard({
             variant="ghost"
             size="icon-xs"
             className="shrink-0"
-            aria-label="Copy user ID"
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(user?.id ?? "")

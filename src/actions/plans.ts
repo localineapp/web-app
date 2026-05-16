@@ -3,10 +3,9 @@
 import { auth } from "@/lib/auth"
 import { Plan } from "@prisma/client"
 import { headers } from "next/headers"
-import { unauthorized } from "next/navigation"
+import { notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
-import { chunkArray } from "@/lib/utils"
 
 export async function getPlans(): Promise<Plan[]> {
   const session = await auth.api.getSession({
@@ -20,6 +19,22 @@ export async function getPlans(): Promise<Plan[]> {
   return await prisma.plan.findMany({
     orderBy: {
       createdAt: "asc",
+    },
+  })
+}
+
+export async function getDefaultPlan(): Promise<Plan | null> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session || !session.user) {
+    return unauthorized()
+  }
+
+  return await prisma.plan.findFirst({
+    where: {
+      default: true,
     },
   })
 }
@@ -142,6 +157,37 @@ export async function updatePlan(
       labelsLimit,
       membersLimit,
     },
+  })
+}
+
+export async function updateDefaultPlan(planId: string): Promise<Plan> {
+  const hasPermission = await auth.api.userHasPermission({
+    headers: await headers(),
+    body: {
+      permissions: {
+        plans: ["update"],
+      },
+    },
+  })
+
+  if (!hasPermission) {
+    return unauthorized()
+  }
+
+  if ((await prisma.plan.count({ where: { id: planId } })) === 0) {
+    return notFound()
+  }
+
+  return await prisma.$transaction(async (prisma) => {
+    await prisma.plan.updateMany({
+      where: { default: true },
+      data: { default: false },
+    })
+
+    return await prisma.plan.update({
+      where: { id: planId },
+      data: { default: true },
+    })
   })
 }
 

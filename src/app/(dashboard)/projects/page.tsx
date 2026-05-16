@@ -1,3 +1,4 @@
+import { getDefaultPlan } from "@/actions/plans"
 import { getProjects } from "@/actions/projects"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import ProjectsList from "@/components/dashboard/projects/ProjectsList"
@@ -18,6 +19,8 @@ export default async function ProjectsPage() {
     includeAll: false,
   })
 
+  const defaultPlan = await getDefaultPlan()
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -33,12 +36,13 @@ export default async function ProjectsPage() {
           <CreateProjectDialog
             session={session}
             projectCount={projects.length}
+            defaultPlan={defaultPlan}
           />
         </div>
       </div>
 
       <div>
-        <ProjectsList session={session} projects={projects} />
+        <ProjectsList session={session} projects={projects} defaultPlan={defaultPlan} />
       </div>
     </div>
   )

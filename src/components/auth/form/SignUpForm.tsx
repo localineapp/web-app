@@ -107,7 +107,7 @@ export default function SignUpForm({
             required
             value={name}
             disabled={loading}
-            onChange={(e) => setName(e.target.value)}
+            onChange={({ target: { value } }) => setName(value)}
           />
         </div>
 
@@ -119,7 +119,7 @@ export default function SignUpForm({
             required
             value={email}
             disabled={loading}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={({ target: { value } }) => setEmail(value)}
           />
         </div>
 
@@ -136,7 +136,7 @@ export default function SignUpForm({
               value={password}
               disabled={loading}
               className="pr-10 pl-10"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={({ target: { value } }) => setPassword(value)}
             />
             <button
               type="button"

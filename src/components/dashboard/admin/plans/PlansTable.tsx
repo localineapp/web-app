@@ -1,6 +1,6 @@
 "use client"
 
-import { deletePlan, updatePlan } from "@/actions/plans"
+import { deletePlan, updateDefaultPlan, updatePlan } from "@/actions/plans"
 import {
   Empty,
   EmptyDescription,
@@ -9,7 +9,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Plan } from "@prisma/client"
-import { PackageIcon, PencilIcon, SearchIcon, TrashIcon } from "lucide-react"
+import {
+  AlertTriangleIcon,
+  BadgeCheckIcon,
+  BadgeXIcon,
+  PackageIcon,
+  PencilIcon,
+  SearchIcon,
+  TrashIcon,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
@@ -59,6 +67,7 @@ import {
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const PAGE_SIZE = 10
 
@@ -67,11 +76,13 @@ export default function PlansTable({
   canCreatePlans,
   canUpdatePlans,
   canDeletePlans,
+  existsDefaultPlan,
 }: {
   plans: Plan[]
   canCreatePlans: boolean
   canUpdatePlans: boolean
   canDeletePlans: boolean
+  existsDefaultPlan: boolean
 }) {
   const router = useRouter()
 
@@ -91,13 +102,13 @@ export default function PlansTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredPlans = normalizedSearchQuery
     ? plans.filter(
-        (plan) =>
-          (plan.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (plan.displayName ?? "")
-            .toLowerCase()
-            .includes(normalizedSearchQuery) ||
-          (plan.description ?? "").toLowerCase().includes(normalizedSearchQuery)
-      )
+      (plan) =>
+        (plan.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (plan.displayName ?? "")
+          .toLowerCase()
+          .includes(normalizedSearchQuery) ||
+        (plan.description ?? "").toLowerCase().includes(normalizedSearchQuery)
+    )
     : plans
 
   const total = filteredPlans.length
@@ -116,6 +127,31 @@ export default function PlansTable({
     setLabelsLimit(plan.labelsLimit)
     setMembersLimit(plan.membersLimit)
     setEditingPlan(plan)
+  }
+
+  async function handleUpdateDefaultPlan(plan: Plan) {
+    if (plan.default) {
+      toast.error(`Plan ${plan.displayName} (${plan.id.slice(0, 8)}) is already the default plan.`)
+      return
+    }
+
+    setLoading(true)
+
+    await updateDefaultPlan(plan.id)
+      .then(() => {
+        toast.success(
+          `Set plan ${plan.displayName} (${plan.id.slice(0, 8)}) as default.`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to update default plan. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   async function handleUpdatePlan(event: SubmitEvent<HTMLFormElement>) {
@@ -191,6 +227,16 @@ export default function PlansTable({
 
   return (
     <div>
+      {!existsDefaultPlan && (
+        <Alert className="mt-2 mb-2 max-w-xl border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
+          <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+          <AlertTitle>No Default Plan</AlertTitle>
+          <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+            There is currently no default plan set. This means that new projects can&rsquo;t be created because every project must be associated with a plan.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="relative mb-2 flex w-full max-w-md items-center">
         <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -198,8 +244,8 @@ export default function PlansTable({
           className="pl-10"
           placeholder="Search plans by name or ID..."
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value)
+          onChange={({ target: { value } }) => {
+            setSearchQuery(value)
             setPage(1)
           }}
         />
@@ -212,6 +258,7 @@ export default function PlansTable({
               <TableHead className="w-28 text-center">ID</TableHead>
               <TableHead>Display Name</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead className="text-center">Default</TableHead>
               <TableHead className="text-center">Locales</TableHead>
               <TableHead className="text-center">Terms</TableHead>
               <TableHead className="text-center">Labels</TableHead>
@@ -237,6 +284,25 @@ export default function PlansTable({
                     )}
                   >
                     {plan.description ?? "None"}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="cursor-default rounded-full p-0"
+                      disabled={loading}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        handleUpdateDefaultPlan(plan)
+                      }}
+                    >
+                      {plan.default ? (
+                        <BadgeCheckIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      ) : (
+                        <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                      )}
+                    </Button>
                   </TableCell>
 
                   <TableCell className="text-center">
@@ -583,7 +649,7 @@ export default function PlansTable({
         </div>
 
         <div className="flex items-center gap-4">
-          <Pagination aria-label="Pagination">
+          <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious

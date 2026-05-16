@@ -79,7 +79,7 @@ export default function CreateLocaleDialog({
             <DialogTrigger asChild disabled={!canCreateLocales || loading}>
               <Button
                 variant="outline"
-                aria-disabled={!canCreateLocales || loading}
+                disabled={!canCreateLocales || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New Locale
@@ -105,7 +105,7 @@ export default function CreateLocaleDialog({
               id="localeLanguage"
               placeholder="e.g. English"
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              onChange={({ target: { value } }) => setLanguage(value)}
             />
           </div>
           <div className="space-y-2">
@@ -114,7 +114,7 @@ export default function CreateLocaleDialog({
               id="localeRegion"
               placeholder="e.g. United States"
               value={region || ""}
-              onChange={(e) => setRegion(e.target.value)}
+              onChange={({ target: { value } }) => setRegion(value)}
             />
           </div>
           <div className="space-y-2">
@@ -123,7 +123,7 @@ export default function CreateLocaleDialog({
               id="localeCode"
               placeholder="e.g. en_US"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={({ target: { value } }) => setCode(value)}
             />
           </div>
         </div>

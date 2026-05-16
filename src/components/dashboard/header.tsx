@@ -122,7 +122,7 @@ export default function AppHeader({
               placeholder="Search projects by name or ID..."
               value={searchQuery}
               disabled={loading || projects.length === 0}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={({ target: { value } }) => setSearchQuery(value)}
               className="pl-10"
             />
           </div>

@@ -189,7 +189,6 @@ export default function SessionsTable({
                           variant="ghost"
                           size="icon"
                           className="inline-flex items-center p-1 text-sm"
-                          aria-label={`Copy session ID`}
                           onClick={() => {
                             void copySessionId(session.id)
                           }}
@@ -208,7 +207,6 @@ export default function SessionsTable({
                                   variant="destructive"
                                   size="icon"
                                   className="inline-flex items-center p-1 text-sm"
-                                  aria-label="Current session cannot be revoked"
                                   disabled
                                 >
                                   <TrashIcon size={16} />
@@ -224,7 +222,6 @@ export default function SessionsTable({
                             variant="destructive"
                             size="icon"
                             className="inline-flex items-center p-1 text-sm"
-                            aria-label="Revoke session"
                             onClick={(event) => {
                               event.preventDefault()
                               void handleRevokeSession(session.token)
@@ -258,7 +255,7 @@ export default function SessionsTable({
         </div>
 
         <div className="flex items-center gap-4">
-          <Pagination aria-label="Pagination">
+          <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
