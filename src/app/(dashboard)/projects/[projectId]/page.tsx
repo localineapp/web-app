@@ -1,16 +1,8 @@
 import { getProject } from "@/actions/projects"
 import StatisticCards from "@/components/dashboard/projects/project/StatisticCards"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import {
-  ArrowLeftIcon,
-  GlobeIcon,
-  LibraryIcon,
-  PercentIcon,
-  UsersIcon,
-} from "lucide-react"
+import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
 
 export default async function ProjectPage({

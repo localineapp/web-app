@@ -12,13 +12,6 @@ import {
 import { CogIcon, ExternalLinkIcon, FolderCodeIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-} from "@/components/ui/pagination"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Card,
@@ -41,6 +34,7 @@ import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDi
 import { useSession } from "@/lib/auth-client"
 import { Plan, Project } from "@prisma/client"
 import { cn } from "@/lib/utils"
+import TablePagination from "@/components/dashboard/table-pagination"
 
 interface ProjectsListProps {
   projects: Project[]
@@ -147,9 +141,11 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
 
   const total = projects.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_CARDS))
-  const startIndex = (page - 1) * PAGE_SIZE_CARDS
-  const endIndex = Math.min(total, page * PAGE_SIZE_CARDS)
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * PAGE_SIZE_CARDS
+  const endIndex = Math.min(total, currentPage * PAGE_SIZE_CARDS)
   const currentProjects = projects.slice(startIndex, endIndex)
+  const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
   return (
     <>
@@ -198,49 +194,14 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
         ))}
       </div>
 
-      <div className="mt-4 flex items-center justify-between px-2 text-sm text-muted-foreground">
-        <div>
-          Page {page} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (page > 1) setPage(page - 1)
-                  }}
-                  className={
-                    page === 1
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1}-{endIndex} of {total}
-              </div>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (page < totalPages) setPage(page + 1)
-                  }}
-                  className={
-                    page === totalPages
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
     </>
   )
 }
@@ -248,9 +209,11 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
 export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
   const total = projects.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_TABLE))
-  const startIndex = (page - 1) * PAGE_SIZE_TABLE
-  const endIndex = Math.min(total, page * PAGE_SIZE_TABLE)
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * PAGE_SIZE_TABLE
+  const endIndex = Math.min(total, currentPage * PAGE_SIZE_TABLE)
   const currentProjects = projects.slice(startIndex, endIndex)
+  const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
   return (
     <>
@@ -318,49 +281,14 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
         </Table>
       </div>
 
-      <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
-        <div>
-          Page {page} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (page > 1) setPage(page - 1)
-                  }}
-                  className={
-                    page === 1
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1}-{endIndex} of {total}
-              </div>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (page < totalPages) setPage(page + 1)
-                  }}
-                  className={
-                    page === totalPages
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
     </>
   )
 }

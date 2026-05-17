@@ -26,13 +26,6 @@ import {
 } from "@/components/ui/hover-card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Sheet,
@@ -73,6 +66,7 @@ import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 import CreateLocaleDialog from "@/components/dashboard/admin/locales/CreateLocaleDialog"
 import { cn } from "@/lib/utils"
+import TablePagination from "@/components/dashboard/table-pagination"
 
 const PAGE_SIZE = 10
 
@@ -605,49 +599,14 @@ export default function LocalesTable({
         </Table>
       </div>
 
-      <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
-        <div>
-          Page {currentPage} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (currentPage > 1) setPage(currentPage - 1)
-                  }}
-                  className={
-                    currentPage === 1
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              <div className="text-sm text-muted-foreground">
-                Showing {displayStartIndex}-{endIndex} of {total}
-              </div>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (currentPage < totalPages) setPage(currentPage + 1)
-                  }}
-                  className={
-                    currentPage === totalPages
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
     </div>
   )
 }

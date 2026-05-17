@@ -1,7 +1,7 @@
-import { BackgroundPattern } from "@/components/background-pattern"
+import BackgroundPattern from "@/components/background-pattern"
+import LocalineLogo from "@/components/logo"
 import { KeyIcon, LanguagesIcon, UsersIcon } from "lucide-react"
 import { Metadata } from "next"
-import Image from "next/image"
 
 export const metadata: Metadata = {
   robots: {
@@ -21,14 +21,7 @@ export default function AuthLayout({
         <BackgroundPattern />
 
         <div className="relative z-10 flex items-center gap-2 font-semibold">
-          <Image
-            src="/logo.png"
-            alt="Localine Logo"
-            width={32}
-            height={32}
-            preload={true}
-            className="object-contain"
-          />
+          <LocalineLogo />
           <span className="text-xl">Localine</span>
         </div>
 

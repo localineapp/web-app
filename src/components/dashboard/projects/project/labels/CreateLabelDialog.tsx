@@ -1,16 +1,28 @@
 "use client"
 
-import { FullProject } from "@/actions/projects";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSession } from "@/lib/auth-client";
-import { PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { MouseEvent, useState } from "react";
+import { FullProject } from "@/actions/projects"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useSession } from "@/lib/auth-client"
+import { PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { MouseEvent, useState } from "react"
 
 export default function CreateLabelDialog({
   session,
@@ -21,17 +33,19 @@ export default function CreateLabelDialog({
 }) {
   const router = useRouter()
 
-  const [loading, setLoading] = useState(false)
-  const [isDialogOpen, setDialogOpen] = useState(false)
-  const [labelName, setLabelName] = useState("")
-  const [labelDescription, setLabelDescription] = useState<string | null>(null)
-  const [labelColor, setLabelColor] = useState("#ffffff")
-  const [labelIcon, setLabelIcon] = useState("")
-
   const user = session?.user
 
+  const [loading, setLoading] = useState(false)
+  const [isDialogOpen, setDialogOpen] = useState(false)
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState<string | null>(null)
+  const [color, setColor] = useState("#ffffff")
+  const [icon, setIcon] = useState("")
+
   const canCreateLabels = true // TODO: Determine if the user can create labels based on their membership role
-  const isLimitReached = project.plan.labelsLimit !== null && project.labels.length >= project.plan.labelsLimit
+  const isLimitReached =
+    project.plan.labelsLimit !== null &&
+    project.labels.length >= project.plan.labelsLimit
 
   const handleCreateLabel = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -68,7 +82,8 @@ export default function CreateLabelDialog({
           <TooltipContent>
             {!canCreateLabels
               ? "You don't have permission to create labels in this project."
-              : isLimitReached ?? "This project has reached the maximum number of labels allowed by your plan."}
+              : (isLimitReached ??
+                "This project has reached the maximum number of labels allowed by your plan.")}
           </TooltipContent>
         )}
       </Tooltip>
@@ -85,8 +100,8 @@ export default function CreateLabelDialog({
             <Input
               id="labelName"
               placeholder="My Label"
-              value={labelName}
-              onChange={({ target: { value } }) => setLabelName(value)}
+              value={name}
+              onChange={({ target: { value } }) => setName(value)}
             />
           </div>
           <div className="space-y-2">
@@ -94,8 +109,8 @@ export default function CreateLabelDialog({
             <Input
               id="labelDescription"
               placeholder="A brief description of your label"
-              value={labelDescription ?? ""}
-              onChange={({ target: { value } }) => setLabelDescription(value)}
+              value={description ?? ""}
+              onChange={({ target: { value } }) => setDescription(value)}
             />
           </div>
         </div>
@@ -104,10 +119,10 @@ export default function CreateLabelDialog({
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setLabelName("")
-              setLabelDescription(null)
-              setLabelColor("#ffffff")
-              setLabelIcon("")
+              setName("")
+              setDescription(null)
+              setColor("#ffffff")
+              setIcon("")
             }}
             disabled={loading}
           >
@@ -116,7 +131,7 @@ export default function CreateLabelDialog({
           <Button
             variant="outline"
             onClick={handleCreateLabel}
-            disabled={!labelName || loading}
+            disabled={!name || loading}
           >
             {loading ? (
               <>

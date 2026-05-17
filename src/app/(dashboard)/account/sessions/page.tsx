@@ -13,9 +13,11 @@ export const metadata: Metadata = {
 
 export default async function SessionsPage() {
   const requestHeaders = await headers()
+
   const session = await auth.api.getSession({
     headers: requestHeaders,
   })
+
   const sessions = await auth.api.listSessions({
     headers: requestHeaders,
   })

@@ -43,7 +43,11 @@ export default async function ProjectLocalesPage({
         </div>
 
         <div className="flex gap-2">
-          <AddLocaleDialog session={session} project={project} locales={locales} />
+          <AddLocaleDialog
+            session={session}
+            project={project}
+            locales={locales}
+          />
         </div>
       </div>
 

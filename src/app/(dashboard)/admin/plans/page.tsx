@@ -10,13 +10,14 @@ export default async function AdminPlansPage() {
     headers: await headers(),
   })
 
-  const user = session?.user
   const plans = await getPlans()
+
+  const user = session?.user
 
   const canCreatePlans = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           plans: ["create"],
@@ -24,10 +25,11 @@ export default async function AdminPlansPage() {
       },
     })
   ).success
+
   const canUpdatePlans = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           plans: ["update"],
@@ -35,10 +37,11 @@ export default async function AdminPlansPage() {
       },
     })
   ).success
+
   const canDeletePlans = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           plans: ["delete"],

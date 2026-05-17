@@ -3,11 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { GlobeIcon, LibraryIcon, PercentIcon, UsersIcon } from "lucide-react"
 
-export default function StatisticCards({
-  project,
-}: {
-  project: FullProject
-}) {
+export default function StatisticCards({ project }: { project: FullProject }) {
   const terms = project?.terms
   const locales = project?.locales
   const members = project?.members
@@ -42,7 +38,8 @@ export default function StatisticCards({
               <div className="text-2xl font-bold">{progress.toFixed(1)}%</div>
               <Progress value={progress} className="mt-2" />
               <p className="mt-2 text-xs text-muted-foreground">
-                {translatedCount?.toLocaleString("en-US")} of {totalTranslations?.toLocaleString("en-US")} translations
+                {translatedCount?.toLocaleString("en-US")} of{" "}
+                {totalTranslations?.toLocaleString("en-US")} translations
               </p>
             </>
           )}
@@ -55,14 +52,16 @@ export default function StatisticCards({
         </CardHeader>
         <CardContent>
           {terms?.length === 0 ? (
-            <p className="text-muted-foreground italic">
-              No terms available.
-            </p>
+            <p className="text-muted-foreground italic">No terms available.</p>
           ) : (
             <>
               <div className="flex items-baseline gap-1">
-                <div className="text-2xl font-bold">{terms?.length?.toLocaleString("en-US")}</div>
-                <div className="h-2">/{plan?.termsLimit?.toLocaleString("en-US") ?? "∞"}</div>
+                <div className="text-2xl font-bold">
+                  {terms?.length?.toLocaleString("en-US")}
+                </div>
+                <div className="h-2">
+                  /{plan?.termsLimit?.toLocaleString("en-US") ?? "∞"}
+                </div>
               </div>
               <p>terms have been added to this project.</p>
             </>
@@ -82,8 +81,12 @@ export default function StatisticCards({
           ) : (
             <>
               <div className="flex items-baseline gap-1">
-                <div className="text-2xl font-bold">{locales?.length?.toLocaleString("en-US")}</div>
-                <div className="h-2">/{plan?.localesLimit?.toLocaleString("en-US") ?? "∞"}</div>
+                <div className="text-2xl font-bold">
+                  {locales?.length?.toLocaleString("en-US")}
+                </div>
+                <div className="h-2">
+                  /{plan?.localesLimit?.toLocaleString("en-US") ?? "∞"}
+                </div>
               </div>
               <p>locales have been added to this project.</p>
             </>
@@ -103,12 +106,16 @@ export default function StatisticCards({
           ) : (
             <>
               <div className="flex items-baseline gap-1">
-                <div className="text-2xl font-bold">{members?.length?.toLocaleString("en-US")}</div>
-                <div className="h-2">/{plan?.membersLimit?.toLocaleString("en-US") ?? "∞"}</div>
+                <div className="text-2xl font-bold">
+                  {members?.length?.toLocaleString("en-US")}
+                </div>
+                <div className="h-2">
+                  /{plan?.membersLimit?.toLocaleString("en-US") ?? "∞"}
+                </div>
               </div>
               <p>
-                member{members?.length !== 1 ? "s are" : " is"} contributing
-                to this project.
+                member{members?.length !== 1 ? "s are" : " is"} contributing to
+                this project.
               </p>
             </>
           )}

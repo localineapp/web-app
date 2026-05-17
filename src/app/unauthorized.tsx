@@ -16,7 +16,7 @@ export default async function UnauthorizedPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
-  const isAuthenticated = !!session?.user
+  const isAuthenticated = !!session?.session
 
   return (
     <div className="flex min-h-full flex-col">

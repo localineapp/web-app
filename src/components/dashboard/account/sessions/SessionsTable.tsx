@@ -13,13 +13,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import {
   Table,
   TableBody,
   TableCell,
@@ -29,6 +22,7 @@ import {
 } from "@/components/ui/table"
 import { authClient, useSession } from "@/lib/auth-client"
 import { auth } from "@/lib/auth"
+import TablePagination from "@/components/dashboard/table-pagination"
 
 const PAGE_SIZE = 10
 
@@ -79,15 +73,18 @@ export default function SessionsTable({
   sessions: Awaited<ReturnType<typeof auth.api.listSessions>>
 }) {
   const router = useRouter()
+
   const [page, setPage] = useState(1)
 
   const currentSessionId = session?.session?.id
 
   const total = sessions.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const startIndex = (page - 1) * PAGE_SIZE
-  const endIndex = Math.min(total, page * PAGE_SIZE)
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * PAGE_SIZE
+  const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentSessions = sessions.slice(startIndex, endIndex)
+  const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
   function copySessionId(sessionId: string) {
     try {
@@ -249,49 +246,14 @@ export default function SessionsTable({
         </Table>
       </div>
 
-      <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
-        <div>
-          Page {page} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (page > 1) setPage(page - 1)
-                  }}
-                  className={
-                    page === 1
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1}-{endIndex} of {total}
-              </div>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (page < totalPages) setPage(page + 1)
-                  }}
-                  className={
-                    page === totalPages
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
     </div>
   )
 }

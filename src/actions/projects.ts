@@ -81,8 +81,8 @@ export async function getProjects({
     const hasPermission = (
       await auth.api.userHasPermission({
         body: {
-          // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
-          role: session?.user.role ?? "user",
+          // @ts-expect-error - user.role can be undefined, but the API expects a string.
+          role: user.role ?? "user",
           permissions: {
             projects: ["read"],
           },
@@ -123,10 +123,11 @@ export async function getProject(
   }
 
   const user = session.user
+
   const hasPermission = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           projects: ["read"],
@@ -176,6 +177,7 @@ export async function createProject({
 
   const user = session.user
   const projectsLimit = user.projectsLimit
+
   const projectsCount = (
     await prisma.projectMember.findMany({
       where: {

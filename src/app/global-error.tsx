@@ -1,9 +1,9 @@
 "use client"
 
-import { BackgroundPattern } from "@/components/background-pattern"
+import BackgroundPattern from "@/components/background-pattern"
+import LocalineLogo from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { AlertTriangleIcon, HomeIcon, RefreshCwIcon } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 export default function GlobalError({
@@ -20,14 +20,7 @@ export default function GlobalError({
 
         <div className="relative z-10 space-y-8 px-4 text-center">
           <div className="mb-8 inline-flex items-center gap-2 font-semibold">
-            <Image
-              src="/logo.png"
-              alt="Localine Logo"
-              width={32}
-              height={32}
-              preload={true}
-              className="object-contain"
-            />
+            <LocalineLogo />
             <span className="text-2xl">Localine</span>
           </div>
 

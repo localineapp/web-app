@@ -37,12 +37,12 @@ export default function CreateProjectDialog({
 }) {
   const router = useRouter()
 
+  const user = session?.user
+
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [projectName, setProjectName] = useState("")
-  const [projectDescription, setProjectDescription] = useState<string | null>(null)
-
-  const user = session?.user
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState<string | null>(null)
 
   const projectLimit = user?.projectsLimit ?? 0
   const canCreateProject = projectCount < projectLimit
@@ -52,14 +52,12 @@ export default function CreateProjectDialog({
     setLoading(true)
 
     await createProject({
-      name: projectName,
-      description: projectDescription || undefined,
+      name: name,
+      description: description || undefined,
       planId: defaultPlan?.id || "",
     })
       .then((project) => {
-        toast.success(
-          `Created project ${projectName} (${project.id.slice(0, 8)}).`
-        )
+        toast.success(`Created project ${name} (${project.id.slice(0, 8)}).`)
         router.refresh()
       })
       .catch((error) => {
@@ -70,8 +68,8 @@ export default function CreateProjectDialog({
       .finally(() => {
         setLoading(false)
         setDialogOpen(false)
-        setProjectName("")
-        setProjectDescription(null)
+        setName("")
+        setDescription(null)
       })
   }
 
@@ -124,8 +122,8 @@ export default function CreateProjectDialog({
             <Input
               id="projectName"
               placeholder="My Project"
-              value={projectName}
-              onChange={({ target: { value } }) => setProjectName(value)}
+              value={name}
+              onChange={({ target: { value } }) => setName(value)}
             />
           </div>
           <div className="space-y-2">
@@ -133,8 +131,8 @@ export default function CreateProjectDialog({
             <Input
               id="projectDescription"
               placeholder="A brief description of your project"
-              value={projectDescription ?? ""}
-              onChange={({ target: { value } }) => setProjectDescription(value)}
+              value={description ?? ""}
+              onChange={({ target: { value } }) => setDescription(value)}
             />
           </div>
         </div>
@@ -143,8 +141,8 @@ export default function CreateProjectDialog({
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setProjectName("")
-              setProjectDescription(null)
+              setName("")
+              setDescription(null)
             }}
             disabled={loading}
           >
@@ -153,7 +151,7 @@ export default function CreateProjectDialog({
           <Button
             variant="outline"
             onClick={handleCreateProject}
-            disabled={!projectName || loading}
+            disabled={!name || loading}
           >
             {loading ? (
               <>

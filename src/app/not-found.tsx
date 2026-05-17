@@ -1,16 +1,16 @@
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { BackgroundPattern } from "@/components/background-pattern"
+import BackgroundPattern from "@/components/background-pattern"
 import { AlertCircleIcon, HomeIcon, LogInIcon } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import LocalineLogo from "@/components/logo"
 
 export default async function NotFoundPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
-  const isAuthenticated = !!session?.user
+  const isAuthenticated = !!session?.session
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted">
@@ -18,14 +18,7 @@ export default async function NotFoundPage() {
 
       <div className="relative z-10 space-y-8 px-4 text-center">
         <div className="mb-8 inline-flex items-center gap-2 font-semibold">
-          <Image
-            src="/logo.png"
-            alt="Localine Logo"
-            width={32}
-            height={32}
-            preload={true}
-            className="object-contain"
-          />
+          <LocalineLogo />
           <span className="text-2xl">Localine</span>
         </div>
 

@@ -8,7 +8,7 @@ import {
   ZapIcon,
 } from "lucide-react"
 
-export function BackgroundPattern() {
+export default function BackgroundPattern() {
   return (
     <div className="absolute inset-0 opacity-[0.03]">
       <div className="absolute top-[10%] left-[15%]">

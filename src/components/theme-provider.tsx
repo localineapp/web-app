@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react"
 import {
@@ -9,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useEffect, useState } from "react"
 
 const THEMES = [
   { icon: SunIcon, label: "Light", value: "light" },
@@ -35,9 +35,9 @@ function ThemeProvider({
 
 function ThemeModeSelector() {
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])

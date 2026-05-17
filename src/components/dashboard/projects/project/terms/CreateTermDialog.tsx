@@ -1,16 +1,28 @@
 "use client"
 
-import { FullProject } from "@/actions/projects";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSession } from "@/lib/auth-client";
-import { PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { MouseEvent, useState } from "react";
+import { FullProject } from "@/actions/projects"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useSession } from "@/lib/auth-client"
+import { PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { MouseEvent, useState } from "react"
 
 export default function CreateTermDialog({
   session,
@@ -21,15 +33,17 @@ export default function CreateTermDialog({
 }) {
   const router = useRouter()
 
-  const [loading, setLoading] = useState(false)
-  const [isDialogOpen, setDialogOpen] = useState(false)
-  const [termName, setTermName] = useState("")
-  const [termContext, setTermContext] = useState<string | null>(null)
-
   const user = session?.user
 
+  const [loading, setLoading] = useState(false)
+  const [isDialogOpen, setDialogOpen] = useState(false)
+  const [name, setName] = useState("")
+  const [context, setContext] = useState<string | null>(null)
+
   const canCreateTerms = true // TODO: Determine if the user can create terms based on their membership role
-  const isLimitReached = project.plan.termsLimit !== null && project.terms.length >= project.plan.termsLimit
+  const isLimitReached =
+    project.plan.termsLimit !== null &&
+    project.terms.length >= project.plan.termsLimit
 
   const handleCreateTerm = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -66,16 +80,15 @@ export default function CreateTermDialog({
           <TooltipContent>
             {!canCreateTerms
               ? "You don't have permission to create terms in this project."
-              : isLimitReached ?? "This project has reached the maximum number of terms allowed by your plan."}
+              : (isLimitReached ??
+                "This project has reached the maximum number of terms allowed by your plan.")}
           </TooltipContent>
         )}
       </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new term</DialogTitle>
-          <DialogDescription>
-            Add a new term to your project.
-          </DialogDescription>
+          <DialogDescription>Add a new term to your project.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -83,8 +96,8 @@ export default function CreateTermDialog({
             <Input
               id="termName"
               placeholder="My Term"
-              value={termName}
-              onChange={({ target: { value } }) => setTermName(value)}
+              value={name}
+              onChange={({ target: { value } }) => setName(value)}
             />
           </div>
           <div className="space-y-2">
@@ -92,8 +105,8 @@ export default function CreateTermDialog({
             <Input
               id="termContext"
               placeholder="A brief context for your term"
-              value={termContext ?? ""}
-              onChange={({ target: { value } }) => setTermContext(value)}
+              value={context ?? ""}
+              onChange={({ target: { value } }) => setContext(value)}
             />
           </div>
         </div>
@@ -102,8 +115,8 @@ export default function CreateTermDialog({
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setTermName("")
-              setTermContext(null)
+              setName("")
+              setContext(null)
             }}
             disabled={loading}
           >
@@ -112,7 +125,7 @@ export default function CreateTermDialog({
           <Button
             variant="outline"
             onClick={handleCreateTerm}
-            disabled={!termName || loading}
+            disabled={!name || loading}
           >
             {loading ? (
               <>

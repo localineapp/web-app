@@ -41,10 +41,11 @@ export default function AppHeader({
   const router = useRouter()
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
+  const user = session?.user
+
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const user = session?.user
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjects = normalizedSearchQuery
     ? projects.filter(

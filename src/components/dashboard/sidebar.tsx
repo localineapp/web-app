@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -45,6 +44,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import LocalineLogo from "@/components/logo"
 
 type NavigationItem = {
   name: string
@@ -103,6 +103,8 @@ export default function AppSidebar({
   const pathname = usePathname()
   const { state } = useSidebar()
 
+  const user = session?.user
+
   const [project, setProject] = useState<Project | null>(null)
 
   useEffect(() => {
@@ -140,14 +142,7 @@ export default function AppSidebar({
           )}
         >
           <div className="flex size-8 items-center justify-center rounded-lg">
-            <Image
-              src="/logo.png"
-              alt="Localine Logo"
-              width={32}
-              height={32}
-              preload={true}
-              className="object-contain"
-            />
+            <LocalineLogo />
           </div>
           {state === "expanded" && (
             <div className="grid flex-1 text-left">
@@ -263,7 +258,7 @@ export default function AppSidebar({
             </SidebarMenu>
           </SidebarGroup>
         )}
-        {session?.user?.role === "admin" && (
+        {user?.role === "admin" && (
           <SidebarGroup>
             <SidebarGroupLabel>Administration</SidebarGroupLabel>
             <SidebarMenu>

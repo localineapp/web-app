@@ -10,13 +10,16 @@ export default async function AdminLocalesPage() {
     headers: await headers(),
   })
 
+  const locales = await getLocales({
+    includeDisabled: true,
+  })
+
   const user = session?.user
-  const locales = await getLocales({ includeDisabled: true })
 
   const canCreateLocales = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           locales: ["create"],
@@ -24,10 +27,11 @@ export default async function AdminLocalesPage() {
       },
     })
   ).success
+
   const canUpdateLocales = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           locales: ["update"],
@@ -35,10 +39,11 @@ export default async function AdminLocalesPage() {
       },
     })
   ).success
+
   const canDeleteLocales = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - session?.user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be undefined, but the API expects a string.
         role: user.role ?? "user",
         permissions: {
           locales: ["delete"],

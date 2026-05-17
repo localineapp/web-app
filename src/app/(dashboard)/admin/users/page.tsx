@@ -13,6 +13,7 @@ export default async function AdminUsersPage() {
   const session = await auth.api.getSession({
     headers: requestHeaders,
   })
+
   const users = await auth.api.listUsers({
     headers: requestHeaders,
     query: {

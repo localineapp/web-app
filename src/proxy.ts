@@ -3,13 +3,15 @@ import { auth } from "@/lib/auth"
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
   const session = await auth.api.getSession({
     headers: request.headers,
   })
+  const isAuthenticated = !!session?.session
 
-  if (!pathname.startsWith("/auth") && !session?.user) {
+  if (!pathname.startsWith("/auth") && !isAuthenticated) {
     return NextResponse.redirect(new URL("/auth/signin", request.url))
-  } else if (pathname.startsWith("/auth") && session?.user) {
+  } else if (pathname.startsWith("/auth") && isAuthenticated) {
     return NextResponse.redirect(new URL("/", request.url))
   }
 

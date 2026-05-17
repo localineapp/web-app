@@ -20,9 +20,9 @@ export default function ToggleAdminButton({
 }) {
   const router = useRouter()
 
-  const [loading, setLoading] = useState(false)
-
   const user = session?.user
+
+  const [loading, setLoading] = useState(false)
 
   const handleGrantAdminAccess = async (
     event: MouseEvent<HTMLButtonElement>

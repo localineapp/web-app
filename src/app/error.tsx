@@ -1,6 +1,7 @@
 "use client"
 
-import { BackgroundPattern } from "@/components/background-pattern"
+import BackgroundPattern from "@/components/background-pattern"
+import LocalineLogo from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
 import {
@@ -9,7 +10,6 @@ import {
   LogInIcon,
   RefreshCwIcon,
 } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 export default function ErrorPage({
@@ -20,7 +20,7 @@ export default function ErrorPage({
   unstable_retry: () => void
 }) {
   const { data: session } = useSession()
-  const isAuthenticated = !!session?.user
+  const isAuthenticated = !!session?.session
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-muted">
@@ -28,14 +28,7 @@ export default function ErrorPage({
 
       <div className="relative z-10 space-y-8 px-4 text-center">
         <div className="mb-8 inline-flex items-center gap-2 font-semibold">
-          <Image
-            src="/logo.png"
-            alt="Localine Logo"
-            width={32}
-            height={32}
-            preload={true}
-            className="object-contain"
-          />
+          <LocalineLogo />
           <span className="text-2xl">Localine</span>
         </div>
 

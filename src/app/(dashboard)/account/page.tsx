@@ -10,9 +10,11 @@ export const metadata: Metadata = {
 
 export default async function PublicProfilePage() {
   const requestHeaders = await headers()
+
   const session = await auth.api.getSession({
     headers: requestHeaders,
   })
+
   const accounts = await auth.api.listUserAccounts({
     headers: requestHeaders,
   })

@@ -46,28 +46,31 @@ export default function ConnectionsCard({
   return (
     <Card className="w-full max-w-2xl">
       <ProviderCardContent
+        name="google"
+        displayName="Google"
         enabled={isProviderEnabled("google")}
         connected={isProviderConnected("google")}
         Icon={GoogleIcon}
-        providerName="Google"
         loading={loading}
         setLoading={setLoading}
       />
       <Separator />
       <ProviderCardContent
+        name="github"
+        displayName="GitHub"
         enabled={isProviderEnabled("github")}
         connected={isProviderConnected("github")}
         Icon={GitHubIcon}
-        providerName="GitHub"
         loading={loading}
         setLoading={setLoading}
       />
       <Separator />
       <ProviderCardContent
+        name="discord"
+        displayName="Discord"
         enabled={isProviderEnabled("discord")}
         connected={isProviderConnected("discord")}
         Icon={DiscordIcon}
-        providerName="Discord"
         loading={loading}
         setLoading={setLoading}
       />
@@ -76,17 +79,19 @@ export default function ConnectionsCard({
 }
 
 function ProviderCardContent({
+  name,
+  displayName,
   enabled,
   connected,
   Icon,
-  providerName,
   loading,
   setLoading,
 }: {
+  name: string
+  displayName: string
   enabled: boolean
   connected: boolean
   Icon: ComponentType<SVGProps<SVGSVGElement>>
-  providerName: string
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
@@ -97,15 +102,15 @@ function ProviderCardContent({
     setLoading(true)
 
     await authClient.linkSocial({
-      provider: providerName.toLowerCase(),
+      provider: name,
       callbackURL: `${window.location.origin}/account/connections`,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`Redirecting to ${providerName} for verification...`)
+          toast.success(`Redirecting to ${displayName} for verification...`)
         },
         onError: ({ error }) => {
           toast.error(
-            `Unable to link ${providerName} account. ${`(${error?.message})` || "Please try again."}`
+            `Unable to link ${displayName} account. ${`(${error?.message})` || "Please try again."}`
           )
           setLoading(false)
         },
@@ -118,16 +123,16 @@ function ProviderCardContent({
     setLoading(true)
 
     await authClient.unlinkAccount({
-      providerId: providerName.toLowerCase(),
+      providerId: name.toLowerCase(),
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`${providerName} account unlinked successfully.`)
+          toast.success(`${displayName} account unlinked successfully.`)
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
-            `Unable to unlink ${providerName} account. ${`(${error?.message})` || "Please try again."}`
+            `Unable to unlink ${displayName} account. ${`(${error?.message})` || "Please try again."}`
           )
           setLoading(false)
         },
@@ -140,7 +145,7 @@ function ProviderCardContent({
       <div className="flex min-w-0 items-center gap-4">
         <Icon className="h-6 w-6 shrink-0" />
         <div className="min-w-0 space-y-1">
-          <CardTitle>{providerName}</CardTitle>
+          <CardTitle>{displayName}</CardTitle>
           <CardDescription className="flex items-center gap-1 text-xs">
             <span>Status:</span>
             <span
@@ -172,7 +177,7 @@ function ProviderCardContent({
                 </Button>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{`${providerName} login is not configured. Please contact your administrator for assistance.`}</TooltipContent>
+            <TooltipContent>{`${displayName} login is not configured. Please contact your administrator for assistance.`}</TooltipContent>
           </Tooltip>
         ) : connected ? (
           <Button

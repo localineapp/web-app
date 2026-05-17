@@ -11,13 +11,6 @@ import {
 } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import {
   Table,
   TableBody,
   TableCell,
@@ -28,8 +21,8 @@ import {
 import { cn } from "@/lib/utils"
 import { ExternalLinkIcon, FoldersIcon, SearchIcon } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
+import TablePagination from "@/components/dashboard/table-pagination"
 
 const PAGE_SIZE = 10
 
@@ -38,10 +31,7 @@ export default function ProjectsTable({
 }: {
   projects: FullProject[]
 }) {
-  const router = useRouter()
-
   const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
@@ -186,49 +176,14 @@ export default function ProjectsTable({
         </Table>
       </div>
 
-      <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
-        <div>
-          Page {currentPage} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (currentPage > 1) setPage(currentPage - 1)
-                  }}
-                  className={
-                    currentPage === 1
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              <div className="text-sm text-muted-foreground">
-                Showing {displayStartIndex}-{endIndex} of {total}
-              </div>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (currentPage < totalPages) setPage(currentPage + 1)
-                  }}
-                  className={
-                    currentPage === totalPages
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
     </div>
   )
 }

@@ -15,13 +15,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Sheet,
@@ -50,6 +43,7 @@ import {
 } from "@/components/ui/tooltip"
 import { auth } from "@/lib/auth"
 import { authClient, useSession } from "@/lib/auth-client"
+import { UserWithRole } from "better-auth/plugins"
 import {
   AlertTriangleIcon,
   BadgeCheckIcon,
@@ -64,6 +58,7 @@ import {
 import { useRouter } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
+import TablePagination from "@/components/dashboard/table-pagination"
 
 const PAGE_SIZE = 10
 
@@ -89,12 +84,11 @@ export default function UsersTable({
   users: Awaited<ReturnType<typeof auth.api.listUsers>>
 }) {
   const router = useRouter()
-  type UserRow = (typeof users.users)[number]
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [editingUser, setEditingUser] = useState<UserRow | null>(null)
+  const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const [name, setName] = useState("")
@@ -125,12 +119,12 @@ export default function UsersTable({
   const currentUsers = filteredUsers.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  function getProjectsLimit(user: UserRow) {
+  function getProjectsLimit(user: UserWithRole) {
     /** @ts-expect-error - projectsLimit is a custom field added to the user object, which is not reflected in this type definition. */
     return user.projectsLimit ?? null
   }
 
-  function openEditor(user: UserRow) {
+  function openEditor(user: UserWithRole) {
     setName(user.name ?? "")
     setEmail(user.email ?? "")
     setPassword("")
@@ -884,49 +878,14 @@ export default function UsersTable({
         </Table>
       </div>
 
-      <div className="mt-2 flex items-center justify-between px-2 text-sm text-muted-foreground">
-        <div>
-          Page {currentPage} of {totalPages}
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (currentPage > 1) setPage(currentPage - 1)
-                  }}
-                  className={
-                    currentPage === 1
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              <div className="text-sm text-muted-foreground">
-                Showing {displayStartIndex}-{endIndex} of {total}
-              </div>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (currentPage < totalPages) setPage(currentPage + 1)
-                  }}
-                  className={
-                    currentPage === totalPages
-                      ? "cursor-not-allowed opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
     </div>
   )
 }
