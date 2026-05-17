@@ -1,6 +1,10 @@
+import { getLocales } from "@/actions/locales"
 import { getProject } from "@/actions/projects"
+import AddLocaleDialog from "@/components/dashboard/projects/project/locales/AddLocaleDialog"
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
 import { ArrowLeftIcon } from "lucide-react"
+import { headers } from "next/headers"
 import Link from "next/link"
 
 export default async function ProjectLocalesPage({
@@ -12,6 +16,14 @@ export default async function ProjectLocalesPage({
   const project = await getProject(projectId)
 
   if (!project) return <></>
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  const locales = await getLocales({
+    includeDisabled: false,
+  })
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,7 +42,9 @@ export default async function ProjectLocalesPage({
           </div>
         </div>
 
-        <div className="flex gap-2"></div>
+        <div className="flex gap-2">
+          <AddLocaleDialog session={session} project={project} locales={locales} />
+        </div>
       </div>
 
       <div>

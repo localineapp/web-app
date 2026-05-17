@@ -1,6 +1,9 @@
 import { getProject } from "@/actions/projects"
+import CreateLabelDialog from "@/components/dashboard/projects/project/labels/CreateLabelDialog"
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
 import { ArrowLeftIcon } from "lucide-react"
+import { headers } from "next/headers"
 import Link from "next/link"
 
 export default async function ProjectLabelsPage({
@@ -12,6 +15,10 @@ export default async function ProjectLabelsPage({
   const project = await getProject(projectId)
 
   if (!project) return <></>
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,7 +37,9 @@ export default async function ProjectLabelsPage({
           </div>
         </div>
 
-        <div className="flex gap-2"></div>
+        <div className="flex gap-2">
+          <CreateLabelDialog session={session} project={project} />
+        </div>
       </div>
 
       <div>

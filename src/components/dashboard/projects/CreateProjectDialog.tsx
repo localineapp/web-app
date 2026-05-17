@@ -36,10 +36,11 @@ export default function CreateProjectDialog({
   defaultPlan: Plan | null
 }) {
   const router = useRouter()
+
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [projectName, setProjectName] = useState("")
-  const [projectDescription, setProjectDescription] = useState("")
+  const [projectDescription, setProjectDescription] = useState<string | null>(null)
 
   const user = session?.user
 
@@ -70,7 +71,7 @@ export default function CreateProjectDialog({
         setLoading(false)
         setDialogOpen(false)
         setProjectName("")
-        setProjectDescription("")
+        setProjectDescription(null)
       })
   }
 
@@ -132,7 +133,7 @@ export default function CreateProjectDialog({
             <Input
               id="projectDescription"
               placeholder="A brief description of your project"
-              value={projectDescription}
+              value={projectDescription ?? ""}
               onChange={({ target: { value } }) => setProjectDescription(value)}
             />
           </div>
@@ -143,7 +144,7 @@ export default function CreateProjectDialog({
             onClick={() => {
               setDialogOpen(false)
               setProjectName("")
-              setProjectDescription("")
+              setProjectDescription(null)
             }}
             disabled={loading}
           >
