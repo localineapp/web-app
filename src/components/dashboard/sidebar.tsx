@@ -18,7 +18,6 @@ import {
   ShieldCogIcon,
   SlidersHorizontalIcon,
   TagsIcon,
-  UserIcon,
   UsersIcon,
   WorkflowIcon,
 } from "lucide-react"
@@ -152,7 +151,7 @@ export default function AppSidebar({
           </div>
           {state === "expanded" && (
             <div className="grid flex-1 text-left">
-              <span className="text-lg font-semibold truncate">Localine</span>
+              <span className="truncate text-lg font-semibold">Localine</span>
             </div>
           )}
         </Link>
