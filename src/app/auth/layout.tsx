@@ -24,8 +24,9 @@ export default function AuthLayout({
           <Image
             src="/logo.png"
             alt="Localine Logo"
-            width={24}
-            height={24}
+            width={32}
+            height={32}
+            preload={true}
             className="object-contain"
           />
           <span className="text-xl">Localine</span>

@@ -25,6 +25,7 @@ export default function GlobalError({
               alt="Localine Logo"
               width={32}
               height={32}
+              preload={true}
               className="object-contain"
             />
             <span className="text-2xl">Localine</span>

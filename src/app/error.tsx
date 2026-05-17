@@ -33,6 +33,7 @@ export default function ErrorPage({
             alt="Localine Logo"
             width={32}
             height={32}
+            preload={true}
             className="object-contain"
           />
           <span className="text-2xl">Localine</span>

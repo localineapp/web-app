@@ -146,7 +146,7 @@ export default function AppSidebar({
               width={32}
               height={32}
               preload={true}
-              className="h-auto w-auto object-contain"
+              className="object-contain"
             />
           </div>
           {state === "expanded" && (
