@@ -5,8 +5,8 @@ import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import {
   ArrowLeftIcon,
-  FileTextIcon,
   GlobeIcon,
+  LibraryIcon,
   PercentIcon,
   UsersIcon,
 } from "lucide-react"
@@ -19,6 +19,8 @@ export default async function ProjectPage({
 }) {
   const { projectId } = await params
   const project = await getProject(projectId)
+
+  if (!project) return <></>
 
   const terms = project?.terms
   const locales = project?.locales
@@ -86,7 +88,7 @@ export default async function ProjectPage({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-medium">Terms</CardTitle>
-            <FileTextIcon className="h-4 w-4 text-muted-foreground" />
+            <LibraryIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {terms?.length === 0 ? (
