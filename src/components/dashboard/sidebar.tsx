@@ -76,10 +76,11 @@ export default function AppSidebar({
   const isAccountPage = accountNavigationItems.some(({ href }) =>
     isActive(href)
   )
-  const isProjectPage = projectNavigationItems.some(({ href }) => {
-    const projectHref = href.replace("[projectId]", project?.id ?? "")
-    return isActive(projectHref)
-  })
+  const isProjectPage = projectNavigationItems.some(({ href }) =>
+    isActive(href.replace("[projectId]", project?.id || ""))
+  ) || projectSettingsNavigationItems.some(({ href }) =>
+    isActive(href.replace("[projectId]", project?.id || ""))
+  )
 
   return (
     <Sidebar collapsible="icon">
