@@ -12,7 +12,7 @@ import { AlertTriangleIcon, HomeIcon, LogInIcon } from "lucide-react"
 import { headers } from "next/headers"
 import Link from "next/link"
 
-export default async function UnauthorizedPage() {
+export default async function ForbiddenPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   })

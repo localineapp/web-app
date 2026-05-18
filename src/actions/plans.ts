@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { Plan } from "@prisma/client"
 import { headers } from "next/headers"
-import { notFound, unauthorized } from "next/navigation"
+import { forbidden, notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
 
@@ -64,7 +64,7 @@ export async function createPlan({
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   return await prisma.plan.create({
@@ -100,7 +100,7 @@ export async function createPlans(
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   return await prisma.plan.createMany({
@@ -144,7 +144,7 @@ export async function updatePlan(
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   return await prisma.plan.update({
@@ -171,7 +171,7 @@ export async function updateDefaultPlan(planId: string): Promise<Plan> {
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   if ((await prisma.plan.count({ where: { id: planId } })) === 0) {
@@ -202,7 +202,7 @@ export async function deletePlan(id: string): Promise<Plan> {
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   return await prisma.plan.delete({

@@ -4,7 +4,7 @@ import { Locale } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { notFound, unauthorized } from "next/navigation"
+import { forbidden, notFound, unauthorized } from "next/navigation"
 import { generateId } from "better-auth"
 import { chunkArray } from "@/lib/utils"
 
@@ -56,7 +56,7 @@ export async function createLocale({
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   if ((await prisma.locale.count({ where: { code } })) > 0) {
@@ -100,7 +100,7 @@ export async function importLocales(
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   const startTime = Date.now()
@@ -177,7 +177,7 @@ export async function updateLocale(
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   return await prisma.locale.update({
@@ -197,7 +197,7 @@ export async function deleteLocale(id: string): Promise<Locale> {
   })
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   if ((await prisma.locale.count({ where: { id } })) === 0) {

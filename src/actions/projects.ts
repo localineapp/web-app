@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { Prisma, Project } from "@prisma/client"
 import { headers } from "next/headers"
-import { unauthorized } from "next/navigation"
+import { forbidden, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
 
@@ -90,7 +90,7 @@ export async function getProjects({
       })
     ).success
     if (!hasPermission) {
-      return unauthorized()
+      return forbidden()
     }
   }
 
