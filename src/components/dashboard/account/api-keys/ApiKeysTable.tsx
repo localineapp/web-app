@@ -1,10 +1,29 @@
 "use client"
 
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { auth } from "@/lib/auth"
 import { authClient, useSession } from "@/lib/auth-client"
-import { BadgeCheckIcon, BadgeXIcon, KeyRoundIcon, SearchIcon, TrashIcon } from "lucide-react"
+import {
+  BadgeCheckIcon,
+  BadgeXIcon,
+  KeyRoundIcon,
+  SearchIcon,
+  TrashIcon,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
@@ -12,7 +31,15 @@ import { Input } from "@/components/ui/input"
 import TablePagination from "@/components/dashboard/table-pagination"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Spinner } from "@/components/ui/spinner"
 
 const PAGE_SIZE = 10
@@ -26,7 +53,7 @@ export default function ApiKeysTable({
 }) {
   const router = useRouter()
 
-  type ApiKey = typeof apiKeys.apiKeys[number]
+  type ApiKey = (typeof apiKeys.apiKeys)[number]
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -36,12 +63,10 @@ export default function ApiKeysTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredApiKeys = normalizedSearchQuery
     ? apiKeys.apiKeys.filter(
-      (apiKey) =>
-        (apiKey.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (apiKey.name ?? "")
-          .toLowerCase()
-          .includes(normalizedSearchQuery)
-    )
+        (apiKey) =>
+          (apiKey.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (apiKey.name ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : apiKeys.apiKeys
 
   const total = filteredApiKeys.length
@@ -70,7 +95,7 @@ export default function ApiKeysTable({
           )
           setLoading(false)
         },
-      }
+      },
     })
   }
 
@@ -91,8 +116,8 @@ export default function ApiKeysTable({
             error?.message || "Failed to delete API key. Please try again."
           )
           setLoading(false)
-        }
-      }
+        },
+      },
     })
   }
 
@@ -176,25 +201,31 @@ export default function ApiKeysTable({
 
                   <TableCell>
                     {apiKey.lastRequest
-                      ? new Date(apiKey.lastRequest).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
+                      ? new Date(apiKey.lastRequest).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )
                       : "Never used"}
                   </TableCell>
 
                   <TableCell>
                     {apiKey.expiresAt
-                      ? new Date(apiKey.expiresAt).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
+                      ? new Date(apiKey.expiresAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )
                       : "Never"}
                   </TableCell>
 
@@ -234,8 +265,8 @@ export default function ApiKeysTable({
                             Are you absolutely sure?
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            This action cannot be undone. This will
-                            permanently delete the API key{" "}
+                            This action cannot be undone. This will permanently
+                            delete the API key{" "}
                             <span className="font-mono">
                               {deletingApiKey?.name} (
                               {deletingApiKey?.id.slice(0, 8)})
@@ -277,7 +308,6 @@ export default function ApiKeysTable({
                             )}
                           </Button>
                         </AlertDialogFooter>
-
                       </AlertDialogContent>
                     </AlertDialog>
                   </TableCell>

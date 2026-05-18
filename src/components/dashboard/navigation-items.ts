@@ -1,4 +1,22 @@
-import { FileTextIcon, FolderOpenIcon, FoldersIcon, GlobeIcon, HomeIcon, KeyRoundIcon, LibraryIcon, Link2Icon, LucideIcon, MonitorSmartphoneIcon, PackageIcon, ShieldCogIcon, SlidersHorizontalIcon, TagsIcon, UserIcon, UsersIcon, WorkflowIcon } from "lucide-react"
+import {
+  FileTextIcon,
+  FolderOpenIcon,
+  FoldersIcon,
+  GlobeIcon,
+  HomeIcon,
+  KeyRoundIcon,
+  LibraryIcon,
+  Link2Icon,
+  LucideIcon,
+  MonitorSmartphoneIcon,
+  PackageIcon,
+  ShieldCogIcon,
+  SlidersHorizontalIcon,
+  TagsIcon,
+  UserIcon,
+  UsersIcon,
+  WorkflowIcon,
+} from "lucide-react"
 
 type NavigationItem = {
   name: string

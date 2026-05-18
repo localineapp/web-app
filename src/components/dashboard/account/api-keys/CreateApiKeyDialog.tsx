@@ -1,9 +1,21 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { authClient, useSession } from "@/lib/auth-client"
@@ -34,9 +46,9 @@ export default function CreateApiKeyDialog({
 
     await authClient.apiKey.create({
       name,
-      expiresIn: expiryDate ?
-        Math.floor((expiryDate.getTime() - Date.now()) / 1000) :
-        undefined,
+      expiresIn: expiryDate
+        ? Math.floor((expiryDate.getTime() - Date.now()) / 1000)
+        : undefined,
       fetchOptions: {
         onSuccess: ({ data: { key } }) => {
           toast.success("API key created successfully!")
@@ -62,14 +74,8 @@ export default function CreateApiKeyDialog({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger
-        asChild
-        disabled={loading}
-      >
-        <Button
-          variant="outline"
-          disabled={loading}
-        >
+      <DialogTrigger asChild disabled={loading}>
+        <Button variant="outline" disabled={loading}>
           <PlusIcon className="mr-2 h-4 w-4" />
           New API Key
         </Button>
@@ -80,7 +86,8 @@ export default function CreateApiKeyDialog({
             <DialogHeader>
               <DialogTitle>API Key Created</DialogTitle>
               <DialogDescription>
-                Your new API key has been created successfully. Please copy and store it securely, as it will not be shown again.
+                Your new API key has been created successfully. Please copy and
+                store it securely, as it will not be shown again.
               </DialogDescription>
             </DialogHeader>
 
@@ -88,10 +95,7 @@ export default function CreateApiKeyDialog({
               <div className="space-y-2">
                 <Label>API Key</Label>
                 <InputGroup>
-                  <InputGroupInput
-                    value={apiKey}
-                    readOnly
-                  />
+                  <InputGroupInput value={apiKey} readOnly />
                   <InputGroupAddon align="inline-end">
                     <ClipboardIcon
                       className="h-4 w-4 cursor-pointer"
@@ -139,8 +143,12 @@ export default function CreateApiKeyDialog({
                 <Input
                   id="expiryDate"
                   type="date"
-                  value={expiryDate ? expiryDate.toISOString().split("T")[0] : ""}
-                  onChange={({ target: { value } }) => setExpiryDate(value ? new Date(value) : undefined)}
+                  value={
+                    expiryDate ? expiryDate.toISOString().split("T")[0] : ""
+                  }
+                  onChange={({ target: { value } }) =>
+                    setExpiryDate(value ? new Date(value) : undefined)
+                  }
                   disabled={loading}
                 />
               </div>
@@ -160,7 +168,11 @@ export default function CreateApiKeyDialog({
               <Button
                 variant="outline"
                 onClick={handleCreateApiKey}
-                disabled={!name || (expiryDate && expiryDate.getTime() <= Date.now()) || loading}
+                disabled={
+                  !name ||
+                  (expiryDate && expiryDate.getTime() <= Date.now()) ||
+                  loading
+                }
               >
                 {loading ? (
                   <>

@@ -1,8 +1,8 @@
-import ApiKeysTable from "@/components/dashboard/account/api-keys/ApiKeysTable";
-import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog";
-import { auth } from "@/lib/auth";
-import { Metadata } from "next";
-import { headers } from "next/headers";
+import ApiKeysTable from "@/components/dashboard/account/api-keys/ApiKeysTable"
+import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
+import { auth } from "@/lib/auth"
+import { Metadata } from "next"
+import { headers } from "next/headers"
 
 export const metadata: Metadata = {
   title: "API Keys",

@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  LogOutIcon,
-  SearchIcon,
-  UserCog2Icon,
-} from "lucide-react"
+import { LogOutIcon, SearchIcon, UserCog2Icon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -47,10 +43,10 @@ export default function AppHeader({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjects = normalizedSearchQuery
     ? projects.filter(
-      (project) =>
-        (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (project) =>
+          (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : []
 
   useEffect(() => {

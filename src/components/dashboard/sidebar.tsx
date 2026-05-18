@@ -3,10 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import {
-  ChevronRightIcon,
-  CogIcon,
-} from "lucide-react"
+import { ChevronRightIcon, CogIcon } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import {
   Sidebar,
@@ -32,7 +29,13 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import LocalineLogo from "@/components/logo"
-import { accountNavigationItems, adminNavigationItems, navigationItems, projectNavigationItems, projectSettingsNavigationItems } from "@/components/dashboard/navigation-items"
+import {
+  accountNavigationItems,
+  adminNavigationItems,
+  navigationItems,
+  projectNavigationItems,
+  projectSettingsNavigationItems,
+} from "@/components/dashboard/navigation-items"
 
 export default function AppSidebar({
   session,
@@ -70,7 +73,9 @@ export default function AppSidebar({
     return pathname === href || pathname.endsWith(href + "/")
   }
 
-  const isAccountPage = accountNavigationItems.some(({ href }) => isActive(href))
+  const isAccountPage = accountNavigationItems.some(({ href }) =>
+    isActive(href)
+  )
   const isProjectPage = projectNavigationItems.some(({ href }) => {
     const projectHref = href.replace("[projectId]", project?.id ?? "")
     return isActive(projectHref)
