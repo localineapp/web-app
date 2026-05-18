@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { unauthorized } from "next/navigation"
+import { forbidden } from "next/navigation"
 
 export default async function AdminDashboardLayout({
   children,
@@ -19,7 +19,7 @@ export default async function AdminDashboardLayout({
   ).success
 
   if (!hasPermission) {
-    return unauthorized()
+    return forbidden()
   }
 
   return <>{children}</>
