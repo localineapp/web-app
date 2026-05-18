@@ -4,6 +4,7 @@ import {
   lastLoginMethod,
   openAPI,
 } from "better-auth/plugins"
+import { apiKey } from "@better-auth/api-key"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { prisma } from "@/lib/prisma"
 import { ac, admin, user } from "@/lib/permission"
@@ -56,6 +57,7 @@ export const auth = betterAuth({
     lastLoginMethod({
       storeInDatabase: true,
     }),
+    apiKey(),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV === "production",
     }),

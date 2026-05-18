@@ -83,6 +83,37 @@ model Verification {
   @@map("verification")
 }
 
+model Apikey {
+  id                  String    @id
+  configId            String    @db.Text
+  name                String?   @db.Text
+  start               String?   @db.Text
+  referenceId         String    @db.Text
+  prefix              String?   @db.Text
+  key                 String    @db.Text
+  refillInterval      Int?
+  refillAmount        Int?
+  lastRefillAt        DateTime?
+  enabled             Boolean?  @default(true)
+  rateLimitEnabled    Boolean?  @default(true)
+  rateLimitTimeWindow Int?      @default(86400000)
+  rateLimitMax        Int?      @default(10)
+  requestCount        Int?      @default(0)
+  remaining           Int?
+  lastRequest         DateTime?
+  expiresAt           DateTime?
+  createdAt           DateTime
+  updatedAt           DateTime
+  permissions         String?   @db.Text
+  metadata            String?   @db.Text
+
+  @@index([configId(length: 191)])
+  @@index([referenceId(length: 191)])
+  @@index([key(length: 191)])
+  @@map("apikey")
+}
+
+
 model Locale {
   id          String   @id
   displayName String

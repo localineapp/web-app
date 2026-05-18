@@ -6,19 +6,6 @@ import { cn } from "@/lib/utils"
 import {
   ChevronRightIcon,
   CogIcon,
-  FileTextIcon,
-  FolderOpenIcon,
-  FoldersIcon,
-  GlobeIcon,
-  HomeIcon,
-  LibraryIcon,
-  LucideIcon,
-  PackageIcon,
-  ShieldCogIcon,
-  SlidersHorizontalIcon,
-  TagsIcon,
-  UsersIcon,
-  WorkflowIcon,
 } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import {
@@ -45,55 +32,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import LocalineLogo from "@/components/logo"
-
-type NavigationItem = {
-  name: string
-  icon: LucideIcon
-  href: string
-}
-
-const navigationItems: NavigationItem[] = [
-  { name: "Dashboard", icon: HomeIcon, href: "/" },
-  { name: "Projects", icon: FolderOpenIcon, href: "/projects" },
-]
-
-const projectNavigationItems: NavigationItem[] = [
-  { name: "Overview", icon: HomeIcon, href: "/projects/[projectId]" },
-  {
-    name: "Translations",
-    icon: FileTextIcon,
-    href: "/projects/[projectId]/translations",
-  },
-  { name: "Terms", icon: LibraryIcon, href: "/projects/[projectId]/terms" },
-  { name: "Labels", icon: TagsIcon, href: "/projects/[projectId]/labels" },
-  { name: "Locales", icon: GlobeIcon, href: "/projects/[projectId]/locales" },
-  { name: "Members", icon: UsersIcon, href: "/projects/[projectId]/members" },
-]
-
-const projectSettingsNavigationItems: NavigationItem[] = [
-  {
-    name: "General",
-    icon: SlidersHorizontalIcon,
-    href: "/projects/[projectId]/settings",
-  },
-  {
-    name: "Member Roles",
-    icon: ShieldCogIcon,
-    href: "/projects/[projectId]/settings/member-roles",
-  },
-  {
-    name: "Workflows",
-    icon: WorkflowIcon,
-    href: "/projects/[projectId]/settings/workflows",
-  },
-]
-
-const adminNavigationItems: NavigationItem[] = [
-  { name: "Users", icon: UsersIcon, href: "/admin/users" },
-  { name: "Projects", icon: FoldersIcon, href: "/admin/projects" },
-  { name: "Locales", icon: GlobeIcon, href: "/admin/locales" },
-  { name: "Plans", icon: PackageIcon, href: "/admin/plans" },
-]
+import { accountNavigationItems, adminNavigationItems, navigationItems, projectNavigationItems, projectSettingsNavigationItems } from "@/components/dashboard/navigation-items"
 
 export default function AppSidebar({
   session,
@@ -130,6 +69,12 @@ export default function AppSidebar({
     if (href === "/") return pathname === "/"
     return pathname === href || pathname.endsWith(href + "/")
   }
+
+  const isAccountPage = accountNavigationItems.some(({ href }) => isActive(href))
+  const isProjectPage = projectNavigationItems.some(({ href }) => {
+    const projectHref = href.replace("[projectId]", project?.id ?? "")
+    return isActive(projectHref)
+  })
 
   return (
     <Sidebar collapsible="icon">
@@ -175,7 +120,33 @@ export default function AppSidebar({
             ))}
           </SidebarMenu>
         </SidebarGroup>
-        {project && (
+        {isAccountPage && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Your Account</SidebarGroupLabel>
+            <SidebarMenu>
+              {accountNavigationItems.map(({ name, icon: Icon, href }) => (
+                <SidebarMenuItem key={name}>
+                  <SidebarMenuButton
+                    asChild
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start gap-4 py-4 text-base font-medium",
+                      isActive(href)
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <Link href={href} passHref>
+                      <Icon className="h-4 w-4" />
+                      {name}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+        {isProjectPage && project && (
           <SidebarGroup>
             <SidebarGroupLabel>{project.name}</SidebarGroupLabel>
 

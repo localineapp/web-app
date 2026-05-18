@@ -1,6 +1,6 @@
 import BackgroundPattern from "@/components/background-pattern"
 import LocalineLogo from "@/components/logo"
-import { KeyIcon, LanguagesIcon, UsersIcon } from "lucide-react"
+import { KeyRoundIcon, LanguagesIcon, UsersIcon } from "lucide-react"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -48,7 +48,7 @@ export default function AuthLayout({
               <span>Team collaboration</span>
             </div>
             <div className="flex items-center gap-2">
-              <KeyIcon className="h-4 w-4" />
+              <KeyRoundIcon className="h-4 w-4" />
               <span>API access</span>
             </div>
           </div>

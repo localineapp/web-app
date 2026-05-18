@@ -1,7 +1,7 @@
 import {
   FileIcon,
   GlobeIcon,
-  KeyIcon,
+  KeyRoundIcon,
   LanguagesIcon,
   TagIcon,
   UsersIcon,
@@ -21,7 +21,7 @@ export default function BackgroundPattern() {
         <FileIcon className="h-14 w-14" />
       </div>
       <div className="absolute top-[60%] right-[15%]">
-        <KeyIcon className="h-10 w-10" />
+        <KeyRoundIcon className="h-10 w-10" />
       </div>
       <div className="absolute bottom-[20%] left-[25%]">
         <UsersIcon className="h-12 w-12" />

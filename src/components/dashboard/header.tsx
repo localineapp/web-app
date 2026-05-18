@@ -1,13 +1,9 @@
 "use client"
 
 import {
-  Link2Icon,
   LogOutIcon,
-  MonitorSmartphoneIcon,
   SearchIcon,
-  ShieldCogIcon,
   UserCog2Icon,
-  UserIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -30,6 +26,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { getProjects } from "@/actions/projects"
+import { accountNavigationItems } from "@/components/dashboard/navigation-items"
 
 export default function AppHeader({
   session,
@@ -45,14 +42,15 @@ export default function AppHeader({
 
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjects = normalizedSearchQuery
     ? projects.filter(
-        (project) =>
-          (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
-      )
+      (project) =>
+        (project.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (project.name ?? "").toLowerCase().includes(normalizedSearchQuery)
+    )
     : []
 
   useEffect(() => {
@@ -161,7 +159,7 @@ export default function AppHeader({
       <div className="flex shrink-0 items-center gap-2">
         <ThemeModeSelector />
 
-        <DropdownMenu>
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <div className="flex cursor-pointer items-center gap-2 hover:bg-muted/80 sm:rounded-full sm:bg-muted sm:px-3 sm:py-1">
               <Avatar className="h-9 w-9">
@@ -184,34 +182,18 @@ export default function AppHeader({
           <DropdownMenuContent align="start" className="min-w-fit">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Your Account</DropdownMenuLabel>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => router.push("/account")}
-              >
-                <UserIcon className="h-4 w-4" aria-hidden />
-                Public Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => router.push("/account/sessions")}
-              >
-                <MonitorSmartphoneIcon className="h-4 w-4" aria-hidden />
-                Sessions
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => router.push("/account/security")}
-              >
-                <ShieldCogIcon className="h-4 w-4" aria-hidden />
-                Security
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => router.push("/account/connections")}
-              >
-                <Link2Icon className="h-4 w-4" aria-hidden />
-                Connections
-              </DropdownMenuItem>
+              {accountNavigationItems.map(({ name, icon: Icon, href }) => (
+                <DropdownMenuItem
+                  key={name}
+                  className="cursor-pointer"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <Link href={href} className="flex w-full items-center gap-2">
+                    <Icon className="h-4 w-4" aria-hidden />
+                    {name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>

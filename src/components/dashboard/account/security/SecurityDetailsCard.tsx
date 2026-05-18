@@ -20,7 +20,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   FingerprintIcon,
-  KeyIcon,
+  KeySquareIcon,
   LockKeyholeIcon,
   MailIcon,
   PencilIcon,
@@ -241,7 +241,7 @@ export default function SecurityDetailsCard({
       </CardContent>
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
-          <KeyIcon className="size-4" />
+          <KeySquareIcon className="size-4" />
           <p>Password:</p>
         </div>
 
