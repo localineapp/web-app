@@ -202,7 +202,7 @@ export default function PlansTable({
       })
   }
 
-  if (total === 0) {
+  if (total === 0 && searchQuery === "") {
     return (
       <Empty>
         <EmptyHeader>
@@ -288,7 +288,7 @@ export default function PlansTable({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="cursor-default rounded-full p-0"
+                      className="cursor-pointer rounded-full p-0"
                       disabled={loading}
                       onClick={(event) => {
                         event.preventDefault()
@@ -628,7 +628,7 @@ export default function PlansTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery

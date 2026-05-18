@@ -51,7 +51,7 @@ export default function ProjectsTable({
   const currentProjects = filteredProjects.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  if (total === 0) {
+  if (total === 0 && searchQuery === "") {
     return (
       <Empty>
         <EmptyHeader>

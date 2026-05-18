@@ -1,3 +1,4 @@
+import ApiKeysTable from "@/components/dashboard/account/api-keys/ApiKeysTable";
 import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog";
 import { auth } from "@/lib/auth";
 import { Metadata } from "next";
@@ -34,7 +35,7 @@ export default async function ApiKeysPage() {
       </div>
 
       <div>
-
+        <ApiKeysTable session={session} apiKeys={apiKeys} />
       </div>
     </div>
   )

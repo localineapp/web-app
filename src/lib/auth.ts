@@ -57,7 +57,14 @@ export const auth = betterAuth({
     lastLoginMethod({
       storeInDatabase: true,
     }),
-    apiKey(),
+    apiKey({
+      startingCharactersConfig: {
+        shouldStore: false,
+      },
+      defaultPrefix: "lapp_",
+      requireName: true,
+      enableMetadata: true,
+    }),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV === "production",
     }),

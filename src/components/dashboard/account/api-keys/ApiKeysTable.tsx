@@ -1,0 +1,312 @@
+"use client"
+
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { auth } from "@/lib/auth"
+import { authClient, useSession } from "@/lib/auth-client"
+import { BadgeCheckIcon, BadgeXIcon, KeyRoundIcon, SearchIcon, TrashIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
+import { Input } from "@/components/ui/input"
+import TablePagination from "@/components/dashboard/table-pagination"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Spinner } from "@/components/ui/spinner"
+
+const PAGE_SIZE = 10
+
+export default function ApiKeysTable({
+  session,
+  apiKeys,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  apiKeys: Awaited<ReturnType<typeof auth.api.listApiKeys>>
+}) {
+  const router = useRouter()
+
+  type ApiKey = typeof apiKeys.apiKeys[number]
+
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
+
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase()
+  const filteredApiKeys = normalizedSearchQuery
+    ? apiKeys.apiKeys.filter(
+      (apiKey) =>
+        (apiKey.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (apiKey.name ?? "")
+          .toLowerCase()
+          .includes(normalizedSearchQuery)
+    )
+    : apiKeys.apiKeys
+
+  const total = filteredApiKeys.length
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * PAGE_SIZE
+  const endIndex = Math.min(total, currentPage * PAGE_SIZE)
+  const currentApiKeys = filteredApiKeys.slice(startIndex, endIndex)
+  const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  async function handleToggleEnabled(apiKey: ApiKey) {
+    setLoading(true)
+
+    await authClient.apiKey.update({
+      keyId: apiKey.id,
+      enabled: !apiKey.enabled,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success(`API key ${!apiKey.enabled ? "enabled" : "disabled"}.`)
+          setLoading(false)
+          router.refresh()
+        },
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to update API key. Please try again."
+          )
+          setLoading(false)
+        },
+      }
+    })
+  }
+
+  async function handleDeleteApiKey(apiKey: ApiKey) {
+    setLoading(true)
+
+    await authClient.apiKey.delete({
+      keyId: apiKey.id,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("API key deleted.")
+          setDeletingApiKey(null)
+          setLoading(false)
+          router.refresh()
+        },
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to delete API key. Please try again."
+          )
+          setLoading(false)
+        }
+      }
+    })
+  }
+
+  if (total === 0 && searchQuery === "") {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <KeyRoundIcon />
+          </EmptyMedia>
+          <EmptyTitle>No API Keys Yet</EmptyTitle>
+          <EmptyDescription>
+            There have been no API keys created yet.
+          </EmptyDescription>
+          <EmptyDescription>
+            <CreateApiKeyDialog session={session} />
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    )
+  }
+
+  return (
+    <div>
+      <div className="relative mb-2 flex w-full max-w-md items-center">
+        <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="search"
+          className="pl-10"
+          placeholder="Search plans by name or ID..."
+          value={searchQuery}
+          onChange={({ target: { value } }) => {
+            setSearchQuery(value)
+            setPage(1)
+          }}
+        />
+      </div>
+
+      <div className="overflow-hidden rounded-lg border border-border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-28 text-center">ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead className="text-center">Enabled</TableHead>
+              <TableHead>Last Used</TableHead>
+              <TableHead>Expires at</TableHead>
+              <TableHead>Created at</TableHead>
+              <TableHead className="w-24 text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {currentApiKeys.length > 0 ? (
+              currentApiKeys.map((apiKey) => (
+                <TableRow key={apiKey.id}>
+                  <TableCell className="text-center">
+                    {apiKey.id.slice(0, 8)}
+                  </TableCell>
+
+                  <TableCell className="min-w-40">{apiKey.name}</TableCell>
+
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="cursor-pointer rounded-full p-0"
+                      disabled={loading}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        handleToggleEnabled(apiKey)
+                      }}
+                    >
+                      {apiKey.enabled ? (
+                        <BadgeCheckIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      ) : (
+                        <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                      )}
+                    </Button>
+                  </TableCell>
+
+                  <TableCell>
+                    {apiKey.lastRequest
+                      ? new Date(apiKey.lastRequest).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                      : "Never used"}
+                  </TableCell>
+
+                  <TableCell>
+                    {apiKey.expiresAt
+                      ? new Date(apiKey.expiresAt).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                      : "Never"}
+                  </TableCell>
+
+                  <TableCell>
+                    {new Date(apiKey.createdAt).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <AlertDialog
+                      open={deletingApiKey !== null}
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setDeletingApiKey(null)
+                        }
+                      }}
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="inline-flex items-center p-1 text-sm"
+                          disabled={loading}
+                          onClick={() => setDeletingApiKey(apiKey)}
+                        >
+                          <TrashIcon size={16} />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will
+                            permanently delete the API key{" "}
+                            <span className="font-mono">
+                              {deletingApiKey?.name} (
+                              {deletingApiKey?.id.slice(0, 8)})
+                            </span>{" "}
+                            and all associated translations in all projects.
+                            Please confirm that you want to proceed.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <Button
+                            variant="outline"
+                            disabled={loading}
+                            onClick={() => setDeletingApiKey(null)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            disabled={loading || deletingApiKey === null}
+                            onClick={(event) => {
+                              event.preventDefault()
+                              if (!deletingApiKey) {
+                                return
+                              }
+
+                              void handleDeleteApiKey(deletingApiKey)
+                            }}
+                          >
+                            {loading ? (
+                              <>
+                                <Spinner className="h-4 w-4" />
+                                Deleting API key...
+                              </>
+                            ) : (
+                              <>
+                                <TrashIcon className="h-4 w-4" />
+                                Delete API Key
+                              </>
+                            )}
+                          </Button>
+                        </AlertDialogFooter>
+
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  {searchQuery
+                    ? "No API keys found matching your search."
+                    : "No API keys found."}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
+    </div>
+  )
+}

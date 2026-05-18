@@ -182,7 +182,7 @@ export default function LocalesTable({
       })
   }
 
-  if (total === 0) {
+  if (total === 0 && searchQuery === "") {
     return (
       <Empty>
         <EmptyHeader>

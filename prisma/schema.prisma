@@ -113,7 +113,6 @@ model Apikey {
   @@map("apikey")
 }
 
-
 model Locale {
   id          String   @id
   displayName String
