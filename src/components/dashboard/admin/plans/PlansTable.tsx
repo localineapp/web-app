@@ -62,6 +62,11 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import TablePagination from "@/components/dashboard/table-pagination"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 
 const PAGE_SIZE = 10
 
@@ -235,11 +240,8 @@ export default function PlansTable({
         </Alert>
       )}
 
-      <div className="relative mb-2 flex w-full max-w-md items-center">
-        <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          className="pl-10"
+      <InputGroup className="relative mb-2 max-w-md">
+        <InputGroupInput
           placeholder="Search plans by name or ID..."
           value={searchQuery}
           onChange={({ target: { value } }) => {
@@ -247,7 +249,10 @@ export default function PlansTable({
             setPage(1)
           }}
         />
-      </div>
+        <InputGroupAddon>
+          <SearchIcon />
+        </InputGroupAddon>
+      </InputGroup>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <Table>

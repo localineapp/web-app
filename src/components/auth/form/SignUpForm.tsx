@@ -11,6 +11,11 @@ import SocialAuthButtons from "@/components/auth/social-auth-buttons"
 import { signUp } from "@/lib/auth-client"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 
 function GoBackButton() {
   return (
@@ -125,32 +130,36 @@ export default function SignUpForm({
 
         <div className="grid gap-1">
           <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <LockIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-
-            <Input
+          <InputGroup>
+            <InputGroupInput
               id="password"
               placeholder="Enter your password"
               type={showPassword && !loading ? "text" : "password"}
               required
               value={password}
               disabled={loading}
-              className="pr-10 pl-10"
               onChange={({ target: { value } }) => setPassword(value)}
             />
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:hover:text-muted-foreground"
-            >
-              {showPassword ? (
-                <EyeOffIcon className="h-4 w-4" />
-              ) : (
-                <EyeIcon className="h-4 w-4" />
-              )}
-            </button>
-          </div>
+            <InputGroupAddon>
+              <LockIcon />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+              <Button
+                type="button"
+                disabled={loading}
+                onClick={() => setShowPassword(!showPassword)}
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground disabled:hover:text-muted-foreground"
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="h-4 w-4" />
+                ) : (
+                  <EyeIcon className="h-4 w-4" />
+                )}
+              </Button>
+            </InputGroupAddon>
+          </InputGroup>
         </div>
 
         <Button

@@ -41,6 +41,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Spinner } from "@/components/ui/spinner"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 
 const PAGE_SIZE = 10
 
@@ -142,19 +147,19 @@ export default function ApiKeysTable({
 
   return (
     <div>
-      <div className="relative mb-2 flex w-full max-w-md items-center">
-        <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          className="pl-10"
-          placeholder="Search plans by name or ID..."
+      <InputGroup className="relative mb-2 max-w-md">
+        <InputGroupInput
+          placeholder="Search API keys by name or ID..."
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
             setPage(1)
           }}
         />
-      </div>
+        <InputGroupAddon>
+          <SearchIcon />
+        </InputGroupAddon>
+      </InputGroup>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <Table>

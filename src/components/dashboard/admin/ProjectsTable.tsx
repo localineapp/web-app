@@ -9,7 +9,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -23,6 +22,11 @@ import { ExternalLinkIcon, FoldersIcon, SearchIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import TablePagination from "@/components/dashboard/table-pagination"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
 
 const PAGE_SIZE = 10
 
@@ -69,11 +73,8 @@ export default function ProjectsTable({
 
   return (
     <div>
-      <div className="relative mb-2 flex w-full max-w-md items-center">
-        <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          className="pl-10"
+      <InputGroup className="relative mb-2 max-w-md">
+        <InputGroupInput
           placeholder="Search projects by name or ID..."
           value={searchQuery}
           onChange={({ target: { value } }) => {
@@ -81,7 +82,10 @@ export default function ProjectsTable({
             setPage(1)
           }}
         />
-      </div>
+        <InputGroupAddon>
+          <SearchIcon />
+        </InputGroupAddon>
+      </InputGroup>
 
       <div className="overflow-hidden rounded-lg border border-border">
         <Table>

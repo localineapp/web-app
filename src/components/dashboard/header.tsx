@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { getProjects } from "@/actions/projects"
 import { accountNavigationItems } from "@/components/dashboard/navigation-items"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 
 export default function AppHeader({
   session,
@@ -111,16 +112,18 @@ export default function AppHeader({
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <SidebarTrigger className="shrink-0" />
         <div ref={searchContainerRef} className="relative w-full max-w-md">
-          <div className="relative flex items-center">
-            <SearchIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+          <InputGroup>
+            <InputGroupInput
               placeholder="Search projects by name or ID..."
               value={searchQuery}
               disabled={loading || projects.length === 0}
               onChange={({ target: { value } }) => setSearchQuery(value)}
               className="pl-10"
             />
-          </div>
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+          </InputGroup>
 
           {normalizedSearchQuery.length > 0 && (
             <div className="absolute top-[calc(100%+0.5rem)] left-0 z-50 w-full overflow-hidden rounded-lg border border-border bg-popover shadow-md">
