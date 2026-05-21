@@ -505,7 +505,7 @@ function EditUserSheet({
     >
       <SheetTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
           className="inline-flex items-center p-1 text-sm"
           disabled={loading}
@@ -779,7 +779,7 @@ function ImpersonateUserButton({
       >
         <span className="inline-block">
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             className="inline-flex items-center p-1 text-sm"
             disabled={user.id === session?.user.id || user.banned || loading}

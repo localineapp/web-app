@@ -73,9 +73,12 @@ export default function AppSidebar({
     return pathname === href || pathname.endsWith(href + "/")
   }
 
+  const isExpanded = state === "expanded"
+
   const isAccountPage = accountNavigationItems.some(({ href }) =>
     isActive(href)
   )
+
   const isProjectPage =
     projectNavigationItems.some(({ href }) =>
       isActive(href.replace("[projectId]", project?.id || ""))
@@ -91,13 +94,13 @@ export default function AppSidebar({
           href="/"
           className={cn(
             "flex items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-            state === "expanded" ? "gap-2" : "justify-center"
+            isExpanded ? "gap-2" : "justify-center"
           )}
         >
           <div className="flex size-8 items-center justify-center rounded-lg">
             <LocalineLogo />
           </div>
-          {state === "expanded" && (
+          {isExpanded && (
             <div className="grid flex-1 text-left">
               <span className="truncate text-lg font-semibold">Localine</span>
             </div>
@@ -132,7 +135,8 @@ export default function AppSidebar({
 
         {isAccountPage && (
           <SidebarGroup>
-            <SidebarGroupLabel>Your Account</SidebarGroupLabel>
+            {isExpanded && <SidebarGroupLabel>Your Account</SidebarGroupLabel>}
+
             <SidebarMenu>
               {accountNavigationItems.map(({ name, icon: Icon, href }) => (
                 <SidebarMenuItem key={name}>
@@ -159,7 +163,9 @@ export default function AppSidebar({
 
         {isProjectPage && project && (
           <SidebarGroup>
-            <SidebarGroupLabel>{project.name}</SidebarGroupLabel>
+            {isExpanded && (
+              <SidebarGroupLabel>{project.name}</SidebarGroupLabel>
+            )}
 
             <SidebarMenu>
               {projectNavigationItems.map(({ name, icon: Icon, href }) => {
@@ -244,7 +250,9 @@ export default function AppSidebar({
         )}
         {user?.role === "admin" && (
           <SidebarGroup>
-            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            {isExpanded && (
+              <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            )}
 
             <SidebarMenu>
               {adminNavigationItems.map(({ name, icon: Icon, href }) => (
