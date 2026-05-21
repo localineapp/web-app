@@ -2,10 +2,13 @@
 
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
@@ -63,6 +66,7 @@ export function RevokeOtherSessionsDialog() {
           Revoke Other Sessions
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Revoke Other Sessions</DialogTitle>
@@ -70,14 +74,16 @@ export function RevokeOtherSessionsDialog() {
             Are you sure you want to revoke all other active sessions?
           </DialogDescription>
         </DialogHeader>
+
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => setDialogOpen(false)}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="destructive"
             onClick={handleRevokeSessions}
@@ -139,41 +145,48 @@ export function RevokeAllSessionsDialog() {
             Revoke All Sessions
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Revoke All Sessions</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will revoke all active sessions, including the current one.
-              Are you sure you want to proceed?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleRevokeSessions}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Spinner className="h-4 w-4" />
-                  Revoking Sessions...
-                </>
-              ) : (
-                <>
-                  <Trash2Icon className="h-4 w-4" />
-                  Revoke Sessions
-                </>
-              )}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+
+        <AlertDialogPortal>
+          <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Revoke All Sessions</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will revoke all active sessions, including the current one.
+                Are you sure you want to proceed?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={loading}
+              >
+                Cancel
+              </AlertDialogCancel>
+
+              <Button
+                variant="destructive"
+                onClick={handleRevokeSessions}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Spinner className="h-4 w-4" />
+                    Revoking Sessions...
+                  </>
+                ) : (
+                  <>
+                    <Trash2Icon className="h-4 w-4" />
+                    Revoke Sessions
+                  </>
+                )}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogPortal>
       </AlertDialog>
     </>
   )

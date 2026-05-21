@@ -30,13 +30,16 @@ export default function ResetPasswordForm() {
           <AlertCircleIcon className="h-16 w-16 text-muted-foreground" />
           <h2 className="text-3xl font-semibold">Invalid Token</h2>
         </div>
+
         <p className="mx-auto max-w-lg text-center text-lg text-muted-foreground">
           The password reset link is invalid. Please make sure you copied the
           entire link from your email and try again.
         </p>
+
         <div className="relative inset-0 flex items-center">
           <span className="w-full border-t" />
         </div>
+
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Forgot your password?{" "}
           <Link href="/auth/forgot-password" className="text-primary underline">
@@ -95,12 +98,13 @@ export default function ResetPasswordForm() {
               disabled={loading}
               onChange={({ target: { value } }) => setPassword(value)}
             />
+
             <InputGroupAddon>
               <LockIcon />
             </InputGroupAddon>
+
             <InputGroupAddon align="inline-end">
               <Button
-                type="button"
                 disabled={loading}
                 onClick={() => setShowPassword(!showPassword)}
                 variant="ghost"

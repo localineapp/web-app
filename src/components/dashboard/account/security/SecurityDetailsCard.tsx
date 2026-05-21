@@ -134,7 +134,6 @@ export default function SecurityDetailsCard({
 
         <div className="flex min-w-0 items-center gap-2">
           <Button
-            type="button"
             variant="ghost"
             className="relative inline-flex h-6 min-w-0 flex-1 items-center justify-between gap-2 overflow-hidden rounded-md px-2 py-1 text-left transition hover:bg-muted/50"
             aria-pressed={isEmailVisible}
@@ -170,12 +169,7 @@ export default function SecurityDetailsCard({
           </Button>
           <Dialog open={isEmailDialogOpen} onOpenChange={setEmailDialogOpen}>
             <DialogTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="shrink-0"
-              >
+              <Button variant="ghost" size="icon-xs" className="shrink-0">
                 <PencilIcon className="size-4" />
               </Button>
             </DialogTrigger>
@@ -202,7 +196,6 @@ export default function SecurityDetailsCard({
 
               <DialogFooter>
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={() => {
                     setEmailDialogOpen(false)
@@ -210,10 +203,10 @@ export default function SecurityDetailsCard({
                   }}
                   disabled={loading}
                 >
-                  Cancel
+                  Close
                 </Button>
+
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={handleUpdateEmail}
                   disabled={
@@ -239,6 +232,7 @@ export default function SecurityDetailsCard({
           </Dialog>
         </div>
       </CardContent>
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <KeySquareIcon className="size-4" />
@@ -278,6 +272,7 @@ export default function SecurityDetailsCard({
                       }
                     />
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">New password</Label>
                     <Input
@@ -295,7 +290,6 @@ export default function SecurityDetailsCard({
 
                 <DialogFooter>
                   <Button
-                    type="button"
                     variant="outline"
                     onClick={() => {
                       setPasswordDialogOpen(false)
@@ -304,10 +298,10 @@ export default function SecurityDetailsCard({
                     }}
                     disabled={loading}
                   >
-                    Cancel
+                    Close
                   </Button>
+
                   <Button
-                    type="button"
                     variant="outline"
                     onClick={handleUpdatePassword}
                     disabled={
@@ -364,6 +358,7 @@ export default function SecurityDetailsCard({
                       }
                     />
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="newPasswordConfirm">Confirm password</Label>
                     <Input
@@ -381,7 +376,6 @@ export default function SecurityDetailsCard({
 
                 <DialogFooter>
                   <Button
-                    type="button"
                     variant="outline"
                     onClick={() => {
                       setPasswordDialogOpen(false)
@@ -390,10 +384,10 @@ export default function SecurityDetailsCard({
                     }}
                     disabled={loading}
                   >
-                    Cancel
+                    Close
                   </Button>
+
                   <Button
-                    type="button"
                     variant="outline"
                     onClick={handleAddPassword}
                     disabled={
@@ -420,6 +414,7 @@ export default function SecurityDetailsCard({
           )}
         </div>
       </CardContent>
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <LockKeyholeIcon className="size-4" />
@@ -440,6 +435,7 @@ export default function SecurityDetailsCard({
           )}
         </div>
       </CardContent>
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <FingerprintIcon className="size-4" />

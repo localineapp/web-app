@@ -50,6 +50,9 @@ export default async function AdminPlansPage() {
     })
   ).success
 
+  const existsDefaultPlan =
+    plans.length !== 0 && plans.some((plan) => plan.default)
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -72,7 +75,7 @@ export default async function AdminPlansPage() {
           canCreatePlans={canCreatePlans}
           canUpdatePlans={canUpdatePlans}
           canDeletePlans={canDeletePlans}
-          existsDefaultPlan={plans.some((plan) => plan.default)}
+          existsDefaultPlan={existsDefaultPlan}
         />
       </div>
     </div>

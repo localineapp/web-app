@@ -27,16 +27,18 @@ import {
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
-import { Input } from "@/components/ui/input"
 import TablePagination from "@/components/dashboard/table-pagination"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
@@ -46,6 +48,10 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+
+type ApiKey = NonNullable<
+  Awaited<ReturnType<typeof auth.api.listApiKeys>>
+>["apiKeys"][number]
 
 const PAGE_SIZE = 10
 
@@ -58,12 +64,9 @@ export default function ApiKeysTable({
 }) {
   const router = useRouter()
 
-  type ApiKey = (typeof apiKeys.apiKeys)[number]
-
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredApiKeys = normalizedSearchQuery
@@ -104,28 +107,6 @@ export default function ApiKeysTable({
     })
   }
 
-  async function handleDeleteApiKey(apiKey: ApiKey) {
-    setLoading(true)
-
-    await authClient.apiKey.delete({
-      keyId: apiKey.id,
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("API key deleted.")
-          setDeletingApiKey(null)
-          setLoading(false)
-          router.refresh()
-        },
-        onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to delete API key. Please try again."
-          )
-          setLoading(false)
-        },
-      },
-    })
-  }
-
   if (total === 0 && searchQuery === "") {
     return (
       <Empty>
@@ -133,11 +114,11 @@ export default function ApiKeysTable({
           <EmptyMedia variant="icon">
             <KeyRoundIcon />
           </EmptyMedia>
+
           <EmptyTitle>No API Keys Yet</EmptyTitle>
-          <EmptyDescription>
+
+          <EmptyDescription className="grid gap-2">
             There have been no API keys created yet.
-          </EmptyDescription>
-          <EmptyDescription>
             <CreateApiKeyDialog session={session} />
           </EmptyDescription>
         </EmptyHeader>
@@ -245,76 +226,11 @@ export default function ApiKeysTable({
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <AlertDialog
-                      open={deletingApiKey !== null}
-                      onOpenChange={(open) => {
-                        if (!open) {
-                          setDeletingApiKey(null)
-                        }
-                      }}
-                    >
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="inline-flex items-center p-1 text-sm"
-                          disabled={loading}
-                          onClick={() => setDeletingApiKey(apiKey)}
-                        >
-                          <TrashIcon size={16} />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Are you absolutely sure?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete the API key{" "}
-                            <span className="font-mono">
-                              {deletingApiKey?.name} (
-                              {deletingApiKey?.id.slice(0, 8)})
-                            </span>{" "}
-                            and all associated translations in all projects.
-                            Please confirm that you want to proceed.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <Button
-                            variant="outline"
-                            disabled={loading}
-                            onClick={() => setDeletingApiKey(null)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            disabled={loading || deletingApiKey === null}
-                            onClick={(event) => {
-                              event.preventDefault()
-                              if (!deletingApiKey) {
-                                return
-                              }
-
-                              void handleDeleteApiKey(deletingApiKey)
-                            }}
-                          >
-                            {loading ? (
-                              <>
-                                <Spinner className="h-4 w-4" />
-                                Deleting API key...
-                              </>
-                            ) : (
-                              <>
-                                <TrashIcon className="h-4 w-4" />
-                                Delete API Key
-                              </>
-                            )}
-                          </Button>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <DeleteApiKeyDialog
+                      apiKey={apiKey}
+                      loading={loading}
+                      setLoading={setLoading}
+                    />
                   </TableCell>
                 </TableRow>
               ))
@@ -343,5 +259,116 @@ export default function ApiKeysTable({
         setPage={setPage}
       />
     </div>
+  )
+}
+
+function DeleteApiKeyDialog({
+  apiKey,
+  loading,
+  setLoading,
+}: {
+  apiKey: ApiKey
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
+
+  async function handleDeleteApiKey(apiKey: ApiKey) {
+    setLoading(true)
+
+    await authClient.apiKey.delete({
+      keyId: apiKey.id,
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("API key deleted.")
+          setDeletingApiKey(null)
+          setLoading(false)
+          router.refresh()
+        },
+        onError: ({ error }) => {
+          toast.error(
+            error?.message || "Failed to delete API key. Please try again."
+          )
+          setLoading(false)
+        },
+      },
+    })
+  }
+
+  return (
+    <AlertDialog
+      open={deletingApiKey !== null}
+      onOpenChange={(open) => {
+        if (!open) {
+          setDeletingApiKey(null)
+        }
+      }}
+    >
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="destructive"
+          size="icon"
+          className="inline-flex items-center p-1 text-sm"
+          disabled={loading}
+          onClick={() => setDeletingApiKey(apiKey)}
+        >
+          <TrashIcon size={16} />
+        </Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogPortal>
+        <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the API
+              key{" "}
+              <span className="font-mono">
+                {deletingApiKey?.name} ({deletingApiKey?.id.slice(0, 8)})
+              </span>{" "}
+              and all associated translations in all projects. Please confirm
+              that you want to proceed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              variant="outline"
+              disabled={loading}
+              onClick={() => setDeletingApiKey(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+
+            <Button
+              variant="destructive"
+              disabled={loading || deletingApiKey === null}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deletingApiKey) return
+
+                void handleDeleteApiKey(deletingApiKey)
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Deleting API key...
+                </>
+              ) : (
+                <>
+                  <TrashIcon className="h-4 w-4" />
+                  Delete API Key
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
   )
 }

@@ -25,11 +25,14 @@ export default async function UnauthorizedPage() {
           <EmptyMedia variant="icon">
             <AlertTriangleIcon />
           </EmptyMedia>
+
           <EmptyTitle className="text-4xl">Access Denied</EmptyTitle>
+
           <EmptyDescription className="text-lg">
             You don&apos;t have permission to access this resource.
           </EmptyDescription>
         </EmptyHeader>
+
         <EmptyContent className="flex-row justify-center gap-2">
           {isAuthenticated ? (
             <Button asChild size="lg">

@@ -3,7 +3,6 @@
 import { LogOutIcon, SearchIcon, UserCog2Icon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
 import { MouseEvent, useEffect, useRef, useState } from "react"
 import { authClient, signOut, useSession } from "@/lib/auth-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -178,6 +177,7 @@ export default function AppHeader({
               )}
             </div>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="start" className="min-w-fit">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Your Account</DropdownMenuLabel>
@@ -194,7 +194,9 @@ export default function AppHeader({
                 </DropdownMenuItem>
               ))}
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
               {session?.session.impersonatedBy === null ? (
                 <DropdownMenuItem

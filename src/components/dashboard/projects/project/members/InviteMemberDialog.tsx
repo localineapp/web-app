@@ -84,6 +84,7 @@ export default function InviteMemberDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite new member</DialogTitle>
@@ -91,6 +92,7 @@ export default function InviteMemberDialog({
             Add a new member to your project.
           </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -101,6 +103,7 @@ export default function InviteMemberDialog({
             onChange={({ target: { value } }) => setEmail(value)}
           />
         </div>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -110,7 +113,7 @@ export default function InviteMemberDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
           <Button
             variant="outline"

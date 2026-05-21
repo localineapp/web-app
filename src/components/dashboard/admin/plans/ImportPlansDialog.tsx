@@ -196,18 +196,21 @@ export default function ImportPlansDialog({
                       ? plan.localesLimit.toLocaleString("en-US")
                       : "∞"}
                   </li>
+
                   <li>
                     <strong>Terms Limit:</strong>{" "}
                     {plan.termsLimit !== undefined
                       ? plan.termsLimit.toLocaleString("en-US")
                       : "∞"}
                   </li>
+
                   <li>
                     <strong>Labels Limit:</strong>{" "}
                     {plan.labelsLimit !== undefined
                       ? plan.labelsLimit.toLocaleString("en-US")
                       : "∞"}
                   </li>
+
                   <li>
                     <strong>Members Limit:</strong>{" "}
                     {plan.membersLimit !== undefined
@@ -229,8 +232,9 @@ export default function ImportPlansDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleImportPlans}

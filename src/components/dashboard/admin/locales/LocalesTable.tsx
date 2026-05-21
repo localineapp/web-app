@@ -3,10 +3,13 @@
 import { deleteLocale, updateLocale } from "@/actions/locales"
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
@@ -86,20 +89,9 @@ export default function LocalesTable({
   canUpdateLocales: boolean
   canDeleteLocales: boolean
 }) {
-  const router = useRouter()
-
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
-  const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
-
-  const [displayName, setDisplayName] = useState("")
-  const [language, setLanguage] = useState("")
-  const [region, setRegion] = useState<string | null>(null)
-  const [code, setCode] = useState("")
-  const [flag, setFlag] = useState<string | null>(null)
-  const [enabled, setEnabled] = useState(false)
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredLocales = normalizedSearchQuery
@@ -125,68 +117,6 @@ export default function LocalesTable({
   const currentLocales = filteredLocales.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  function openEditor(locale: Locale) {
-    setDisplayName(locale.displayName ?? "")
-    setLanguage(locale.language ?? "")
-    setRegion(locale.region)
-    setCode(locale.code ?? "")
-    setFlag(locale.flag)
-    setEnabled(locale.enabled)
-    setEditingLocale(locale)
-  }
-
-  async function handleUpdateLocale(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    if (!editingLocale) return
-
-    setLoading(true)
-    await updateLocale(editingLocale.id, {
-      displayName,
-      language,
-      region: region || null,
-      code,
-      flag: flag || null,
-      enabled,
-    })
-      .then(() => {
-        toast.success(
-          `Updated locale ${displayName} (${editingLocale.id.slice(0, 8)}).`
-        )
-        router.refresh()
-      })
-      .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update locale. Please try again."
-        )
-      })
-      .finally(() => {
-        setLoading(false)
-        setEditingLocale(null)
-      })
-  }
-
-  async function handleDeleteLocale(locale: Locale) {
-    setLoading(true)
-
-    await deleteLocale(locale.id)
-      .then(() => {
-        toast.success(
-          `Deleted locale ${locale.displayName} (${locale.id.slice(0, 8)}).`
-        )
-        router.refresh()
-      })
-      .catch((error) => {
-        toast.error(
-          error?.message || "Failed to delete locale. Please try again."
-        )
-      })
-      .finally(() => {
-        setLoading(false)
-        setDeletingLocale(null)
-      })
-  }
-
   if (total === 0 && searchQuery === "") {
     return (
       <Empty>
@@ -194,11 +124,11 @@ export default function LocalesTable({
           <EmptyMedia variant="icon">
             <GlobeIcon />
           </EmptyMedia>
+
           <EmptyTitle>No Locales Yet</EmptyTitle>
-          <EmptyDescription>
+
+          <EmptyDescription className="grid gap-2">
             There have been no locales created yet.
-          </EmptyDescription>
-          <EmptyDescription>
             <CreateLocaleDialog canCreateLocales={canCreateLocales} />
           </EmptyDescription>
         </EmptyHeader>
@@ -295,295 +225,18 @@ export default function LocalesTable({
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      {canUpdateLocales ? (
-                        <Sheet
-                          open={editingLocale !== null}
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              setEditingLocale(null)
-                            }
-                          }}
-                        >
-                          <SheetTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="inline-flex items-center p-1 text-sm"
-                              disabled={loading}
-                              onClick={() => openEditor(locale)}
-                            >
-                              <PencilIcon size={16} />
-                            </Button>
-                          </SheetTrigger>
-
-                          <SheetContent className="flex flex-col overflow-hidden">
-                            <form
-                              className="flex min-h-0 flex-1 flex-col overflow-hidden"
-                              onSubmit={handleUpdateLocale}
-                            >
-                              <SheetHeader className="shrink-0">
-                                <SheetTitle>
-                                  Edit{" "}
-                                  <span className="font-mono">
-                                    {editingLocale?.displayName} (
-                                    {editingLocale?.id.slice(0, 8)})
-                                  </span>{" "}
-                                </SheetTitle>
-                                <SheetDescription>
-                                  Here you can edit the locale&rsquo;s details.
-                                </SheetDescription>
-                              </SheetHeader>
-
-                              <ScrollArea className="min-h-0 flex-1 overflow-hidden">
-                                <div className="grid auto-rows-min gap-6 px-4 py-4">
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="localeName">
-                                      Display Name
-                                    </Label>
-                                    <Input
-                                      id="localeName"
-                                      value={displayName}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setDisplayName(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="localeLanguage">
-                                      Language
-                                    </Label>
-                                    <Input
-                                      id="language"
-                                      value={language}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setLanguage(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="localeRegion">
-                                      Region (optional)
-                                    </Label>
-                                    <Input
-                                      id="region"
-                                      value={region || ""}
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setRegion(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="localeCode">
-                                      Locale Code
-                                    </Label>
-                                    <Input
-                                      id="localeCode"
-                                      value={code}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setCode(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="flag">Flag</Label>
-                                    <Input
-                                      id="flag"
-                                      value={flag ?? ""}
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setFlag(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="enabled">Enabled</Label>
-                                    <ToggleGroup
-                                      type="single"
-                                      className="grid w-full grid-cols-2 border-2"
-                                      value={enabled ? "true" : "false"}
-                                      disabled={loading}
-                                      onValueChange={(value) => {
-                                        if (
-                                          value === "true" ||
-                                          value === "false"
-                                        ) {
-                                          setEnabled(value === "true")
-                                        }
-                                      }}
-                                    >
-                                      <ToggleGroupItem
-                                        value="true"
-                                        className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
-                                      >
-                                        Yes
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem
-                                        value="false"
-                                        className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
-                                      >
-                                        No
-                                      </ToggleGroupItem>
-                                    </ToggleGroup>
-                                  </div>
-                                </div>
-                              </ScrollArea>
-
-                              <SheetFooter className="shrink-0">
-                                <Button
-                                  type="submit"
-                                  disabled={
-                                    loading ||
-                                    !editingLocale ||
-                                    !displayName ||
-                                    !language ||
-                                    !code
-                                  }
-                                >
-                                  {loading ? (
-                                    <>
-                                      <Spinner className="h-4 w-4" />
-                                      Saving changes...
-                                    </>
-                                  ) : (
-                                    "Save changes"
-                                  )}
-                                </Button>
-                                <SheetClose asChild>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    disabled={loading}
-                                  >
-                                    Close
-                                  </Button>
-                                </SheetClose>
-                              </SheetFooter>
-                            </form>
-                          </SheetContent>
-                        </Sheet>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger
-                            asChild
-                            className="cursor-not-allowed"
-                          >
-                            <span className="inline-block">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="inline-flex items-center p-1 text-sm"
-                                disabled
-                              >
-                                <PencilIcon size={16} />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            You don&rsquo;t have permission to edit locales.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                      {canDeleteLocales ? (
-                        <AlertDialog
-                          open={deletingLocale !== null}
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              setDeletingLocale(null)
-                            }
-                          }}
-                        >
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="inline-flex items-center p-1 text-sm"
-                              disabled={loading}
-                              onClick={() => setDeletingLocale(locale)}
-                            >
-                              <TrashIcon size={16} />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you absolutely sure?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the locale{" "}
-                                <span className="font-mono">
-                                  {deletingLocale?.displayName} (
-                                  {deletingLocale?.id.slice(0, 8)})
-                                </span>{" "}
-                                and all associated translations in all projects.
-                                Please confirm that you want to proceed.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <Button
-                                variant="outline"
-                                disabled={loading}
-                                onClick={() => setDeletingLocale(null)}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                disabled={loading || deletingLocale === null}
-                                onClick={(event) => {
-                                  event.preventDefault()
-                                  if (!deletingLocale) {
-                                    return
-                                  }
-
-                                  void handleDeleteLocale(deletingLocale)
-                                }}
-                              >
-                                {loading ? (
-                                  <>
-                                    <Spinner className="h-4 w-4" />
-                                    Deleting locale...
-                                  </>
-                                ) : (
-                                  <>
-                                    <TrashIcon className="h-4 w-4" />
-                                    Delete Locale
-                                  </>
-                                )}
-                              </Button>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger
-                            asChild
-                            className="cursor-not-allowed"
-                          >
-                            <span className="inline-block">
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                className="inline-flex items-center p-1 text-sm"
-                                disabled
-                              >
-                                <TrashIcon size={16} />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            You don&rsquo;t have permission to delete locales.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
+                      <EditLocaleSheet
+                        locale={locale}
+                        canUpdateLocales={canUpdateLocales}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
+                      <DeleteLocaleDialog
+                        locale={locale}
+                        canDeleteLocales={canDeleteLocales}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -613,5 +266,364 @@ export default function LocalesTable({
         setPage={setPage}
       />
     </div>
+  )
+}
+
+function EditLocaleSheet({
+  locale,
+  canUpdateLocales,
+  loading,
+  setLoading,
+}: {
+  locale: Locale
+  canUpdateLocales: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
+
+  const [displayName, setDisplayName] = useState("")
+  const [language, setLanguage] = useState("")
+  const [region, setRegion] = useState<string | null>(null)
+  const [code, setCode] = useState("")
+  const [flag, setFlag] = useState<string | null>(null)
+  const [enabled, setEnabled] = useState(false)
+
+  function openEditor(locale: Locale) {
+    setDisplayName(locale.displayName ?? "")
+    setLanguage(locale.language ?? "")
+    setRegion(locale.region)
+    setCode(locale.code ?? "")
+    setFlag(locale.flag)
+    setEnabled(locale.enabled)
+    setEditingLocale(locale)
+  }
+
+  async function handleUpdateLocale(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!editingLocale) return
+
+    setLoading(true)
+    await updateLocale(editingLocale.id, {
+      displayName,
+      language,
+      region: region || null,
+      code,
+      flag: flag || null,
+      enabled,
+    })
+      .then(() => {
+        toast.success(
+          `Updated locale ${displayName} (${editingLocale.id.slice(0, 8)}).`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to update locale. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setEditingLocale(null)
+      })
+  }
+
+  return (
+    <Sheet
+      open={editingLocale !== null}
+      onOpenChange={(open) => {
+        if (!open) {
+          setEditingLocale(null)
+        }
+      }}
+    >
+      <Tooltip>
+        <TooltipTrigger
+          asChild
+          className={cn(
+            canUpdateLocales ? "cursor-pointer" : "cursor-not-allowed"
+          )}
+        >
+          <SheetTrigger asChild>
+            <span className="inline-block">
+              <Button
+                variant="outline"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canUpdateLocales || loading}
+                onClick={() => openEditor(locale)}
+              >
+                <PencilIcon size={16} />
+              </Button>
+            </span>
+          </SheetTrigger>
+        </TooltipTrigger>
+        {!canUpdateLocales && (
+          <TooltipContent>
+            You don&rsquo;t have permission to edit locales.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <SheetContent className="flex flex-col overflow-hidden">
+        <form
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          onSubmit={handleUpdateLocale}
+        >
+          <SheetHeader className="shrink-0">
+            <SheetTitle>
+              Edit{" "}
+              <span className="font-mono">
+                {editingLocale?.displayName} ({editingLocale?.id.slice(0, 8)})
+              </span>{" "}
+            </SheetTitle>
+            <SheetDescription>
+              Here you can edit the locale&rsquo;s details.
+            </SheetDescription>
+          </SheetHeader>
+
+          <ScrollArea className="min-h-0 flex-1 overflow-hidden">
+            <div className="grid auto-rows-min gap-6 px-4 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="localeName">Display Name</Label>
+                <Input
+                  id="localeName"
+                  value={displayName}
+                  required
+                  disabled={loading}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="localeLanguage">Language</Label>
+                <Input
+                  id="language"
+                  value={language}
+                  required
+                  disabled={loading}
+                  onChange={(event) => setLanguage(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="localeRegion">Region (optional)</Label>
+                <Input
+                  id="region"
+                  value={region || ""}
+                  disabled={loading}
+                  onChange={(event) => setRegion(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="localeCode">Locale Code</Label>
+                <Input
+                  id="localeCode"
+                  value={code}
+                  required
+                  disabled={loading}
+                  onChange={(event) => setCode(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="flag">Flag</Label>
+                <Input
+                  id="flag"
+                  value={flag ?? ""}
+                  disabled={loading}
+                  onChange={(event) => setFlag(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="enabled">Enabled</Label>
+                <ToggleGroup
+                  type="single"
+                  className="grid w-full grid-cols-2 border-2"
+                  value={enabled ? "true" : "false"}
+                  disabled={loading}
+                  onValueChange={(value) => {
+                    if (value === "true" || value === "false") {
+                      setEnabled(value === "true")
+                    }
+                  }}
+                >
+                  <ToggleGroupItem
+                    value="true"
+                    className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
+                  >
+                    Yes
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="false"
+                    className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
+                  >
+                    No
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            </div>
+          </ScrollArea>
+
+          <SheetFooter className="shrink-0">
+            <Button
+              type="submit"
+              disabled={
+                loading || !editingLocale || !displayName || !language || !code
+              }
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Saving changes...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+
+            <SheetClose asChild>
+              <Button
+                variant="outline"
+                disabled={loading}
+                onClick={() => setEditingLocale(null)}
+              >
+                Close
+              </Button>
+            </SheetClose>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function DeleteLocaleDialog({
+  locale,
+  canDeleteLocales,
+  loading,
+  setLoading,
+}: {
+  locale: Locale
+  canDeleteLocales: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
+
+  async function handleDeleteLocale(locale: Locale) {
+    setLoading(true)
+
+    await deleteLocale(locale.id)
+      .then(() => {
+        toast.success(
+          `Deleted locale ${locale.displayName} (${locale.id.slice(0, 8)}).`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to delete locale. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDeletingLocale(null)
+      })
+  }
+
+  return (
+    <AlertDialog
+      open={!!deletingLocale}
+      onOpenChange={(open) => !open && setDeletingLocale(null)}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "inline-flex",
+              canDeleteLocales ? "cursor-pointer" : "cursor-not-allowed"
+            )}
+          >
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canDeleteLocales || loading}
+                onClick={() => setDeletingLocale(locale)}
+              >
+                <TrashIcon size={16} />
+              </Button>
+            </AlertDialogTrigger>
+          </span>
+        </TooltipTrigger>
+        {!canDeleteLocales && (
+          <TooltipContent>
+            You don&rsquo;t have permission to delete locales.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <AlertDialogPortal>
+        <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              locale{" "}
+              <span className="font-mono">
+                {deletingLocale?.displayName} ({deletingLocale?.id.slice(0, 8)})
+              </span>{" "}
+              and all associated translations in all projects. Please confirm
+              that you want to proceed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              variant="outline"
+              disabled={loading}
+              onClick={() => setDeletingLocale(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+
+            <Button
+              variant="destructive"
+              disabled={loading || deletingLocale === null}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deletingLocale) return
+
+                void handleDeleteLocale(deletingLocale)
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Deleting locale...
+                </>
+              ) : (
+                <>
+                  <TrashIcon className="h-4 w-4" />
+                  Delete Locale
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
   )
 }

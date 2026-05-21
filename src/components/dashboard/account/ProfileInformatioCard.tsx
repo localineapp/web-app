@@ -43,7 +43,6 @@ export default function ProfileInformationCard({
           </p>
 
           <Button
-            type="button"
             variant="ghost"
             size="icon-xs"
             className="shrink-0"
@@ -61,7 +60,9 @@ export default function ProfileInformationCard({
           </Button>
         </div>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <TagIcon className="size-4" />
@@ -79,7 +80,9 @@ export default function ProfileInformationCard({
           </p>
         </div>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <Link2Icon className="size-4" />
@@ -90,7 +93,9 @@ export default function ProfileInformationCard({
           {user?.lastLoginMethod ?? "Unknown"}
         </p>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <FoldersIcon className="size-4" />
@@ -103,7 +108,9 @@ export default function ProfileInformationCard({
             : "Unknown"}
         </p>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <MailIcon className="size-4" />
@@ -128,7 +135,9 @@ export default function ProfileInformationCard({
           </p>
         </div>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <BanIcon className="size-4" />
@@ -153,7 +162,9 @@ export default function ProfileInformationCard({
           </p>
         </div>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <CalendarIcon className="size-4" />

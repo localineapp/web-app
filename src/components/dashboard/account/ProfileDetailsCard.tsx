@@ -196,12 +196,7 @@ export default function ProfileDetailsCard({
           </p>
           <Dialog open={isNameDialogOpen} onOpenChange={setNameDialogOpen}>
             <DialogTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="shrink-0"
-              >
+              <Button variant="ghost" size="icon-xs" className="shrink-0">
                 <PencilIcon className="size-4" />
               </Button>
             </DialogTrigger>
@@ -227,15 +222,14 @@ export default function ProfileDetailsCard({
 
               <DialogFooter>
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={() => setNameDialogOpen(false)}
                   disabled={nameLoading}
                 >
-                  Cancel
+                  Close
                 </Button>
+
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={handleUpdateName}
                   disabled={
@@ -261,7 +255,9 @@ export default function ProfileDetailsCard({
           </Dialog>
         </div>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <MailIcon className="size-4" />
@@ -270,7 +266,6 @@ export default function ProfileDetailsCard({
 
         <div className="flex min-w-0 items-center gap-2">
           <Button
-            type="button"
             variant="ghost"
             className="relative inline-flex h-6 min-w-0 flex-1 items-center justify-between gap-2 overflow-hidden rounded-md px-2 py-1 text-left transition hover:bg-muted/50"
             aria-pressed={isEmailVisible}
@@ -306,7 +301,9 @@ export default function ProfileDetailsCard({
           </Button>
         </div>
       </CardContent>
+
       <Separator />
+
       <CardContent className="flex items-center justify-between gap-4">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <ImageIcon className="size-4" />
@@ -323,12 +320,7 @@ export default function ProfileDetailsCard({
 
           <Dialog open={isAvatarDialogOpen} onOpenChange={setAvatarDialogOpen}>
             <DialogTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="shrink-0"
-              >
+              <Button variant="ghost" size="icon-xs" className="shrink-0">
                 <PencilIcon className="size-4" />
               </Button>
             </DialogTrigger>
@@ -446,15 +438,14 @@ export default function ProfileDetailsCard({
 
               <DialogFooter>
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={() => setAvatarDialogOpen(false)}
                   disabled={avatarLoading}
                 >
-                  Cancel
+                  Close
                 </Button>
+
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={handleUpdateAvatar}
                   disabled={

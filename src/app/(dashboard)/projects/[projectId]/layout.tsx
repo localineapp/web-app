@@ -51,11 +51,14 @@ export default async function ProjectLayout({
             <EmptyMedia variant="icon">
               <AlertTriangleIcon />
             </EmptyMedia>
+
             <EmptyTitle className="text-4xl">Project Not Found</EmptyTitle>
+
             <EmptyDescription className="text-lg">
               The project you are looking for does not exist.
             </EmptyDescription>
           </EmptyHeader>
+
           <EmptyContent className="flex-row justify-center gap-2">
             <Button asChild size="lg">
               <Link href="/">

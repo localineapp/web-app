@@ -80,6 +80,7 @@ export default function CreateApiKeyDialog({
           New API Key
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         {apiKey ? (
           <>
@@ -128,6 +129,7 @@ export default function CreateApiKeyDialog({
                 Create a new API key to authenticate your applications.
               </DialogDescription>
             </DialogHeader>
+
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="apiKeyName">Key Name</Label>
@@ -138,6 +140,7 @@ export default function CreateApiKeyDialog({
                   onChange={({ target: { value } }) => setName(value)}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="expiryDate">Expiry Date (optional)</Label>
                 <Input
@@ -153,6 +156,7 @@ export default function CreateApiKeyDialog({
                 />
               </div>
             </div>
+
             <DialogFooter>
               <Button
                 variant="outline"
@@ -163,13 +167,15 @@ export default function CreateApiKeyDialog({
                 }}
                 disabled={loading}
               >
-                Cancel
+                Close
               </Button>
+
               <Button
                 variant="outline"
                 onClick={handleCreateApiKey}
                 disabled={
                   !name ||
+                  // eslint-disable-next-line react-hooks/purity
                   (expiryDate && expiryDate.getTime() <= Date.now()) ||
                   loading
                 }

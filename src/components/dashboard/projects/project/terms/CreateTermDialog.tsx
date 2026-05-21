@@ -85,11 +85,13 @@ export default function CreateTermDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new term</DialogTitle>
           <DialogDescription>Add a new term to your project.</DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="termName">Term name</Label>
@@ -100,6 +102,7 @@ export default function CreateTermDialog({
               onChange={({ target: { value } }) => setName(value)}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="termContext">Context (optional)</Label>
             <Input
@@ -110,6 +113,7 @@ export default function CreateTermDialog({
             />
           </div>
         </div>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -120,8 +124,9 @@ export default function CreateTermDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleCreateTerm}

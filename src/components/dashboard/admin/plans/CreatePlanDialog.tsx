@@ -86,11 +86,13 @@ export default function CreatePlanDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new plan</DialogTitle>
           <DialogDescription>Add a new plan to the system.</DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="planName">Plan Name</Label>
@@ -101,6 +103,7 @@ export default function CreatePlanDialog({
               onChange={({ target: { value } }) => setDisplayName(value)}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="planDescription">Description (optional)</Label>
             <Input
@@ -111,6 +114,7 @@ export default function CreatePlanDialog({
             />
           </div>
         </div>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -121,8 +125,9 @@ export default function CreatePlanDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleCreatePlan}

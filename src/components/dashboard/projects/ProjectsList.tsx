@@ -90,12 +90,20 @@ export default function ProjectsList({
           <EmptyMedia variant="icon">
             <FolderCodeIcon />
           </EmptyMedia>
+
           <EmptyTitle>No Projects Yet</EmptyTitle>
-          <EmptyDescription>
+
+          <EmptyDescription className="grid gap-2">
             You haven&apos;t created any projects yet. Get started by creating
             your first project.
+            <CreateProjectDialog
+              session={session}
+              projectCount={projects.length}
+              defaultPlan={defaultPlan}
+            />
           </EmptyDescription>
         </EmptyHeader>
+
         <EmptyContent>
           <CreateProjectDialog
             session={session}
@@ -268,6 +276,7 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
                   >
                     <ExternalLinkIcon size={16} />
                   </Link>
+
                   <Link
                     href={`/projects/${id}/settings`}
                     className="inline-flex items-center px-2 py-1 text-sm"

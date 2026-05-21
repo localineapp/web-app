@@ -76,11 +76,13 @@ export default function AppSidebar({
   const isAccountPage = accountNavigationItems.some(({ href }) =>
     isActive(href)
   )
-  const isProjectPage = projectNavigationItems.some(({ href }) =>
-    isActive(href.replace("[projectId]", project?.id || ""))
-  ) || projectSettingsNavigationItems.some(({ href }) =>
-    isActive(href.replace("[projectId]", project?.id || ""))
-  )
+  const isProjectPage =
+    projectNavigationItems.some(({ href }) =>
+      isActive(href.replace("[projectId]", project?.id || ""))
+    ) ||
+    projectSettingsNavigationItems.some(({ href }) =>
+      isActive(href.replace("[projectId]", project?.id || ""))
+    )
 
   return (
     <Sidebar collapsible="icon">
@@ -102,6 +104,7 @@ export default function AppSidebar({
           )}
         </Link>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
@@ -126,6 +129,7 @@ export default function AppSidebar({
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
         {isAccountPage && (
           <SidebarGroup>
             <SidebarGroupLabel>Your Account</SidebarGroupLabel>
@@ -152,6 +156,7 @@ export default function AppSidebar({
             </SidebarMenu>
           </SidebarGroup>
         )}
+
         {isProjectPage && project && (
           <SidebarGroup>
             <SidebarGroupLabel>{project.name}</SidebarGroupLabel>
@@ -179,6 +184,7 @@ export default function AppSidebar({
                   </SidebarMenuItem>
                 )
               })}
+
               <Collapsible asChild className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
@@ -200,6 +206,7 @@ export default function AppSidebar({
                       <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
+
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {projectSettingsNavigationItems.map(
@@ -238,6 +245,7 @@ export default function AppSidebar({
         {user?.role === "admin" && (
           <SidebarGroup>
             <SidebarGroupLabel>Administration</SidebarGroupLabel>
+
             <SidebarMenu>
               {adminNavigationItems.map(({ name, icon: Icon, href }) => (
                 <SidebarMenuItem key={name}>
@@ -262,6 +270,7 @@ export default function AppSidebar({
           </SidebarGroup>
         )}
       </SidebarContent>
+
       <SidebarRail />
     </Sidebar>
   )

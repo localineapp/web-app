@@ -63,6 +63,7 @@ export default function ToggleAdminButton({
             : "Grant Admin Access"}
         </Button>
       </TooltipTrigger>
+
       <TooltipContent className="flex items-center gap-2">
         <AlertTriangleIcon className="size-4 shrink-0 text-red-500 dark:text-red-400" />
         <span>

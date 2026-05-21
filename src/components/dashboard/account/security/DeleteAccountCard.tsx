@@ -2,6 +2,7 @@
 
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -78,6 +79,7 @@ export default function DeleteAccountCard() {
 
           <AlertDialogPortal>
             <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -86,17 +88,17 @@ export default function DeleteAccountCard() {
                   your account and remove your data from the system.
                 </AlertDialogDescription>
               </AlertDialogHeader>
+
               <AlertDialogFooter>
-                <Button
-                  type="button"
+                <AlertDialogCancel
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
                   disabled={loading}
                 >
                   Cancel
-                </Button>
+                </AlertDialogCancel>
+
                 <Button
-                  type="button"
                   variant="destructive"
                   onClick={handleDeleteAccount}
                   disabled={loading}

@@ -62,7 +62,9 @@ export default function ProjectsTable({
           <EmptyMedia variant="icon">
             <FoldersIcon />
           </EmptyMedia>
+
           <EmptyTitle>No Projects Yet</EmptyTitle>
+
           <EmptyDescription>
             There have been no projects created yet.
           </EmptyDescription>

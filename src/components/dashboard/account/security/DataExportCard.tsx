@@ -19,6 +19,8 @@ export default function DataExportCard({
 }: {
   session: ReturnType<typeof useSession>["data"]
 }) {
+  const user = session?.user
+
   const [loading, setLoading] = useState(false)
 
   const handleDataExport = async (event: MouseEvent<HTMLButtonElement>) => {

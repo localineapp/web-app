@@ -104,12 +104,13 @@ export default function SignInForm({
               disabled={loading}
               onChange={({ target: { value } }) => setPassword(value)}
             />
+
             <InputGroupAddon>
               <LockIcon />
             </InputGroupAddon>
+
             <InputGroupAddon align="inline-end">
               <Button
-                type="button"
                 disabled={loading}
                 onClick={() => setShowPassword(!showPassword)}
                 variant="ghost"

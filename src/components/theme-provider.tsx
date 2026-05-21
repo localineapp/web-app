@@ -54,6 +54,7 @@ function ThemeModeSelector() {
       >
         <ActiveThemeIcon className="h-4 w-4" aria-hidden />
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" sideOffset={8}>
         {THEMES.map(({ value, label, icon: Icon }) => (
           <DropdownMenuItem

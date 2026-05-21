@@ -87,6 +87,7 @@ export default function CreateLabelDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new label</DialogTitle>
@@ -94,6 +95,7 @@ export default function CreateLabelDialog({
             Add a new label to your project.
           </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="labelName">Label name</Label>
@@ -104,6 +106,7 @@ export default function CreateLabelDialog({
               onChange={({ target: { value } }) => setName(value)}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="labelDescription">Description (optional)</Label>
             <Input
@@ -114,6 +117,7 @@ export default function CreateLabelDialog({
             />
           </div>
         </div>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -126,8 +130,9 @@ export default function CreateLabelDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleCreateLabel}

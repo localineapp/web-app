@@ -40,10 +40,13 @@ import {
 } from "@/components/ui/tooltip"
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
@@ -88,15 +91,6 @@ export default function PlansTable({
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
-  const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
-
-  const [displayName, setDisplayName] = useState("")
-  const [description, setDescription] = useState<string | null>(null)
-  const [localesLimit, setLocalesLimit] = useState<number | null>(null)
-  const [termsLimit, setTermsLimit] = useState<number | null>(null)
-  const [labelsLimit, setLabelsLimit] = useState<number | null>(null)
-  const [membersLimit, setMembersLimit] = useState<number | null>(null)
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredPlans = normalizedSearchQuery
@@ -117,16 +111,6 @@ export default function PlansTable({
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentPlans = filteredPlans.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
-
-  function openEditor(plan: Plan) {
-    setDisplayName(plan.displayName ?? "")
-    setDescription(plan.description)
-    setLocalesLimit(plan.localesLimit)
-    setTermsLimit(plan.termsLimit)
-    setLabelsLimit(plan.labelsLimit)
-    setMembersLimit(plan.membersLimit)
-    setEditingPlan(plan)
-  }
 
   async function handleUpdateDefaultPlan(plan: Plan) {
     if (plan.default) {
@@ -155,58 +139,6 @@ export default function PlansTable({
       })
   }
 
-  async function handleUpdatePlan(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    if (!editingPlan) return
-
-    setLoading(true)
-    await updatePlan(editingPlan.id, {
-      displayName,
-      description: description || null,
-      localesLimit: localesLimit || null,
-      termsLimit: termsLimit || null,
-      labelsLimit: labelsLimit || null,
-      membersLimit: membersLimit || null,
-    })
-      .then(() => {
-        toast.success(
-          `Updated plan ${displayName} (${editingPlan.id.slice(0, 8)}).`
-        )
-        router.refresh()
-      })
-      .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update plan. Please try again."
-        )
-      })
-      .finally(() => {
-        setLoading(false)
-        setEditingPlan(null)
-      })
-  }
-
-  async function handleDeletePlan(plan: Plan) {
-    setLoading(true)
-
-    await deletePlan(plan.id)
-      .then(() => {
-        toast.success(
-          `Deleted plan ${plan.displayName} (${plan.id.slice(0, 8)}).`
-        )
-        router.refresh()
-      })
-      .catch((error) => {
-        toast.error(
-          error?.message || "Failed to delete plan. Please try again."
-        )
-      })
-      .finally(() => {
-        setLoading(false)
-        setDeletingPlan(null)
-      })
-  }
-
   if (total === 0 && searchQuery === "") {
     return (
       <Empty>
@@ -214,11 +146,11 @@ export default function PlansTable({
           <EmptyMedia variant="icon">
             <PackageIcon />
           </EmptyMedia>
+
           <EmptyTitle>No Plans Yet</EmptyTitle>
-          <EmptyDescription>
+
+          <EmptyDescription className="grid gap-2">
             There have been no plans created yet.
-          </EmptyDescription>
-          <EmptyDescription>
             <CreatePlanDialog canCreatePlans={canCreatePlans} />
           </EmptyDescription>
         </EmptyHeader>
@@ -334,298 +266,18 @@ export default function PlansTable({
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      {canUpdatePlans ? (
-                        <Sheet
-                          open={editingPlan !== null}
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              setEditingPlan(null)
-                            }
-                          }}
-                        >
-                          <SheetTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="inline-flex items-center p-1 text-sm"
-                              disabled={loading}
-                              onClick={() => openEditor(plan)}
-                            >
-                              <PencilIcon size={16} />
-                            </Button>
-                          </SheetTrigger>
-
-                          <SheetContent className="flex flex-col overflow-hidden">
-                            <form
-                              className="flex min-h-0 flex-1 flex-col overflow-hidden"
-                              onSubmit={handleUpdatePlan}
-                            >
-                              <SheetHeader className="shrink-0">
-                                <SheetTitle>
-                                  Edit{" "}
-                                  <span className="font-mono">
-                                    {editingPlan?.displayName} (
-                                    {editingPlan?.id.slice(0, 8)})
-                                  </span>{" "}
-                                </SheetTitle>
-                                <SheetDescription>
-                                  Here you can edit the plan&rsquo;s details.
-                                </SheetDescription>
-                              </SheetHeader>
-
-                              <ScrollArea className="min-h-0 flex-1 overflow-hidden">
-                                <div className="grid auto-rows-min gap-6 px-4 py-4">
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="planName">
-                                      Display Name
-                                    </Label>
-                                    <Input
-                                      id="planName"
-                                      value={displayName}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setDisplayName(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="planDescription">
-                                      Description (optional)
-                                    </Label>
-                                    <Input
-                                      id="planDescription"
-                                      value={description || ""}
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setDescription(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="planLocalesLimit">
-                                      Locales Limit (Empty for unlimited)
-                                    </Label>
-                                    <Input
-                                      id="planLocalesLimit"
-                                      type="number"
-                                      value={localesLimit ?? ""}
-                                      placeholder="Enter locales limit..."
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setLocalesLimit(
-                                          event.target.value
-                                            ? Number(event.target.value)
-                                            : null
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="planTermsLimit">
-                                      Terms Limit (Empty for unlimited)
-                                    </Label>
-                                    <Input
-                                      id="planTermsLimit"
-                                      type="number"
-                                      value={termsLimit ?? ""}
-                                      placeholder="Enter terms limit..."
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setTermsLimit(
-                                          event.target.value
-                                            ? Number(event.target.value)
-                                            : null
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="planLabelsLimit">
-                                      Labels Limit (Empty for unlimited)
-                                    </Label>
-                                    <Input
-                                      id="planLabelsLimit"
-                                      type="number"
-                                      value={labelsLimit ?? ""}
-                                      placeholder="Enter labels limit..."
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setLabelsLimit(
-                                          event.target.value
-                                            ? Number(event.target.value)
-                                            : null
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="planMembersLimit">
-                                      Members Limit (Empty for unlimited)
-                                    </Label>
-                                    <Input
-                                      id="planMembersLimit"
-                                      type="number"
-                                      value={membersLimit ?? ""}
-                                      placeholder="Enter members limit..."
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setMembersLimit(
-                                          event.target.value
-                                            ? Number(event.target.value)
-                                            : null
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </ScrollArea>
-
-                              <SheetFooter className="shrink-0">
-                                <Button
-                                  type="submit"
-                                  disabled={
-                                    loading || !editingPlan || !displayName
-                                  }
-                                >
-                                  {loading ? (
-                                    <>
-                                      <Spinner className="h-4 w-4" />
-                                      Saving changes...
-                                    </>
-                                  ) : (
-                                    "Save changes"
-                                  )}
-                                </Button>
-                                <SheetClose asChild>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    disabled={loading}
-                                  >
-                                    Close
-                                  </Button>
-                                </SheetClose>
-                              </SheetFooter>
-                            </form>
-                          </SheetContent>
-                        </Sheet>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger
-                            asChild
-                            className="cursor-not-allowed"
-                          >
-                            <span className="inline-block">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="inline-flex items-center p-1 text-sm"
-                                disabled
-                              >
-                                <PencilIcon size={16} />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            You don&rsquo;t have permission to edit plans.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
-                      {canDeletePlans ? (
-                        <AlertDialog
-                          open={deletingPlan !== null}
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              setDeletingPlan(null)
-                            }
-                          }}
-                        >
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              className="inline-flex items-center p-1 text-sm"
-                              disabled={loading}
-                              onClick={() => setDeletingPlan(plan)}
-                            >
-                              <TrashIcon size={16} />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you absolutely sure?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete the plan{" "}
-                                <span className="font-mono">
-                                  {deletingPlan?.displayName} (
-                                  {deletingPlan?.id.slice(0, 8)})
-                                </span>{" "}
-                                and all associated translations in all projects.
-                                Please confirm that you want to proceed.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <Button
-                                variant="outline"
-                                disabled={loading}
-                                onClick={() => setDeletingPlan(null)}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                disabled={loading || deletingPlan === null}
-                                onClick={(event) => {
-                                  event.preventDefault()
-                                  if (!deletingPlan) {
-                                    return
-                                  }
-
-                                  void handleDeletePlan(deletingPlan)
-                                }}
-                              >
-                                {loading ? (
-                                  <>
-                                    <Spinner className="h-4 w-4" />
-                                    Deleting plan...
-                                  </>
-                                ) : (
-                                  <>
-                                    <TrashIcon className="h-4 w-4" />
-                                    Delete Plan
-                                  </>
-                                )}
-                              </Button>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger
-                            asChild
-                            className="cursor-not-allowed"
-                          >
-                            <span className="inline-block">
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                className="inline-flex items-center p-1 text-sm"
-                                disabled
-                              >
-                                <TrashIcon size={16} />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            You don&rsquo;t have permission to delete this plan.
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
+                      <EditPlanSheet
+                        plan={plan}
+                        canUpdatePlans={canUpdatePlans}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
+                      <DeletePlanDialog
+                        plan={plan}
+                        canDeletePlans={canDeletePlans}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -655,5 +307,373 @@ export default function PlansTable({
         setPage={setPage}
       />
     </div>
+  )
+}
+
+function EditPlanSheet({
+  plan,
+  canUpdatePlans,
+  loading,
+  setLoading,
+}: {
+  plan: Plan
+  canUpdatePlans: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
+
+  const [displayName, setDisplayName] = useState("")
+  const [description, setDescription] = useState<string | null>(null)
+  const [localesLimit, setLocalesLimit] = useState<number | null>(null)
+  const [termsLimit, setTermsLimit] = useState<number | null>(null)
+  const [labelsLimit, setLabelsLimit] = useState<number | null>(null)
+  const [membersLimit, setMembersLimit] = useState<number | null>(null)
+
+  function openEditor(plan: Plan) {
+    setDisplayName(plan.displayName ?? "")
+    setDescription(plan.description)
+    setLocalesLimit(plan.localesLimit)
+    setTermsLimit(plan.termsLimit)
+    setLabelsLimit(plan.labelsLimit)
+    setMembersLimit(plan.membersLimit)
+    setEditingPlan(plan)
+  }
+
+  async function handleUpdatePlan(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!editingPlan) return
+
+    setLoading(true)
+    await updatePlan(editingPlan.id, {
+      displayName,
+      description: description || null,
+      localesLimit: localesLimit || null,
+      termsLimit: termsLimit || null,
+      labelsLimit: labelsLimit || null,
+      membersLimit: membersLimit || null,
+    })
+      .then(() => {
+        toast.success(
+          `Updated plan ${displayName} (${editingPlan.id.slice(0, 8)}).`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to update plan. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setEditingPlan(null)
+      })
+  }
+
+  return (
+    <Sheet
+      open={editingPlan !== null}
+      onOpenChange={(open) => {
+        if (!open) {
+          setEditingPlan(null)
+        }
+      }}
+    >
+      <Tooltip>
+        <TooltipTrigger
+          asChild
+          className={cn(
+            canUpdatePlans ? "cursor-pointer" : "cursor-not-allowed"
+          )}
+        >
+          <SheetTrigger asChild>
+            <span className="inline-block">
+              <Button
+                variant="outline"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canUpdatePlans || loading}
+                onClick={() => openEditor(plan)}
+              >
+                <PencilIcon size={16} />
+              </Button>
+            </span>
+          </SheetTrigger>
+        </TooltipTrigger>
+        {!canUpdatePlans && (
+          <TooltipContent>
+            You don&rsquo;t have permission to edit plans.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <SheetContent className="flex flex-col overflow-hidden">
+        <form
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          onSubmit={handleUpdatePlan}
+        >
+          <SheetHeader className="shrink-0">
+            <SheetTitle>
+              Edit{" "}
+              <span className="font-mono">
+                {editingPlan?.displayName} ({editingPlan?.id.slice(0, 8)})
+              </span>{" "}
+            </SheetTitle>
+            <SheetDescription>
+              Here you can edit the plan&rsquo;s details.
+            </SheetDescription>
+          </SheetHeader>
+
+          <ScrollArea className="min-h-0 flex-1 overflow-hidden">
+            <div className="grid auto-rows-min gap-6 px-4 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="planName">Display Name</Label>
+                <Input
+                  id="planName"
+                  value={displayName}
+                  required
+                  disabled={loading}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="planDescription">Description (optional)</Label>
+                <Input
+                  id="planDescription"
+                  value={description || ""}
+                  disabled={loading}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="planLocalesLimit">
+                  Locales Limit (Empty for unlimited)
+                </Label>
+                <Input
+                  id="planLocalesLimit"
+                  type="number"
+                  value={localesLimit ?? ""}
+                  placeholder="Enter locales limit..."
+                  disabled={loading}
+                  onChange={(event) =>
+                    setLocalesLimit(
+                      event.target.value ? Number(event.target.value) : null
+                    )
+                  }
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="planTermsLimit">
+                  Terms Limit (Empty for unlimited)
+                </Label>
+                <Input
+                  id="planTermsLimit"
+                  type="number"
+                  value={termsLimit ?? ""}
+                  placeholder="Enter terms limit..."
+                  disabled={loading}
+                  onChange={(event) =>
+                    setTermsLimit(
+                      event.target.value ? Number(event.target.value) : null
+                    )
+                  }
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="planLabelsLimit">
+                  Labels Limit (Empty for unlimited)
+                </Label>
+                <Input
+                  id="planLabelsLimit"
+                  type="number"
+                  value={labelsLimit ?? ""}
+                  placeholder="Enter labels limit..."
+                  disabled={loading}
+                  onChange={(event) =>
+                    setLabelsLimit(
+                      event.target.value ? Number(event.target.value) : null
+                    )
+                  }
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="planMembersLimit">
+                  Members Limit (Empty for unlimited)
+                </Label>
+                <Input
+                  id="planMembersLimit"
+                  type="number"
+                  value={membersLimit ?? ""}
+                  placeholder="Enter members limit..."
+                  disabled={loading}
+                  onChange={(event) =>
+                    setMembersLimit(
+                      event.target.value ? Number(event.target.value) : null
+                    )
+                  }
+                />
+              </div>
+            </div>
+          </ScrollArea>
+
+          <SheetFooter className="shrink-0">
+            <Button
+              type="submit"
+              disabled={loading || !editingPlan || !displayName}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Saving changes...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+
+            <SheetClose asChild>
+              <Button
+                variant="outline"
+                disabled={loading}
+                onClick={() => setEditingPlan(null)}
+              >
+                Close
+              </Button>
+            </SheetClose>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function DeletePlanDialog({
+  plan,
+  canDeletePlans,
+  loading,
+  setLoading,
+}: {
+  plan: Plan
+  canDeletePlans: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
+
+  async function handleDeletePlan(plan: Plan) {
+    setLoading(true)
+
+    await deletePlan(plan.id)
+      .then(() => {
+        toast.success(
+          `Deleted plan ${plan.displayName} (${plan.id.slice(0, 8)}).`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to delete plan. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDeletingPlan(null)
+      })
+  }
+
+  return (
+    <AlertDialog
+      open={!!deletingPlan}
+      onOpenChange={(open) => !open && setDeletingPlan(null)}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "inline-flex",
+              canDeletePlans ? "cursor-pointer" : "cursor-not-allowed"
+            )}
+          >
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canDeletePlans || loading}
+                onClick={() => setDeletingPlan(plan)}
+              >
+                <TrashIcon size={16} />
+              </Button>
+            </AlertDialogTrigger>
+          </span>
+        </TooltipTrigger>
+        {!canDeletePlans && (
+          <TooltipContent>
+            You don&rsquo;t have permission to delete plans.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <AlertDialogPortal>
+        <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              plan{" "}
+              <span className="font-mono">
+                {deletingPlan?.displayName} ({deletingPlan?.id.slice(0, 8)})
+              </span>{" "}
+              and all associated translations in all projects. Please confirm
+              that you want to proceed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              variant="outline"
+              disabled={loading}
+              onClick={() => setDeletingPlan(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+
+            <Button
+              variant="destructive"
+              disabled={loading || deletingPlan === null}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deletingPlan) return
+
+                void handleDeletePlan(deletingPlan)
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Deleting plan...
+                </>
+              ) : (
+                <>
+                  <TrashIcon className="h-4 w-4" />
+                  Delete Plan
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
   )
 }

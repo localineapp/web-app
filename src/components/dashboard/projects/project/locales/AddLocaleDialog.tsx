@@ -93,6 +93,7 @@ export default function AddLocaleDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new locale</DialogTitle>
@@ -100,6 +101,7 @@ export default function AddLocaleDialog({
             Add a new locale to your project.
           </DialogDescription>
         </DialogHeader>
+
         <Combobox
           items={locales.map((locale) => ({
             id: locale.id,
@@ -124,6 +126,7 @@ export default function AddLocaleDialog({
             </ComboboxList>
           </ComboboxContent>
         </Combobox>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -133,8 +136,9 @@ export default function AddLocaleDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleAddLocale}

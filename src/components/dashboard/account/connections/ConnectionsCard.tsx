@@ -146,6 +146,7 @@ function ProviderCardContent({
         <Icon className="h-6 w-6 shrink-0" />
         <div className="min-w-0 space-y-1">
           <CardTitle>{displayName}</CardTitle>
+
           <CardDescription className="flex items-center gap-1 text-xs">
             <span>Status:</span>
             <span
@@ -172,16 +173,19 @@ function ProviderCardContent({
           <Tooltip>
             <TooltipTrigger asChild className="cursor-not-allowed">
               <span className="inline-flex">
-                <Button type="button" variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" disabled>
                   Link
                 </Button>
               </span>
             </TooltipTrigger>
-            <TooltipContent>{`${displayName} login is not configured. Please contact your administrator for assistance.`}</TooltipContent>
+
+            <TooltipContent>
+              {displayName} login is not configured. Please contact your
+              administrator.
+            </TooltipContent>
           </Tooltip>
         ) : connected ? (
           <Button
-            type="button"
             variant="destructive"
             size="sm"
             disabled={loading}
@@ -191,7 +195,6 @@ function ProviderCardContent({
           </Button>
         ) : (
           <Button
-            type="button"
             variant="outline"
             size="sm"
             disabled={loading}

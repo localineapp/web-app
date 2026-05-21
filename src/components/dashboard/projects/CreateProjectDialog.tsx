@@ -109,6 +109,7 @@ export default function CreateProjectDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new project</DialogTitle>
@@ -116,6 +117,7 @@ export default function CreateProjectDialog({
             Add a new translation project to your workspace.
           </DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="projectName">Project name</Label>
@@ -126,6 +128,7 @@ export default function CreateProjectDialog({
               onChange={({ target: { value } }) => setName(value)}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="projectDescription">Description (optional)</Label>
             <Input
@@ -136,6 +139,7 @@ export default function CreateProjectDialog({
             />
           </div>
         </div>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -146,8 +150,9 @@ export default function CreateProjectDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleCreateProject}

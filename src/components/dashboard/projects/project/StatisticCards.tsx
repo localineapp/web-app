@@ -28,6 +28,7 @@ export default function StatisticCards({ project }: { project: FullProject }) {
           </CardTitle>
           <PercentIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
+
         <CardContent>
           {totalTranslations === 0 ? (
             <p className="text-muted-foreground italic">
@@ -45,11 +46,13 @@ export default function StatisticCards({ project }: { project: FullProject }) {
           )}
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium">Terms</CardTitle>
           <LibraryIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
+
         <CardContent>
           {terms?.length === 0 ? (
             <p className="text-muted-foreground italic">No terms available.</p>
@@ -68,11 +71,13 @@ export default function StatisticCards({ project }: { project: FullProject }) {
           )}
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium">Locales</CardTitle>
           <GlobeIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
+
         <CardContent>
           {locales?.length === 0 ? (
             <p className="text-muted-foreground italic">
@@ -93,11 +98,13 @@ export default function StatisticCards({ project }: { project: FullProject }) {
           )}
         </CardContent>
       </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium">Members</CardTitle>
           <UsersIcon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
+
         <CardContent>
           {members?.length === 0 ? (
             <p className="text-muted-foreground italic">

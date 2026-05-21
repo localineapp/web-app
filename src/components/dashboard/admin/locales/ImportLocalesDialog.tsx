@@ -787,6 +787,7 @@ export default function ImportLocalesDialog({
             >
               Select All
             </Button>
+
             <Button
               variant="outline"
               onClick={() => setSelectedLocales([])}
@@ -865,8 +866,9 @@ export default function ImportLocalesDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleImportLocales}

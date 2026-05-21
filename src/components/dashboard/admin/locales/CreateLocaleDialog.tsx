@@ -90,11 +90,13 @@ export default function CreateLocaleDialog({
           </TooltipContent>
         )}
       </Tooltip>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create new locale</DialogTitle>
           <DialogDescription>Add a new locale to the system.</DialogDescription>
         </DialogHeader>
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="localeLanguage">Language</Label>
@@ -105,6 +107,7 @@ export default function CreateLocaleDialog({
               onChange={({ target: { value } }) => setLanguage(value)}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="localeRegion">Region (optional)</Label>
             <Input
@@ -114,6 +117,7 @@ export default function CreateLocaleDialog({
               onChange={({ target: { value } }) => setRegion(value)}
             />
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="localeCode">Locale code</Label>
             <Input
@@ -124,6 +128,7 @@ export default function CreateLocaleDialog({
             />
           </div>
         </div>
+
         <DialogFooter>
           <Button
             variant="outline"
@@ -135,8 +140,9 @@ export default function CreateLocaleDialog({
             }}
             disabled={loading}
           >
-            Cancel
+            Close
           </Button>
+
           <Button
             variant="outline"
             onClick={handleCreateLocale}

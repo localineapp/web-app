@@ -3,10 +3,13 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   AlertDialog,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
@@ -64,22 +67,9 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { cn } from "@/lib/utils"
 
 const PAGE_SIZE = 10
-
-function toDateTimeLocalValue(value: Date | string | null | undefined) {
-  if (!value) return ""
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) {
-    return ""
-  }
-
-  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-
-  return localDate.toISOString().slice(0, 16)
-}
 
 export default function UsersTable({
   session,
@@ -88,23 +78,9 @@ export default function UsersTable({
   session: ReturnType<typeof useSession>["data"]
   users: Awaited<ReturnType<typeof auth.api.listUsers>>
 }) {
-  const router = useRouter()
-
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
-  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
-
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [emailVerified, setEmailVerified] = useState(false)
-  const [role, setRole] = useState<"user" | "admin">("user")
-  const [banned, setBanned] = useState(false)
-  const [banReason, setBanReason] = useState("")
-  const [banExpires, setBanExpires] = useState("")
-  const [projectsLimit, setProjectsLimit] = useState<number>()
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredUsers = normalizedSearchQuery
@@ -124,9 +100,183 @@ export default function UsersTable({
   const currentUsers = filteredUsers.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
+  return (
+    <div>
+      <InputGroup className="relative mb-2 max-w-md">
+        <InputGroupInput
+          placeholder="Search users by name, email, or ID..."
+          value={searchQuery}
+          onChange={({ target: { value } }) => {
+            setSearchQuery(value)
+            setPage(1)
+          }}
+        />
+        <InputGroupAddon>
+          <SearchIcon />
+        </InputGroupAddon>
+      </InputGroup>
+
+      <div className="overflow-hidden rounded-lg border border-border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-28 text-center">ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead className="text-center">Role</TableHead>
+              <TableHead className="text-center">Banned</TableHead>
+              <TableHead className="w-24 text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {currentUsers.length > 0 ? (
+              currentUsers.map((user) => {
+                return (
+                  <TableRow key={user.id}>
+                    <TableCell className="text-center">
+                      {user.id.slice(0, 8)}
+                    </TableCell>
+
+                    <TableCell className="min-w-40">
+                      <div className="flex gap-2">
+                        <span className="font-mono text-sm">{user.name}</span>
+                        {user.id === session?.user.id && <Badge>You</Badge>}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm">{user.email}</span>
+                        {user.emailVerified ? (
+                          <BadgeCheckIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-2">
+                        {user.role === "admin" ? (
+                          <UserCogIcon className="mr-1 size-4" />
+                        ) : (
+                          <UserIcon className="mr-1 size-4" />
+                        )}
+                        <span className="font-mono text-sm">
+                          {(user.role?.trim().charAt(0).toUpperCase() || "") +
+                            user.role?.trim().slice(1) || "N/A"}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center justify-center">
+                        {user.banned ? (
+                          <BadgeCheckIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                        ) : (
+                          <BadgeXIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-2">
+                        <EditUserSheet
+                          session={session}
+                          user={user}
+                          loading={loading}
+                          setLoading={setLoading}
+                        />
+                        <ImpersonateUserButton
+                          session={session}
+                          user={user}
+                          loading={loading}
+                          setLoading={setLoading}
+                        />
+                        <DeleteUserDialog
+                          session={session}
+                          user={user}
+                          loading={loading}
+                          setLoading={setLoading}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  {searchQuery
+                    ? "No users found matching your search."
+                    : "No users found."}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        startIndex={displayStartIndex}
+        endIndex={endIndex}
+        total={total}
+        setPage={setPage}
+      />
+    </div>
+  )
+}
+
+function EditUserSheet({
+  session,
+  user,
+  loading,
+  setLoading,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  user: UserWithRole
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
+
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [role, setRole] = useState<"user" | "admin">("user")
+  const [banned, setBanned] = useState(false)
+  const [banReason, setBanReason] = useState("")
+  const [banExpires, setBanExpires] = useState("")
+  const [projectsLimit, setProjectsLimit] = useState<number>()
+
   function getProjectsLimit(user: UserWithRole) {
     /** @ts-expect-error - projectsLimit is a custom field added to the user object, which is not reflected in this type definition. */
     return user.projectsLimit ?? null
+  }
+
+  function toDateTimeLocalValue(value: Date | string | null | undefined) {
+    if (!value) return ""
+
+    const date = new Date(value)
+
+    if (Number.isNaN(date.getTime())) {
+      return ""
+    }
+
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    )
+
+    return localDate.toISOString().slice(0, 16)
   }
 
   function openEditor(user: UserWithRole) {
@@ -344,11 +494,260 @@ export default function UsersTable({
     }
   }
 
-  function handleImpersonateUser({
-    user,
-  }: {
-    user: (typeof users.users)[number]
-  }) {
+  return (
+    <Sheet
+      open={editingUser?.id === user.id}
+      onOpenChange={(open) => {
+        if (!open) {
+          closeEditor()
+        }
+      }}
+    >
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="inline-flex items-center p-1 text-sm"
+          disabled={loading}
+          onClick={() => openEditor(user)}
+        >
+          <PencilIcon size={16} />
+        </Button>
+      </SheetTrigger>
+
+      <SheetContent className="flex flex-col overflow-hidden">
+        <form
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          onSubmit={handleUpdateUser}
+        >
+          <SheetHeader className="shrink-0">
+            <SheetTitle>
+              Edit{" "}
+              <span className="font-mono">
+                {editingUser?.name} ({editingUser?.id.slice(0, 8)})
+              </span>{" "}
+            </SheetTitle>
+            <SheetDescription>
+              Here you can edit the user&rsquo;s details, change their role, or
+              ban/unban the user. Please note that you cannot edit your own
+              account from here.
+            </SheetDescription>
+            {session?.user.id === editingUser?.id && (
+              <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
+                <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+                <AlertTitle>Editing Own Profile</AlertTitle>
+                <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+                  You are currently editing your own profile. Changes you make
+                  here may lock you out of your account or cause other issues.
+                  Please be careful!
+                </AlertDescription>
+              </Alert>
+            )}
+          </SheetHeader>
+
+          <ScrollArea className="min-h-0 flex-1 overflow-hidden">
+            <div className="grid auto-rows-min gap-6 px-4 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  required
+                  disabled={loading}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={email}
+                  required
+                  disabled={loading}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  placeholder="Leave blank to keep the current password"
+                  disabled={loading}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="emailVerified">Email Verified</Label>
+                <ToggleGroup
+                  type="single"
+                  className="grid w-full grid-cols-2 border-2"
+                  value={emailVerified ? "true" : "false"}
+                  disabled={loading}
+                  onValueChange={(value) => {
+                    if (value === "true" || value === "false") {
+                      setEmailVerified(value === "true")
+                    }
+                  }}
+                >
+                  <ToggleGroupItem
+                    value="true"
+                    className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
+                  >
+                    Yes
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="false"
+                    className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
+                  >
+                    No
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="role">Role</Label>
+                <NativeSelect
+                  id="role"
+                  value={role}
+                  required
+                  disabled={loading}
+                  onChange={(event) =>
+                    setRole(event.target.value === "admin" ? "admin" : "user")
+                  }
+                >
+                  <NativeSelectOption value="user">User</NativeSelectOption>
+                  <NativeSelectOption value="admin">Admin</NativeSelectOption>
+                </NativeSelect>
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="banned">Banned</Label>
+                <ToggleGroup
+                  type="single"
+                  className="grid w-full grid-cols-2 border-2"
+                  value={banned ? "true" : "false"}
+                  disabled={loading}
+                  onValueChange={(value) => {
+                    if (value === "true" || value === "false") {
+                      setBanned(value === "true")
+                    }
+                  }}
+                >
+                  <ToggleGroupItem
+                    value="true"
+                    className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
+                  >
+                    Yes
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="false"
+                    className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
+                  >
+                    No
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              {banned && (
+                <>
+                  <div className="grid gap-3">
+                    <Label htmlFor="banReason">Ban Reason</Label>
+                    <Input
+                      id="banReason"
+                      value={banReason}
+                      placeholder="Enter ban reason..."
+                      disabled={loading}
+                      onChange={(event) => setBanReason(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="banExpires">Ban Expires</Label>
+                    <Input
+                      id="banExpires"
+                      type="datetime-local"
+                      value={banExpires}
+                      disabled={loading}
+                      onChange={(event) => setBanExpires(event.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="grid gap-3">
+                <Label htmlFor="projectsLimit">Projects Limit</Label>
+                <Input
+                  id="projectsLimit"
+                  type="number"
+                  value={projectsLimit ?? ""}
+                  placeholder="Enter projects limit..."
+                  disabled={loading}
+                  onChange={(event) =>
+                    setProjectsLimit(
+                      event.target.value
+                        ? Number(event.target.value)
+                        : undefined
+                    )
+                  }
+                />
+              </div>
+            </div>
+          </ScrollArea>
+
+          <SheetFooter className="shrink-0">
+            <Button
+              type="submit"
+              disabled={
+                loading || !editingUser || !name.trim() || !email.trim()
+              }
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Saving changes...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+
+            <SheetClose asChild>
+              <Button
+                variant="outline"
+                disabled={loading}
+                onClick={() => setEditingUser(null)}
+              >
+                Close
+              </Button>
+            </SheetClose>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function ImpersonateUserButton({
+  session,
+  user,
+  loading,
+  setLoading,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  user: UserWithRole
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const canImpersonateUser = user.id !== session?.user.id && !user.banned
+
+  function handleImpersonateUser({ user }: { user: UserWithRole }) {
     setLoading(true)
     authClient.admin.impersonateUser({
       userId: user.id,
@@ -370,11 +769,56 @@ export default function UsersTable({
     })
   }
 
-  async function handleDeleteUser({
-    user,
-  }: {
-    user: (typeof users.users)[number]
-  }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        asChild
+        className={cn(
+          canImpersonateUser ? "cursor-pointer" : "cursor-not-allowed"
+        )}
+      >
+        <span className="inline-block">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="inline-flex items-center p-1 text-sm"
+            disabled={user.id === session?.user.id || user.banned || loading}
+            onClick={() => handleImpersonateUser({ user })}
+          >
+            <ScanFaceIcon size={16} />
+          </Button>
+        </span>
+      </TooltipTrigger>
+
+      {!canImpersonateUser && (
+        <TooltipContent>
+          {user.id === session?.user.id
+            ? "You can't impersonate yourself."
+            : "You can't impersonate a banned user."}
+        </TooltipContent>
+      )}
+    </Tooltip>
+  )
+}
+
+function DeleteUserDialog({
+  session,
+  user,
+  loading,
+  setLoading,
+}: {
+  session: ReturnType<typeof useSession>["data"]
+  user: UserWithRole
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [deletingUser, setDeletingUser] = useState<UserWithRole | null>(null)
+
+  const canDeleteUser = user.id !== session?.user.id
+
+  async function handleDeleteUser(user: UserWithRole) {
     setLoading(true)
     await authClient.admin.removeUser({
       userId: user.id,
@@ -382,7 +826,7 @@ export default function UsersTable({
         onSuccess: () => {
           toast.success(`Deleted user ${user.name} (${user.id.slice(0, 8)}).`)
           setLoading(false)
-          setDeleteDialogOpen(false)
+          setDeletingUser(null)
           router.refresh()
         },
         onError: ({ error }) => {
@@ -390,507 +834,95 @@ export default function UsersTable({
             error?.message || "Failed to delete user. Please try again."
           )
           setLoading(false)
-          setDeleteDialogOpen(false)
+          setDeletingUser(null)
         },
       },
     })
   }
 
   return (
-    <div>
-      <InputGroup className="relative mb-2 max-w-md">
-        <InputGroupInput
-          placeholder="Search users by name, email, or ID..."
-          value={searchQuery}
-          onChange={({ target: { value } }) => {
-            setSearchQuery(value)
-            setPage(1)
-          }}
-        />
-        <InputGroupAddon>
-          <SearchIcon />
-        </InputGroupAddon>
-      </InputGroup>
-
-      <div className="overflow-hidden rounded-lg border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead className="text-center">Role</TableHead>
-              <TableHead className="text-center">Banned</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {currentUsers.length > 0 ? (
-              currentUsers.map((user) => {
-                return (
-                  <TableRow key={user.id}>
-                    <TableCell className="text-center">
-                      {user.id.slice(0, 8)}
-                    </TableCell>
-
-                    <TableCell className="min-w-40">
-                      <div className="flex gap-2">
-                        <span className="font-mono text-sm">{user.name}</span>
-                        {user.id === session?.user.id && <Badge>You</Badge>}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm">{user.email}</span>
-                        {user.emailVerified ? (
-                          <BadgeCheckIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                        ) : (
-                          <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
-                        )}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        {user.role === "admin" ? (
-                          <UserCogIcon className="mr-1 size-4" />
-                        ) : (
-                          <UserIcon className="mr-1 size-4" />
-                        )}
-                        <span className="font-mono text-sm">
-                          {(user.role?.trim().charAt(0).toUpperCase() || "") +
-                            user.role?.trim().slice(1) || "N/A"}
-                        </span>
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center justify-center">
-                        {user.banned ? (
-                          <BadgeCheckIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
-                        ) : (
-                          <BadgeXIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                        )}
-                      </div>
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        <Sheet
-                          open={editingUser?.id === user.id}
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              closeEditor()
-                            }
-                          }}
-                        >
-                          <SheetTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="inline-flex items-center p-1 text-sm"
-                              disabled={loading}
-                              onClick={() => openEditor(user)}
-                            >
-                              <PencilIcon size={16} />
-                            </Button>
-                          </SheetTrigger>
-
-                          <SheetContent className="flex flex-col overflow-hidden">
-                            <form
-                              className="flex min-h-0 flex-1 flex-col overflow-hidden"
-                              onSubmit={handleUpdateUser}
-                            >
-                              <SheetHeader className="shrink-0">
-                                <SheetTitle>
-                                  Edit{" "}
-                                  <span className="font-mono">
-                                    {editingUser?.name} (
-                                    {editingUser?.id.slice(0, 8)})
-                                  </span>{" "}
-                                </SheetTitle>
-                                <SheetDescription>
-                                  Here you can edit the user&rsquo;s details,
-                                  change their role, or ban/unban the user.
-                                  Please note that you cannot edit your own
-                                  account from here.
-                                </SheetDescription>
-                                {session?.user.id === editingUser?.id && (
-                                  <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
-                                    <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                                    <AlertTitle>Editing Own Profile</AlertTitle>
-                                    <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                                      You are currently editing your own
-                                      profile. Changes you make here may lock
-                                      you out of your account or cause other
-                                      issues. Please be careful!
-                                    </AlertDescription>
-                                  </Alert>
-                                )}
-                              </SheetHeader>
-
-                              <ScrollArea className="min-h-0 flex-1 overflow-hidden">
-                                <div className="grid auto-rows-min gap-6 px-4 py-4">
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="name">Name</Label>
-                                    <Input
-                                      id="name"
-                                      value={name}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setName(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                      id="email"
-                                      value={email}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setEmail(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="password">Password</Label>
-                                    <Input
-                                      id="password"
-                                      type="password"
-                                      value={password}
-                                      placeholder="Leave blank to keep the current password"
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setPassword(event.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="emailVerified">
-                                      Email Verified
-                                    </Label>
-                                    <ToggleGroup
-                                      type="single"
-                                      className="grid w-full grid-cols-2 border-2"
-                                      value={emailVerified ? "true" : "false"}
-                                      disabled={loading}
-                                      onValueChange={(value) => {
-                                        if (
-                                          value === "true" ||
-                                          value === "false"
-                                        ) {
-                                          setEmailVerified(value === "true")
-                                        }
-                                      }}
-                                    >
-                                      <ToggleGroupItem
-                                        value="true"
-                                        className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
-                                      >
-                                        Yes
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem
-                                        value="false"
-                                        className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
-                                      >
-                                        No
-                                      </ToggleGroupItem>
-                                    </ToggleGroup>
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="role">Role</Label>
-                                    <NativeSelect
-                                      id="role"
-                                      value={role}
-                                      required
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setRole(
-                                          event.target.value === "admin"
-                                            ? "admin"
-                                            : "user"
-                                        )
-                                      }
-                                    >
-                                      <NativeSelectOption value="user">
-                                        User
-                                      </NativeSelectOption>
-                                      <NativeSelectOption value="admin">
-                                        Admin
-                                      </NativeSelectOption>
-                                    </NativeSelect>
-                                  </div>
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="banned">Banned</Label>
-                                    <ToggleGroup
-                                      type="single"
-                                      className="grid w-full grid-cols-2 border-2"
-                                      value={banned ? "true" : "false"}
-                                      disabled={loading}
-                                      onValueChange={(value) => {
-                                        if (
-                                          value === "true" ||
-                                          value === "false"
-                                        ) {
-                                          setBanned(value === "true")
-                                        }
-                                      }}
-                                    >
-                                      <ToggleGroupItem
-                                        value="true"
-                                        className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
-                                      >
-                                        Yes
-                                      </ToggleGroupItem>
-                                      <ToggleGroupItem
-                                        value="false"
-                                        className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
-                                      >
-                                        No
-                                      </ToggleGroupItem>
-                                    </ToggleGroup>
-                                  </div>
-                                  {banned && (
-                                    <>
-                                      <div className="grid gap-3">
-                                        <Label htmlFor="banReason">
-                                          Ban Reason
-                                        </Label>
-                                        <Input
-                                          id="banReason"
-                                          value={banReason}
-                                          placeholder="Enter ban reason..."
-                                          disabled={loading}
-                                          onChange={(event) =>
-                                            setBanReason(event.target.value)
-                                          }
-                                        />
-                                      </div>
-                                      <div className="grid gap-3">
-                                        <Label htmlFor="banExpires">
-                                          Ban Expires
-                                        </Label>
-                                        <Input
-                                          id="banExpires"
-                                          type="datetime-local"
-                                          value={banExpires}
-                                          disabled={loading}
-                                          onChange={(event) =>
-                                            setBanExpires(event.target.value)
-                                          }
-                                        />
-                                      </div>
-                                    </>
-                                  )}
-                                  <div className="grid gap-3">
-                                    <Label htmlFor="projectsLimit">
-                                      Projects Limit
-                                    </Label>
-                                    <Input
-                                      id="projectsLimit"
-                                      type="number"
-                                      value={projectsLimit}
-                                      placeholder="Enter projects limit..."
-                                      disabled={loading}
-                                      onChange={(event) =>
-                                        setProjectsLimit(
-                                          event.target.value
-                                            ? Number(event.target.value)
-                                            : undefined
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </ScrollArea>
-
-                              <SheetFooter className="shrink-0">
-                                <Button
-                                  type="submit"
-                                  disabled={
-                                    loading ||
-                                    !editingUser ||
-                                    !name.trim() ||
-                                    !email.trim()
-                                  }
-                                >
-                                  {loading ? (
-                                    <>
-                                      <Spinner className="h-4 w-4" />
-                                      Saving changes...
-                                    </>
-                                  ) : (
-                                    "Save changes"
-                                  )}
-                                </Button>
-                                <SheetClose asChild>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    disabled={loading}
-                                  >
-                                    Close
-                                  </Button>
-                                </SheetClose>
-                              </SheetFooter>
-                            </form>
-                          </SheetContent>
-                        </Sheet>
-                        {user.id === session?.user.id || user.banned ? (
-                          <Tooltip>
-                            <TooltipTrigger
-                              asChild
-                              className="cursor-not-allowed"
-                            >
-                              <span className="inline-block">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="inline-flex items-center p-1 text-sm"
-                                  disabled
-                                >
-                                  <ScanFaceIcon size={16} />
-                                </Button>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {user.id === session?.user.id
-                                ? "You can't impersonate yourself."
-                                : "You can't impersonate a banned user."}
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="inline-flex items-center p-1 text-sm"
-                            disabled={loading}
-                            onClick={(event) => {
-                              event.preventDefault()
-                              void handleImpersonateUser({ user })
-                            }}
-                          >
-                            <ScanFaceIcon size={16} />
-                          </Button>
-                        )}
-                        {user.id === session?.user.id ? (
-                          <Tooltip>
-                            <TooltipTrigger
-                              asChild
-                              className="cursor-not-allowed"
-                            >
-                              <span className="inline-block">
-                                <Button
-                                  variant="destructive"
-                                  size="icon"
-                                  className="inline-flex items-center p-1 text-sm"
-                                  disabled
-                                >
-                                  <TrashIcon size={16} />
-                                </Button>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              You can&rsquo;t delete your own account.
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          <AlertDialog
-                            open={isDeleteDialogOpen}
-                            onOpenChange={setDeleteDialogOpen}
-                          >
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                className="inline-flex items-center p-1 text-sm"
-                                disabled={loading}
-                              >
-                                <TrashIcon size={16} />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you absolutely sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete the user account{" "}
-                                  <span className="font-mono">
-                                    {user.name} ({user.id.slice(0, 8)})
-                                  </span>{" "}
-                                  and all associated data. Please confirm that
-                                  you want to proceed.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <Button
-                                  variant="outline"
-                                  disabled={loading}
-                                  onClick={() => setDeleteDialogOpen(false)}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  disabled={loading}
-                                  onClick={(event) => {
-                                    event.preventDefault()
-                                    void handleDeleteUser({ user })
-                                  }}
-                                >
-                                  {loading ? (
-                                    <>
-                                      <Spinner className="h-4 w-4" />
-                                      Deleting user...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <TrashIcon className="h-4 w-4" />
-                                      Delete User
-                                    </>
-                                  )}
-                                </Button>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  {searchQuery
-                    ? "No users found matching your search."
-                    : "No users found."}
-                </TableCell>
-              </TableRow>
+    <AlertDialog
+      open={!!deletingUser}
+      onOpenChange={(open) => !open && setDeletingUser(null)}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "inline-flex",
+              canDeleteUser ? "cursor-pointer" : "cursor-not-allowed"
             )}
-          </TableBody>
-        </Table>
-      </div>
+          >
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canDeleteUser || loading}
+                onClick={() => setDeletingUser(user)}
+              >
+                <TrashIcon size={16} />
+              </Button>
+            </AlertDialogTrigger>
+          </span>
+        </TooltipTrigger>
+        {!canDeleteUser && (
+          <TooltipContent>
+            You can&rsquo;t delete your own account.
+          </TooltipContent>
+        )}
+      </Tooltip>
 
-      <TablePagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        startIndex={displayStartIndex}
-        endIndex={endIndex}
-        total={total}
-        setPage={setPage}
-      />
-    </div>
+      <AlertDialogPortal>
+        <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              user account{" "}
+              <span className="font-mono">
+                {user.name} ({user.id.slice(0, 8)})
+              </span>{" "}
+              and all associated data. Please confirm that you want to proceed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              variant="outline"
+              disabled={loading}
+              onClick={() => setDeletingUser(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+
+            <Button
+              variant="destructive"
+              disabled={loading || deletingUser === null}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deletingUser) return
+
+                void handleDeleteUser(deletingUser)
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Deleting user...
+                </>
+              ) : (
+                <>
+                  <TrashIcon className="h-4 w-4" />
+                  Delete User
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
   )
 }
