@@ -30,7 +30,7 @@ export default async function ApiKeysPage() {
         </div>
 
         <div className="flex gap-2">
-          <CreateApiKeyDialog session={session} />
+          <CreateApiKeyDialog session={session} apiKeysCount={apiKeys.total} />
         </div>
       </div>
 

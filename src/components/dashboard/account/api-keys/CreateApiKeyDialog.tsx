@@ -18,6 +18,11 @@ import {
 } from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { authClient, useSession } from "@/lib/auth-client"
 import { ClipboardIcon, PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -26,8 +31,10 @@ import { toast } from "sonner"
 
 export default function CreateApiKeyDialog({
   session,
+  apiKeysCount,
 }: {
   session: ReturnType<typeof useSession>["data"]
+  apiKeysCount: number
 }) {
   const router = useRouter()
 
@@ -40,9 +47,24 @@ export default function CreateApiKeyDialog({
 
   const [apiKey, setApiKey] = useState("")
 
+  const apiKeysLimit = user?.role === "admin" ? Infinity : 10 // TODO: Replace with a better way to determine API key limits
+  const canCreateApiKey = apiKeysCount < apiKeysLimit
+
   const handleCreateApiKey = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    if (!canCreateApiKey) {
+      toast.error(
+        apiKeysLimit === 0
+          ? "The API key limit for your account is currently set to 0."
+          : `You have reached your API key limit (${apiKeysCount}/${apiKeysLimit})`
+      )
+      setLoading(false)
+      setName("")
+      setExpiryDate(undefined)
+      return
+    }
 
     await authClient.apiKey.create({
       name,
@@ -74,12 +96,28 @@ export default function CreateApiKeyDialog({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild disabled={loading}>
-        <Button variant="outline" disabled={loading}>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          New API Key
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          asChild
+          className={canCreateApiKey && !loading ? "" : "cursor-not-allowed"}
+        >
+          <span className="inline-block">
+            <DialogTrigger asChild disabled={loading}>
+              <Button variant="outline" disabled={loading}>
+                <PlusIcon className="mr-2 h-4 w-4" />
+                New API Key
+              </Button>
+            </DialogTrigger>
+          </span>
+        </TooltipTrigger>
+        {!canCreateApiKey && (
+          <TooltipContent>
+            {apiKeysLimit === 0
+              ? "The API key limit for your account is currently set to 0."
+              : `You have reached your API key limit (${apiKeysCount}/${apiKeysLimit})`}
+          </TooltipContent>
+        )}
+      </Tooltip>
 
       <DialogContent>
         {apiKey ? (

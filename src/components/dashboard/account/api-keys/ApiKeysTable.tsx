@@ -119,7 +119,10 @@ export default function ApiKeysTable({
 
           <EmptyDescription className="grid gap-2">
             There have been no API keys created yet.
-            <CreateApiKeyDialog session={session} />
+            <CreateApiKeyDialog
+              session={session}
+              apiKeysCount={apiKeys.total}
+            />
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
