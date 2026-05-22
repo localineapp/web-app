@@ -64,6 +64,10 @@ export const auth = betterAuth({
       defaultPrefix: "lapp_",
       requireName: true,
       enableMetadata: true,
+      rateLimit: {
+        timeWindow: 1000 * 60, // 1 minute
+        maxRequests: 30, // 30 requests per minute
+      }
     }),
     openAPI({
       disableDefaultReference: process.env.NODE_ENV === "production",
