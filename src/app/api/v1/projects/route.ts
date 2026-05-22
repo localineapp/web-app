@@ -53,7 +53,7 @@ export const GET = withApiKey(async (_, __, { apiKey, user }) => {
  * POST /api/v1/projects - Create a new project
  * @deprecated Project creation can't be done through the API anymore.
  */
-export async function POST(request: NextRequest) {
+export async function POST() {
   return new Response(
     "Project creation can't be done through the API anymore.",
     {
