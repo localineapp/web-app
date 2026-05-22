@@ -28,7 +28,8 @@ model User {
   sessions        Session[]
   accounts        Account[]
 
-  projectMembers ProjectMember[]
+  projectMembers     ProjectMember[]
+  projectInvitations ProjectInvitation[]
 
   @@unique([email])
   @@map("user")
@@ -161,6 +162,7 @@ model Project {
   labels      ProjectLabel[]
   members     ProjectMember[]
   memberRoles ProjectMemberRole[]
+  invitations ProjectInvitation[]
 
   @@map("project")
 }
@@ -175,8 +177,8 @@ model ProjectLocale {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   locale  Locale  @relation(fields: [localeId], references: [id], onDelete: Cascade)
 
-  members      ProjectMember[]
   translations ProjectTranslation[]
+  members      ProjectMember[]
 
   @@unique([projectId, localeId])
   @@index([projectId(length: 191)])
@@ -230,8 +232,9 @@ model ProjectLabel {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  terms   ProjectTerm[]
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  terms ProjectTerm[]
 
   @@unique([projectId, name])
   @@index([projectId(length: 191)])
@@ -249,6 +252,7 @@ model ProjectMember {
   project Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   role    ProjectMemberRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
   locales ProjectLocale[]
 
   @@unique([projectId, userId])
@@ -268,10 +272,32 @@ model ProjectMemberRole {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  project Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  members ProjectMember[]
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  members     ProjectMember[]
+  invitations ProjectInvitation[]
 
   @@unique([projectId, name])
   @@index([projectId(length: 191)])
   @@map("project_member_role")
+}
+
+model ProjectInvitation {
+  id        String   @id
+  projectId String
+  email     String
+  token     String   @unique
+  roleId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role    ProjectMemberRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  user    User              @relation(fields: [email], references: [email], onDelete: Cascade)
+
+  @@index([projectId(length: 191)])
+  @@index([roleId(length: 191)])
+  @@index([email(length: 191)])
+  @@map("project_invitation")
 }

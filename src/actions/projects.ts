@@ -28,6 +28,11 @@ const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
         labels: true,
       },
     },
+    locales: {
+      include: {
+        locale: true,
+      },
+    },
     labels: true,
     members: {
       include: {
@@ -54,9 +59,9 @@ const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
       },
     },
     memberRoles: true,
-    locales: {
+    invitations: {
       include: {
-        locale: true,
+        role: true,
       },
     },
     plan: true,
