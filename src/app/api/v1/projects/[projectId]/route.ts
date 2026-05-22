@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * GET /api/v1/projects/[projectId] - Get project details
@@ -8,7 +8,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
-  const { projectId } = await params;
+  const { projectId } = await params
 }
 
 /**
@@ -19,7 +19,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
-  const { projectId } = await params;
+  const { projectId } = await params
 }
 
 /**
@@ -27,7 +27,10 @@ export async function PATCH(
  * @deprecated Project deletion can't be done through the API anymore.
  */
 export async function DELETE() {
-  return new Response("Project deletion can't be done through the API anymore.", {
-    status: 400,
-  });
+  return new Response(
+    "Project deletion can't be done through the API anymore.",
+    {
+      status: 400,
+    }
+  )
 }

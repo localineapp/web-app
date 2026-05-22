@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * PUT /api/v1/projects/[projectId]/terms/[termId]/labels - Update a term's labels in the project
@@ -8,5 +8,5 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; termId: string }> }
 ) {
-  const { projectId, termId } = await params;
+  const { projectId, termId } = await params
 }

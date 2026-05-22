@@ -12,7 +12,7 @@ import {
   FoldersIcon,
   IdCardIcon,
   Link2Icon,
-  MailIcon,
+  MailCheckIcon,
   TagIcon,
   UserCogIcon,
   UserIcon,
@@ -113,7 +113,7 @@ export default function ProfileInformationCard({
 
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
-          <MailIcon className="size-4" />
+          <MailCheckIcon className="size-4" />
           <p>Email Verified:</p>
         </div>
 

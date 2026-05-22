@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * PATCH /api/v1/projects/[projectId]/labels/[labelId] - Update a specific label for the project
@@ -8,7 +8,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; labelId: string }> }
 ) {
-  const { projectId, labelId } = await params;
+  const { projectId, labelId } = await params
 }
 
 /**
@@ -19,5 +19,5 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; labelId: string }> }
 ) {
-  const { projectId, labelId } = await params;
+  const { projectId, labelId } = await params
 }

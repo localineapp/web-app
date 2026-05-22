@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * GET /api/v1/projects/[projectId]/translations/[localeCode] - Get translations for a specific locale
@@ -8,7 +8,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; localeCode: string }> }
 ) {
-  const { projectId, localeCode } = await params;
+  const { projectId, localeCode } = await params
 }
 
 /**
@@ -19,5 +19,5 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; localeCode: string }> }
 ) {
-  const { projectId, localeCode } = await params;
+  const { projectId, localeCode } = await params
 }

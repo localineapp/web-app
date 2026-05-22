@@ -1,6 +1,6 @@
 "use client"
 
-import { FullProject } from "@/actions/projects"
+import { FullProject, updatePlan } from "@/actions/projects"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Empty,
@@ -18,24 +18,55 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { ExternalLinkIcon, FoldersIcon, SearchIcon } from "lucide-react"
+import {
+  ExternalLinkIcon,
+  FoldersIcon,
+  PackageSearchIcon,
+  PencilIcon,
+  SearchIcon,
+} from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { MouseEvent, useState } from "react"
 import TablePagination from "@/components/dashboard/table-pagination"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
+import { Plan } from "@prisma/client"
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
 export default function ProjectsTable({
   projects,
+  plans,
+  canUpdatePlan,
 }: {
   projects: FullProject[]
+  plans: Plan[]
+  canUpdatePlan: boolean
 }) {
   const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
@@ -103,25 +134,25 @@ export default function ProjectsTable({
 
           <TableBody>
             {currentProjects.length > 0 ? (
-              currentProjects.map(({ id, name, description, members }) => {
-                const owner = members.find(
-                  (member) => member.roleId === id
+              currentProjects.map((project) => {
+                const owner = project.members.find(
+                  (member) => member.roleId === project.id
                 )?.user
 
                 return (
-                  <TableRow key={id}>
+                  <TableRow key={project.id}>
                     <TableCell className="text-center">
-                      {id.slice(0, 8)}
+                      {project.id.slice(0, 8)}
                     </TableCell>
 
-                    <TableCell className="min-w-40">{name}</TableCell>
+                    <TableCell className="min-w-40">{project.name}</TableCell>
 
                     <TableCell
                       className={cn(
-                        !description && "text-muted-foreground italic"
+                        !project.description && "text-muted-foreground italic"
                       )}
                     >
-                      {description ?? "None"}
+                      {project.description ?? "None"}
                     </TableCell>
 
                     <TableCell className="max-w-30">
@@ -157,11 +188,18 @@ export default function ProjectsTable({
 
                     <TableCell className="text-center">
                       <Link
-                        href={`/projects/${id}`}
+                        href={`/projects/${project.id}`}
                         className="inline-flex items-center px-2 py-1 text-sm"
                       >
                         <ExternalLinkIcon size={16} />
                       </Link>
+                      <ChangePlanDialog
+                        project={project}
+                        plans={plans}
+                        canUpdatePlan={canUpdatePlan}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
                     </TableCell>
                   </TableRow>
                 )
@@ -191,5 +229,140 @@ export default function ProjectsTable({
         setPage={setPage}
       />
     </div>
+  )
+}
+
+function ChangePlanDialog({
+  project,
+  plans,
+  canUpdatePlan,
+  loading,
+  setLoading,
+}: {
+  project: FullProject
+  plans: Plan[]
+  canUpdatePlan: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [editingProject, setEditingProject] = useState<FullProject | null>(null)
+  const [plan, setPlan] = useState<Plan | null>(null)
+
+  const handleUpdatePlan = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    setLoading(true)
+
+    await updatePlan(project, plan!)
+      .then(() => {
+        toast.success(
+          `${project.name} has been successfully updated to the ${plan?.displayName} plan.`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message ||
+            "Failed to update the project plan. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setEditingProject(null)
+        setPlan(null)
+      })
+  }
+
+  return (
+    <Dialog
+      open={editingProject !== null}
+      onOpenChange={(open) => {
+        if (!open) {
+          setEditingProject(null)
+          setPlan(null)
+        }
+      }}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "inline-flex",
+              canUpdatePlan ? "cursor-pointer" : "cursor-not-allowed"
+            )}
+          >
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canUpdatePlan || loading}
+                onClick={() => setEditingProject(project)}
+              >
+                <PackageSearchIcon size={16} />
+              </Button>
+            </DialogTrigger>
+          </span>
+        </TooltipTrigger>
+        {!canUpdatePlan && (
+          <TooltipContent>
+            You don&rsquo;t have permission to change project&rsquo;s plan.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Change Plan</DialogTitle>
+          <DialogDescription>
+            Update the plan for this project.
+          </DialogDescription>
+        </DialogHeader>
+
+        <NativeSelect
+          className="w-full"
+          value={plan?.id ?? project.planId ?? ""}
+          onChange={({ target: { value } }) => {
+            const selectedPlan = plans.find((plan) => plan.id === value) || null
+            setPlan(selectedPlan)
+          }}
+        >
+          {plans.map(({ id, displayName }) => (
+            <NativeSelectOption key={id} value={id}>
+              {displayName}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setEditingProject(null)}
+            disabled={loading}
+          >
+            Close
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={handleUpdatePlan}
+            disabled={loading || !plan || plan.id === project.planId}
+          >
+            {loading ? (
+              <>
+                <Spinner className="h-4 w-4" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <PencilIcon className="h-4 w-4" />
+                Save changes
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -3,7 +3,10 @@
  * @deprecated API keys are no longer part of projects, and can't be managed through the API anymore.
  */
 export async function DELETE() {
-  return new Response("API keys are no longer part of projects, and can't be managed through the API anymore.", {
-    status: 400,
-  });
+  return new Response(
+    "API keys are no longer part of projects, and can't be managed through the API anymore.",
+    {
+      status: 400,
+    }
+  )
 }

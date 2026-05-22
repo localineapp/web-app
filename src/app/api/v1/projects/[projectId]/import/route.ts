@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * POST /api/v1/projects/[projectId]/import - Import project translations from a JSON file
@@ -8,5 +8,5 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
-  const { projectId } = await params;
+  const { projectId } = await params
 }

@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * GET /api/v1/projects/[projectId]/members - List project's members
@@ -8,7 +8,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
-  const { projectId } = await params;
+  const { projectId } = await params
 }
 
 /**
@@ -16,7 +16,10 @@ export async function GET(
  * @deprecated Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.
  */
 export async function POST() {
-  return new Response("Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.", {
-    status: 400,
-  });
+  return new Response(
+    "Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.",
+    {
+      status: 400,
+    }
+  )
 }

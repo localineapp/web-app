@@ -3,9 +3,12 @@
  * @deprecated Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.
  */
 export async function PATCH() {
-  return new Response("Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.", {
-    status: 400,
-  });
+  return new Response(
+    "Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.",
+    {
+      status: 400,
+    }
+  )
 }
 
 /**
@@ -13,7 +16,10 @@ export async function PATCH() {
  * @deprecated Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.
  */
 export async function DELETE() {
-  return new Response("Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.", {
-    status: 400,
-  });
+  return new Response(
+    "Members backend has been changed drastically in v2, therefore this endpoint is no longer supported. Use v2 instead.",
+    {
+      status: 400,
+    }
+  )
 }

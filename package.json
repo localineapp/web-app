@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@base-ui/react": "^1.4.1",
+    "@base-ui/react": "^1.5.0",
     "@better-auth/api-key": "^1.6.11",
     "@better-auth/prisma-adapter": "^1.6.10",
     "@prisma/adapter-mariadb": "^7.8.0",

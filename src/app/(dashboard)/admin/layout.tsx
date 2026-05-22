@@ -1,6 +1,6 @@
+import { AccessDeniedPage } from "@/components/access-denied"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { forbidden } from "next/navigation"
 
 export default async function AdminDashboardLayout({
   children,
@@ -19,7 +19,7 @@ export default async function AdminDashboardLayout({
   ).success
 
   if (!hasPermission) {
-    return forbidden()
+    return <AccessDeniedPage isAuthenticated={true} />
   }
 
   return <>{children}</>

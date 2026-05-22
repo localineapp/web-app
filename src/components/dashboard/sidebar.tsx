@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ChevronRightIcon, CogIcon } from "lucide-react"
-import { useSession } from "@/lib/auth-client"
+import { authClient, useSession } from "@/lib/auth-client"
 import {
   Sidebar,
   SidebarContent,
@@ -48,6 +48,7 @@ export default function AppSidebar({
   const user = session?.user
 
   const [project, setProject] = useState<Project | null>(null)
+  const [canAccessAdmin, setCanAccessAdmin] = useState(false)
 
   useEffect(() => {
     const match = pathname?.match(/\/projects\/([^/]+)/)
@@ -66,6 +67,24 @@ export default function AppSidebar({
 
     loadProject()
   }, [pathname])
+
+  useEffect(() => {
+    const checkAdminAccess = async () => {
+      const { data, error } = await authClient.admin.hasPermission({
+        permissions: {
+          dashboard: ["admin"],
+        },
+      })
+
+      if (error) {
+        setCanAccessAdmin(false)
+      } else {
+        setCanAccessAdmin(data?.success || false)
+      }
+    }
+
+    checkAdminAccess()
+  }, [user])
 
   const isActive = (href: string) => {
     if (!pathname) return false
@@ -248,7 +267,7 @@ export default function AppSidebar({
             </SidebarMenu>
           </SidebarGroup>
         )}
-        {user?.role === "admin" && (
+        {canAccessAdmin && (
           <SidebarGroup>
             {isExpanded && (
               <SidebarGroupLabel>Administration</SidebarGroupLabel>

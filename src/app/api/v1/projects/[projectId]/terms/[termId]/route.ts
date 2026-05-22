@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 /**
  * PATCH /api/v1/projects/[projectId]/terms/[termId] - Update a term in the project
@@ -8,7 +8,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; termId: string }> }
 ) {
-  const { projectId, termId } = await params;
+  const { projectId, termId } = await params
 }
 
 /**
@@ -19,5 +19,5 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; termId: string }> }
 ) {
-  const { projectId, termId } = await params;
+  const { projectId, termId } = await params
 }

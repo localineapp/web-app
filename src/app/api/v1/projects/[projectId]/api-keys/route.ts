@@ -3,9 +3,12 @@
  * @deprecated API keys are no longer part of projects, and can't be accessed through the API anymore.
  */
 export async function GET() {
-  return new Response("API keys are no longer part of projects, and can't be accessed through the API anymore.", {
-    status: 400,
-  });
+  return new Response(
+    "API keys are no longer part of projects, and can't be accessed through the API anymore.",
+    {
+      status: 400,
+    }
+  )
 }
 
 /**
@@ -13,7 +16,10 @@ export async function GET() {
  * @deprecated API keys are no longer part of projects, and can't be managed through the API anymore.
  */
 export async function POST() {
-  return new Response("API keys are no longer part of projects, and can't be managed through the API anymore.", {
-    status: 400,
-  });
+  return new Response(
+    "API keys are no longer part of projects, and can't be managed through the API anymore.",
+    {
+      status: 400,
+    }
+  )
 }

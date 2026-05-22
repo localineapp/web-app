@@ -96,11 +96,6 @@ export default function ProjectsList({
           <EmptyDescription className="grid gap-2">
             You haven&apos;t created any projects yet. Get started by creating
             your first project.
-            <CreateProjectDialog
-              session={session}
-              projectCount={projects.length}
-              defaultPlan={defaultPlan}
-            />
           </EmptyDescription>
         </EmptyHeader>
 

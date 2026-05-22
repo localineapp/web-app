@@ -9,7 +9,7 @@ export const statement = {
   dashboard: ["admin"],
   locales: ["create", "update", "delete"],
   plans: ["create", "update", "delete"],
-  projects: ["read", "update", "delete"],
+  projects: ["read", "update", "update-plan", "delete"],
   ...defaultStatements,
 } as const
 
@@ -19,7 +19,7 @@ export const admin = ac.newRole({
   dashboard: ["admin"],
   locales: ["create", "update", "delete"],
   plans: ["create", "update", "delete"],
-  projects: ["read", "update", "delete"],
+  projects: ["read", "update", "update-plan", "delete"],
   ...adminAc.statements,
 })
 

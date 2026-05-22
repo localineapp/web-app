@@ -1,6 +1,9 @@
 import { getProject } from "@/actions/projects"
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { ArrowLeftIcon } from "lucide-react"
+import { headers } from "next/headers"
 import Link from "next/link"
 
 export default async function ProjectWorkflowSettingsPage({
@@ -12,6 +15,30 @@ export default async function ProjectWorkflowSettingsPage({
   const project = await getProject(projectId)
 
   if (!project) return <></>
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  const user = session?.user
+  const member = project.members.find((m) => m.userId === user?.id)
+
+  const canManageWorkflows =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_WORKFLOWS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be undefined, but the API expects a string.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
 
   return (
     <div className="flex flex-col gap-4">
