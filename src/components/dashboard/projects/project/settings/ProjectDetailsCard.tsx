@@ -25,7 +25,7 @@ import { PackageIcon, PencilIcon, TagIcon, TextIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { Separator } from "@/components/ui/separator"
-import { FullProject } from "@/actions/projects"
+import { FullProject } from "@/types/project"
 
 export default function ProjectDetailsCard({
   project,

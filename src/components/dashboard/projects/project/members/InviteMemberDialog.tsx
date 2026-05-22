@@ -1,6 +1,5 @@
 "use client"
 
-import { FullProject } from "@/actions/projects"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -20,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useSession } from "@/lib/auth-client"
+import { FullProject } from "@/types/project"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"

@@ -1,6 +1,6 @@
 "use client"
 
-import { FullProject, updatePlan } from "@/actions/projects"
+import { updatePlan } from "@/actions/projects"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Empty,
@@ -53,6 +53,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Plan } from "@prisma/client"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { toast } from "sonner"
+import { FullProject } from "@/types/project"
 
 const PAGE_SIZE = 10
 

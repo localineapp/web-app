@@ -12,12 +12,11 @@ export async function areSignUpsDisabled(): Promise<boolean> {
 }
 
 export async function isAnySocialLoginEnabled(): Promise<boolean> {
-  const [googleEnabled, githubEnabled, discordEnabled] = await Promise.all([
+  return await Promise.all([
     isGoogleLoginEnabled(),
     isGitHubLoginEnabled(),
     isDiscordLoginEnabled(),
-  ])
-  return discordEnabled || googleEnabled || githubEnabled
+  ]).then((results) => results.some((enabled) => enabled))
 }
 
 export async function isDiscordLoginEnabled(): Promise<boolean> {

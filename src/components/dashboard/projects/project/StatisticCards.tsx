@@ -1,6 +1,6 @@
-import { FullProject } from "@/actions/projects"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { FullProject } from "@/types/project"
 import { GlobeIcon, LibraryIcon, PercentIcon, UsersIcon } from "lucide-react"
 
 export default function StatisticCards({ project }: { project: FullProject }) {

@@ -1,6 +1,5 @@
 "use client"
 
-import { FullProject } from "@/actions/projects"
 import { Button } from "@/components/ui/button"
 import {
   Combobox,
@@ -26,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useSession } from "@/lib/auth-client"
+import { FullProject } from "@/types/project"
 import { Locale } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"

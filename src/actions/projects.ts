@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { Plan, Prisma, Project } from "@prisma/client"
+import { Plan, Project } from "@prisma/client"
 import { headers } from "next/headers"
 import { forbidden, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
@@ -11,66 +11,7 @@ import {
   combinePermissions,
   ProjectPermission,
 } from "@/lib/project-permissions"
-
-const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
-  include: {
-    terms: {
-      include: {
-        translations: {
-          include: {
-            locale: {
-              include: {
-                locale: true,
-              },
-            },
-          },
-        },
-        labels: true,
-      },
-    },
-    locales: {
-      include: {
-        locale: true,
-      },
-    },
-    labels: true,
-    members: {
-      include: {
-        user: {
-          omit: {
-            banned: true,
-            banReason: true,
-            banExpires: true,
-            email: true,
-            emailVerified: true,
-            lastLoginMethod: true,
-            projectsLimit: true,
-            role: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
-        role: true,
-        locales: {
-          include: {
-            locale: true,
-          },
-        },
-      },
-    },
-    memberRoles: true,
-    invitations: {
-      include: {
-        role: true,
-      },
-    },
-    plan: true,
-  },
-})
-
-export type FullProject = Prisma.ProjectGetPayload<{
-  include: typeof fullProjectArgs.include
-}>
+import { FullProject, fullProjectArgs } from "@/types/project"
 
 export async function getProjects({
   includeAll,
@@ -91,7 +32,7 @@ export async function getProjects({
     const hasPermission = (
       await auth.api.userHasPermission({
         body: {
-          // @ts-expect-error - user.role can be undefined, but the API expects a string.
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
           role: user.role ?? "user",
           permissions: {
             projects: ["read"],
@@ -137,7 +78,7 @@ export async function getProject(
   const hasPermission = (
     await auth.api.userHasPermission({
       body: {
-        // @ts-expect-error - user.role can be undefined, but the API expects a string.
+        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
         role: user.role ?? "user",
         permissions: {
           projects: ["read"],
@@ -310,7 +251,7 @@ export async function deleteProject(project: Project): Promise<void> {
     (
       await auth.api.userHasPermission({
         body: {
-          // @ts-expect-error - user.role can be undefined, but the API expects a string.
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
           role: user.role ?? "user",
           permissions: {
             projects: ["delete"],
