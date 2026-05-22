@@ -156,11 +156,11 @@ model Project {
 
   plan Plan @relation(fields: [planId], references: [id], onDelete: Restrict)
 
+  terms       ProjectTerm[]
+  locales     ProjectLocale[]
+  labels      ProjectLabel[]
   members     ProjectMember[]
   memberRoles ProjectMemberRole[]
-  locales     ProjectLocale[]
-  terms       ProjectTerm[]
-  labels      ProjectLabel[]
 
   @@map("project")
 }
