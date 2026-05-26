@@ -2,6 +2,7 @@ import { getProject } from "@/actions/projects"
 import MemberInfoCards from "@/components/dashboard/projects/project/MemberInfoCards"
 import StatisticCards from "@/components/dashboard/projects/project/StatisticCards"
 import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { auth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { ArrowLeftIcon } from "lucide-react"
@@ -21,6 +22,12 @@ export default async function ProjectPage({
   const session = await auth.api.getSession({
     headers: await headers(),
   })
+
+  const showFirstSteps =
+    project.locales.length === 0 ||
+    project.terms.length === 0 ||
+    project.terms.every((term) => term.translations.length === 0) ||
+    project.members.length < 2
 
   return (
     <div className="flex flex-col gap-4">
@@ -50,10 +57,35 @@ export default async function ProjectPage({
       <div className="grid gap-4 md:grid-cols-4">
         <StatisticCards project={project} />
 
-        <h2 className="col-span-full mt-4 text-lg font-medium">
-          Your Membership
-        </h2>
-        <MemberInfoCards session={session} project={project} />
+        <div className="col-span-full flex items-center py-4">
+          <Separator className="w-full" />
+        </div>
+
+        {showFirstSteps ? (
+          <div className="col-span-full grid grid-cols-2 gap-4">
+            <div>
+              <h2 className="mb-2 text-lg font-medium">First Steps</h2>
+
+              <p>1. Add a locale to your project</p>
+              <p>2. Add a term to your project</p>
+              <p>3. Translate your first term</p>
+              <p>4. Invite your team members</p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h2 className="mb-2 text-lg font-medium">Your Membership</h2>
+
+              <MemberInfoCards session={session} project={project} />
+            </div>
+          </div>
+        ) : (
+          <div className="col-span-full flex flex-col gap-2">
+            <h2 className="text-lg font-medium">Your Membership</h2>
+
+            <MemberInfoCards session={session} project={project} />
+          </div>
+        )}
+        {/** TODO: check layout in true and false cases of showFirstSteps */}
       </div>
     </div>
   )
