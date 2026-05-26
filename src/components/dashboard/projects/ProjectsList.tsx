@@ -35,9 +35,10 @@ import { useSession } from "@/lib/auth-client"
 import { Plan, Project } from "@prisma/client"
 import { cn } from "@/lib/utils"
 import TablePagination from "@/components/dashboard/table-pagination"
+import { FullProject } from "@/types/project"
 
 interface ProjectsListProps {
-  projects: Project[]
+  projects: FullProject[]
   page: number
   setPage: (page: number) => void
 }
@@ -66,7 +67,7 @@ export default function ProjectsList({
   defaultPlan,
 }: {
   session: ReturnType<typeof useSession>["data"]
-  projects: Project[]
+  projects: FullProject[]
   defaultPlan: Plan | null
 }) {
   const [view, setView] = useState<"table" | "cards">("table")
@@ -224,63 +225,75 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-25 text-center">ID</TableHead>
+              <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead className="w-25 text-center">Actions</TableHead>
+              <TableHead>Plan</TableHead>
+              <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {currentProjects.map(({ id, name, description }) => (
-              <TableRow key={id}>
-                <TableCell className="text-center font-medium">
-                  <Link
-                    href={`/projects/${id}`}
-                    className="block h-full w-full"
-                  >
-                    {id.slice(0, 8)}
-                  </Link>
-                </TableCell>
+            {currentProjects.map(
+              ({ id, name, description, plan: { displayName } }) => (
+                <TableRow key={id}>
+                  <TableCell className="text-center font-medium">
+                    <Link
+                      href={`/projects/${id}`}
+                      className="block h-full w-full"
+                    >
+                      {id.slice(0, 8)}
+                    </Link>
+                  </TableCell>
 
-                <TableCell>
-                  <Link
-                    href={`/projects/${id}`}
-                    className="block h-full w-full"
-                  >
-                    {name}
-                  </Link>
-                </TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/projects/${id}`}
+                      className="block h-full w-full"
+                    >
+                      {name}
+                    </Link>
+                  </TableCell>
 
-                <TableCell>
-                  <Link
-                    href={`/projects/${id}`}
-                    className={cn(
-                      "block h-full w-full",
-                      !description && "text-muted-foreground italic"
-                    )}
-                  >
-                    {description ?? "None"}
-                  </Link>
-                </TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/projects/${id}`}
+                      className={cn(
+                        "block h-full w-full",
+                        !description && "text-muted-foreground italic"
+                      )}
+                    >
+                      {description ?? "None"}
+                    </Link>
+                  </TableCell>
 
-                <TableCell className="cursor-default text-center">
-                  <Link
-                    href={`/projects/${id}`}
-                    className="inline-flex items-center px-2 py-1 text-sm"
-                  >
-                    <ExternalLinkIcon size={16} />
-                  </Link>
+                  <TableCell>
+                    <Link
+                      href={`/projects/${id}`}
+                      className="block h-full w-full"
+                    >
+                      {displayName}
+                    </Link>
+                  </TableCell>
 
-                  <Link
-                    href={`/projects/${id}/settings`}
-                    className="inline-flex items-center px-2 py-1 text-sm"
-                  >
-                    <CogIcon size={16} />
-                  </Link>
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell className="cursor-default text-center">
+                    <Link
+                      href={`/projects/${id}`}
+                      className="inline-flex items-center px-2 py-1 text-sm"
+                    >
+                      <ExternalLinkIcon size={16} />
+                    </Link>
+
+                    <Link
+                      href={`/projects/${id}/settings`}
+                      className="inline-flex items-center px-2 py-1 text-sm"
+                    >
+                      <CogIcon size={16} />
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              )
+            )}
           </TableBody>
         </Table>
       </div>

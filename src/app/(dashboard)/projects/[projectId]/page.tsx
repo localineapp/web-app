@@ -1,8 +1,11 @@
 import { getProject } from "@/actions/projects"
+import MemberInfoCards from "@/components/dashboard/projects/project/MemberInfoCards"
 import StatisticCards from "@/components/dashboard/projects/project/StatisticCards"
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 import { ArrowLeftIcon } from "lucide-react"
+import { headers } from "next/headers"
 import Link from "next/link"
 
 export default async function ProjectPage({
@@ -14,6 +17,10 @@ export default async function ProjectPage({
   const project = await getProject(projectId)
 
   if (!project) return <></>
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
 
   return (
     <div className="flex flex-col gap-4">
@@ -42,6 +49,11 @@ export default async function ProjectPage({
 
       <div className="grid gap-4 md:grid-cols-4">
         <StatisticCards project={project} />
+
+        <h2 className="col-span-full mt-4 text-lg font-medium">
+          Your Membership
+        </h2>
+        <MemberInfoCards session={session} project={project} />
       </div>
     </div>
   )

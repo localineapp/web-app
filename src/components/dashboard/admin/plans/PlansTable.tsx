@@ -70,6 +70,11 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 const PAGE_SIZE = 10
 
@@ -190,15 +195,26 @@ export default function PlansTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28 text-center">ID</TableHead>
+              <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Display Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead className="text-center">Default</TableHead>
+              <TableHead className="text-center">
+                <HoverCard openDelay={10} closeDelay={10}>
+                  <HoverCardTrigger asChild>
+                    <Button variant="ghost">Default</Button>
+                  </HoverCardTrigger>
+
+                  <HoverCardContent>
+                    The default plan is the plan that newly created projects
+                    will be associated with.
+                  </HoverCardContent>
+                </HoverCard>
+              </TableHead>
               <TableHead className="text-center">Locales</TableHead>
               <TableHead className="text-center">Terms</TableHead>
               <TableHead className="text-center">Labels</TableHead>
               <TableHead className="text-center">Members</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 

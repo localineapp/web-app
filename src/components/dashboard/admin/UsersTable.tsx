@@ -120,12 +120,12 @@ export default function UsersTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28 text-center">ID</TableHead>
+              <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead className="text-center">Role</TableHead>
               <TableHead className="text-center">Banned</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 

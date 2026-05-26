@@ -29,6 +29,18 @@ export function combinePermissions(
   return permissions.reduce((combined, permission) => combined | permission, 0n)
 }
 
+export function getPermissions(permissions: bigint): ProjectPermissionKey[] {
+  const result: ProjectPermissionKey[] = []
+
+  for (const [key, value] of Object.entries(ProjectPermission)) {
+    if ((permissions & value) !== 0n) {
+      result.push(key as ProjectPermissionKey)
+    }
+  }
+
+  return result
+}
+
 export function hasPermission(
   permissions: bigint,
   permission: ProjectPermissionValue

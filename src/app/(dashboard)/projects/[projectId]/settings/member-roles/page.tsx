@@ -1,4 +1,6 @@
 import { getProject } from "@/actions/projects"
+import CreateMemberRoleDialog from "@/components/dashboard/projects/project/settings/CreateMemberRoleDialog"
+import MemberRolesTable from "@/components/dashboard/projects/project/settings/MemberRolesTable"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
@@ -40,6 +42,13 @@ export default async function ProjectMemberRoleSettingsPage({
       })
     ).success
 
+  const roles = project.memberRoles.sort((a, b) => {
+    if (a.id === project.id) return -1
+    if (b.id === project.id) return 1
+
+    return Number(b.permissions) - Number(a.permissions)
+  })
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -57,11 +66,20 @@ export default async function ProjectMemberRoleSettingsPage({
           </div>
         </div>
 
-        <div className="flex gap-2"></div>
+        <div className="flex gap-2">
+          <CreateMemberRoleDialog
+            project={project}
+            canManageRoles={canManageRoles}
+          />
+        </div>
       </div>
 
       <div>
-        <p>Not implemented yet.</p>
+        <MemberRolesTable
+          project={project}
+          memberRoles={roles}
+          canManageRoles={canManageRoles}
+        />
       </div>
     </div>
   )

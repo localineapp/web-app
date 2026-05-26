@@ -149,13 +149,13 @@ export default function ApiKeysTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28 text-center">ID</TableHead>
+              <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="text-center">Enabled</TableHead>
               <TableHead>Last Used</TableHead>
               <TableHead>Expires at</TableHead>
               <TableHead>Created at</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 

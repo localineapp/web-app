@@ -118,11 +118,11 @@ export default function SessionsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28 text-center">Session</TableHead>
+              <TableHead className="max-w-28 text-center">Session</TableHead>
               <TableHead>Device</TableHead>
               <TableHead>IP Address</TableHead>
               <TableHead>Expires</TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 

@@ -2,6 +2,7 @@ import { getProject } from "@/actions/projects"
 import InviteMemberDialog from "@/components/dashboard/projects/project/members/InviteMemberDialog"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { ArrowLeftIcon } from "lucide-react"
 import { headers } from "next/headers"
 import Link from "next/link"
@@ -19,6 +20,24 @@ export default async function ProjectMembersPage({
   const session = await auth.api.getSession({
     headers: await headers(),
   })
+
+  const member = project.members.find((m) => m.userId === session?.user.id)
+  const canInviteMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_MEMBERS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
 
   return (
     <div className="flex flex-col gap-4">
@@ -38,7 +57,10 @@ export default async function ProjectMembersPage({
         </div>
 
         <div className="flex gap-2">
-          <InviteMemberDialog session={session} project={project} />
+          <InviteMemberDialog
+            project={project}
+            canInviteMembers={canInviteMembers}
+          />
         </div>
       </div>
 

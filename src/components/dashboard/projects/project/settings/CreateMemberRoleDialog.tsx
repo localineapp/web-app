@@ -18,30 +18,27 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { FullProject } from "@/types/project"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 
-export default function InviteMemberDialog({
+export default function CreateMemberRoleDialog({
   project,
-  canInviteMembers,
+  canManageRoles,
 }: {
   project: FullProject
-  canInviteMembers: boolean
+  canManageRoles: boolean
 }) {
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
 
-  const isLimitReached =
-    project.plan.membersLimit !== null &&
-    project.members.length >= project.plan.membersLimit
+  const isLimitReached = project.memberRoles.length >= 100 // Arbitrary limit to prevent too many roles
 
-  const handleInviteMember = async (event: MouseEvent<HTMLButtonElement>) => {
+  const handleCreateRole = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
   }
@@ -52,7 +49,7 @@ export default function InviteMemberDialog({
         <TooltipTrigger
           asChild
           className={
-            canInviteMembers && !isLimitReached && !loading
+            canManageRoles && !isLimitReached && !loading
               ? ""
               : "cursor-not-allowed"
           }
@@ -60,44 +57,44 @@ export default function InviteMemberDialog({
           <span className="inline-block">
             <DialogTrigger
               asChild
-              disabled={!canInviteMembers || isLimitReached || loading}
+              disabled={!canManageRoles || isLimitReached || loading}
             >
               <Button
                 variant="outline"
-                disabled={!canInviteMembers || isLimitReached || loading}
+                disabled={!canManageRoles || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                Invite Member
+                Create Role
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canInviteMembers || isLimitReached) && (
+        {(!canManageRoles || isLimitReached) && (
           <TooltipContent>
-            {!canInviteMembers
-              ? "You don't have permission to invite members in this project."
+            {!canManageRoles
+              ? "You don't have permission to manage roles in this project."
               : (isLimitReached ??
-                "This project has reached the maximum number of members allowed by your plan.")}
+                "This project has reached the maximum number of roles a project can have.")}
           </TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite new member</DialogTitle>
+          <DialogTitle>Create new role</DialogTitle>
           <DialogDescription>
-            Add a new member to your project.
+            Create a new member role for this project.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="roleName">Name</Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="member@example.com"
-            value={email}
-            onChange={({ target: { value } }) => setEmail(value)}
+            id="roleName"
+            type="text"
+            placeholder="Enter role name"
+            value={name}
+            onChange={({ target: { value } }) => setName(value)}
           />
         </div>
 
@@ -106,7 +103,7 @@ export default function InviteMemberDialog({
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setEmail("")
+              setName("")
             }}
             disabled={loading}
           >
@@ -114,18 +111,18 @@ export default function InviteMemberDialog({
           </Button>
           <Button
             variant="outline"
-            onClick={handleInviteMember}
-            disabled={!email || loading}
+            onClick={handleCreateRole}
+            disabled={!name || loading}
           >
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Inviting...
+                Creating...
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Invite Member
+                Create Role
               </>
             )}
           </Button>

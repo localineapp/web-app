@@ -156,7 +156,7 @@ export default function LocalesTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-28 text-center">ID</TableHead>
+              <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Display Name</TableHead>
               <TableHead>Language</TableHead>
               <TableHead>Region</TableHead>
@@ -167,13 +167,14 @@ export default function LocalesTable({
                   <HoverCardTrigger asChild>
                     <Button variant="ghost">Enabled</Button>
                   </HoverCardTrigger>
+
                   <HoverCardContent>
                     Indicates whether the locale can be selected by users in
                     their projects.
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
-              <TableHead className="w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
