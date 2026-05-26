@@ -1,8 +1,9 @@
 import { createHeaders, withApiKey } from "@/lib/api"
 import { auth } from "@/lib/auth"
-import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { fullProjectArgs } from "@/types/project"
+import z from "zod"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { findProject } from "@/lib/project"
 
 /**
  * GET /api/v1/projects/[projectId] - Get project details
@@ -12,36 +13,7 @@ export const GET = withApiKey<{ projectId: string }>(
   async (_, { params }, { apiKey, user }) => {
     const { projectId } = await params
 
-    const hasPermission = (
-      await auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            projects: ["read"],
-          },
-        },
-      })
-    ).success
-
-    const project = hasPermission
-      ? await prisma.project.findUnique({
-          ...fullProjectArgs,
-          where: {
-            id: projectId,
-          },
-        })
-      : await prisma.project.findFirst({
-          ...fullProjectArgs,
-          where: {
-            id: projectId,
-            members: {
-              some: {
-                userId: user?.id,
-              },
-            },
-          },
-        })
+    const project = await findProject(projectId, user)
 
     if (!project) {
       return Response.json(
@@ -88,12 +60,107 @@ export const GET = withApiKey<{ projectId: string }>(
  * PATCH /api/v1/projects/[projectId] - Update project details
  * @deprecated Use v2 instead
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ projectId: string }> }
-) {
-  const { projectId } = await params
-}
+export const PATCH = withApiKey<{ projectId: string }>(
+  async (request, { params }, { apiKey, user }) => {
+    const { projectId } = await params
+
+    const body = await request.json()
+    const validatedData = z
+      .object({
+        name: z.string().min(1).max(32).optional(),
+        description: z.string().min(1).max(255).optional(),
+      })
+      .refine(
+        (data) => data.name !== undefined || data.description !== undefined,
+        {
+          message: "At least one field must be provided",
+        }
+      )
+      .parse(body)
+
+    const project = await findProject(projectId, user)
+
+    if (!project) {
+      return Response.json(
+        { error: "Project not found" },
+        {
+          status: 404,
+          headers: createHeaders(apiKey, {
+            version: "v1",
+            deprecated: true,
+          }),
+        }
+      )
+    }
+
+    const member = project.members.find((m) => m.userId === user?.id)
+
+    if (
+      !hasPermission(
+        member?.role.permissions ?? 0n,
+        ProjectPermission.MANAGE_PROJECT
+      )
+    ) {
+      const canUpdateProjects = (
+        await auth.api.userHasPermission({
+          body: {
+            // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+            role: user.role ?? "user",
+            permissions: {
+              projects: ["update"],
+            },
+          },
+        })
+      ).success
+      if (!canUpdateProjects) {
+        return Response.json(
+          { error: "You don't have permission to update this project" },
+          {
+            status: 403,
+            headers: createHeaders(apiKey, {
+              version: "v1",
+              deprecated: true,
+            }),
+          }
+        )
+      }
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        name: validatedData.name,
+        description: validatedData.description,
+      },
+    })
+
+    const owner = project.members.find((m) => m.roleId === project.id)
+
+    return Response.json(
+      {
+        data: {
+          id: updatedProject.id,
+          name: updatedProject.name,
+          description: updatedProject.description,
+          ownerId: owner?.userId || null,
+          createdAt: updatedProject.createdAt,
+          updatedAt: updatedProject.updatedAt,
+          memberRole:
+            owner?.userId === user?.id ? null : member?.roleId || null,
+        },
+      },
+      {
+        status: 200,
+        headers: createHeaders(apiKey, {
+          version: "v1",
+          deprecated: true,
+        }),
+      }
+    )
+  }
+)
 
 /**
  * DELETE /api/v1/projects/[projectId] - Delete a project

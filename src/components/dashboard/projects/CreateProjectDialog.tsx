@@ -125,6 +125,9 @@ export default function CreateProjectDialog({
               id="projectName"
               placeholder="My Project"
               value={name}
+              minLength={1}
+              maxLength={32}
+              required
               onChange={({ target: { value } }) => setName(value)}
             />
           </div>
@@ -135,6 +138,8 @@ export default function CreateProjectDialog({
               id="projectDescription"
               placeholder="A brief description of your project"
               value={description ?? ""}
+              minLength={1}
+              maxLength={255}
               onChange={({ target: { value } }) => setDescription(value)}
             />
           </div>

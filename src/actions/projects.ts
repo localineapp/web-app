@@ -3,15 +3,17 @@
 import { auth } from "@/lib/auth"
 import { Plan, Project } from "@prisma/client"
 import { headers } from "next/headers"
-import { forbidden, unauthorized } from "next/navigation"
+import { forbidden, notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
 import {
   AllProjectPermissions,
   combinePermissions,
+  hasPermission,
   ProjectPermission,
 } from "@/lib/project-permissions"
 import { FullProject, fullProjectArgs } from "@/types/project"
+import { findProject } from "@/lib/project"
 
 export async function getProjects({
   includeAll,
@@ -29,7 +31,7 @@ export async function getProjects({
   const user = session.user
 
   if (includeAll) {
-    const hasPermission = (
+    const canReadAllProjects = (
       await auth.api.userHasPermission({
         body: {
           // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
@@ -40,7 +42,7 @@ export async function getProjects({
         },
       })
     ).success
-    if (!hasPermission) {
+    if (!canReadAllProjects) {
       return forbidden()
     }
   }
@@ -75,7 +77,7 @@ export async function getProject(
 
   const user = session.user
 
-  const hasPermission = (
+  const canReadAllProjects = (
     await auth.api.userHasPermission({
       body: {
         // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
@@ -87,26 +89,24 @@ export async function getProject(
     })
   ).success
 
-  if (hasPermission) {
-    return await prisma.project.findUnique({
-      ...fullProjectArgs,
-      where: {
-        id: projectId,
-      },
-    })
-  } else {
-    return await prisma.project.findFirst({
-      ...fullProjectArgs,
-      where: {
-        id: projectId,
-        members: {
-          some: {
-            userId: user.id,
+  return canReadAllProjects
+    ? await prisma.project.findUnique({
+        ...fullProjectArgs,
+        where: {
+          id: projectId,
+        },
+      })
+    : await prisma.project.findFirst({
+        ...fullProjectArgs,
+        where: {
+          id: projectId,
+          members: {
+            some: {
+              userId: user?.id,
+            },
           },
         },
-      },
-    })
-  }
+      })
 }
 
 export async function createProject({
@@ -124,6 +124,14 @@ export async function createProject({
 
   if (!session || !session.user) {
     return unauthorized()
+  }
+
+  if (name.length > 32) {
+    throw new Error("Project name must be at most 32 characters.")
+  }
+
+  if (description && description.length > 255) {
+    throw new Error("Project description must be at most 255 characters.")
   }
 
   const user = session.user
@@ -204,11 +212,75 @@ export async function createProject({
   })
 }
 
+export async function updateProject({
+  projectId,
+  name,
+  description,
+}: {
+  projectId: string
+  name?: string
+  description?: string
+}): Promise<Project | null> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session || !session.user) {
+    return unauthorized()
+  }
+
+  if (name && name.length > 32) {
+    throw new Error("Project name must be at most 32 characters.")
+  }
+
+  if (description && description.length > 255) {
+    throw new Error("Project description must be at most 255 characters.")
+  }
+
+  const user = session.user
+  const project = await findProject(projectId, user)
+
+  if (!project) {
+    return notFound()
+  }
+
+  const member = project.members.find((m) => m.userId === user.id)
+
+  const canUpdateProject =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_PROJECT
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
+
+  if (!canUpdateProject) {
+    return forbidden()
+  }
+
+  return await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      name: name,
+      description: description || null,
+    },
+  })
+}
+
 export async function updatePlan(
   project: Project,
   plan: Plan
 ): Promise<Project> {
-  const hasPermission = await auth.api.userHasPermission({
+  const canUpdatePlan = await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
@@ -217,7 +289,7 @@ export async function updatePlan(
     },
   })
 
-  if (!hasPermission) {
+  if (!canUpdatePlan) {
     return forbidden()
   }
 
@@ -229,7 +301,7 @@ export async function updatePlan(
   })
 }
 
-export async function deleteProject(project: Project): Promise<void> {
+export async function deleteProject(project: Project): Promise<Project | null> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -246,7 +318,7 @@ export async function deleteProject(project: Project): Promise<void> {
     },
   })
 
-  const hasPermission =
+  const canDeleteProject =
     member?.roleId == project.id ||
     (
       await auth.api.userHasPermission({
@@ -260,11 +332,11 @@ export async function deleteProject(project: Project): Promise<void> {
       })
     ).success
 
-  if (!hasPermission) {
+  if (!canDeleteProject) {
     return forbidden()
   }
 
-  await prisma.project.delete({
+  return await prisma.project.delete({
     where: {
       id: project.id,
     },

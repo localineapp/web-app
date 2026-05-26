@@ -26,6 +26,8 @@ import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { Separator } from "@/components/ui/separator"
 import { FullProject } from "@/types/project"
+import { updateProject } from "@/actions/projects"
+import { toast } from "sonner"
 
 export default function ProjectDetailsCard({
   project,
@@ -46,6 +48,25 @@ export default function ProjectDetailsCard({
   const handleUpdateName = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    await updateProject({
+      projectId: project.id,
+      name: name.trim(),
+    })
+      .then((project) => {
+        toast.success(`Updated project name to ${project?.name}.`)
+        router.refresh()
+        setName(project?.name ?? "")
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to update project name. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setNameDialogOpen(false)
+      })
   }
 
   const handleUpdateDescription = async (
@@ -53,6 +74,26 @@ export default function ProjectDetailsCard({
   ) => {
     event.preventDefault()
     setLoading(true)
+
+    await updateProject({
+      projectId: project.id,
+      description: description.trim(),
+    })
+      .then((project) => {
+        toast.success(`Updated project description.`)
+        router.refresh()
+        setDescription(project?.description ?? "")
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message ||
+            "Failed to update project description. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDescriptionDialogOpen(false)
+      })
   }
 
   return (
@@ -111,6 +152,9 @@ export default function ProjectDetailsCard({
                   value={name}
                   placeholder="Enter your name"
                   disabled={loading}
+                  minLength={1}
+                  maxLength={32}
+                  required
                   onChange={(event) => setName(event.target.value)}
                 />
               </div>
@@ -216,6 +260,8 @@ export default function ProjectDetailsCard({
                   value={description}
                   placeholder="Enter your description"
                   disabled={loading}
+                  minLength={1}
+                  maxLength={255}
                   onChange={(event) => setDescription(event.target.value)}
                 />
               </div>
