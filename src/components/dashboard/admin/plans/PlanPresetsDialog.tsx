@@ -71,7 +71,7 @@ const IMPORTABLE_PLANS: ImportablePlanProps[] = [
   },
 ]
 
-export default function ImportPlansDialog({
+export default function PlanPresetsDialog({
   canCreatePlans,
 }: {
   canCreatePlans: boolean
@@ -141,7 +141,7 @@ export default function ImportPlansDialog({
             <DialogTrigger asChild disabled={!canCreatePlans || loading}>
               <Button variant="outline" disabled={!canCreatePlans || loading}>
                 <ImportIcon className="mr-2 h-4 w-4" />
-                Import Plans
+                Presets
               </Button>
             </DialogTrigger>
           </span>
@@ -155,9 +155,9 @@ export default function ImportPlansDialog({
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Import Plans</DialogTitle>
+          <DialogTitle>Plan Presets</DialogTitle>
           <DialogDescription>
-            Select which plans you want to import into your system.
+            Select which presets you want to import into your system.
           </DialogDescription>
         </DialogHeader>
 
@@ -248,7 +248,7 @@ export default function ImportPlansDialog({
             ) : (
               <>
                 <ImportIcon className="h-4 w-4" />
-                Import Plans ({selectedPlans.length})
+                Import Presets ({selectedPlans.length})
               </>
             )}
           </Button>

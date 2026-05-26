@@ -1,6 +1,6 @@
 import { getPlans } from "@/actions/plans"
 import CreatePlanDialog from "@/components/dashboard/admin/plans/CreatePlanDialog"
-import ImportPlansDialog from "@/components/dashboard/admin/plans/ImportPlansDialog"
+import PlanPresetsDialog from "@/components/dashboard/admin/plans/PlanPresetsDialog"
 import PlansTable from "@/components/dashboard/admin/plans/PlansTable"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
@@ -64,7 +64,7 @@ export default async function AdminPlansPage() {
         </div>
 
         <div className="flex gap-2">
-          <ImportPlansDialog canCreatePlans={canCreatePlans} />
+          <PlanPresetsDialog canCreatePlans={canCreatePlans} />
           <CreatePlanDialog canCreatePlans={canCreatePlans} />
         </div>
       </div>
