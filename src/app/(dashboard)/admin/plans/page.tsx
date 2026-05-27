@@ -64,7 +64,7 @@ export default async function AdminPlansPage() {
         </div>
 
         <div className="flex gap-2">
-          <PlanPresetsDialog canCreatePlans={canCreatePlans} />
+          <PlanPresetsDialog plans={plans} canCreatePlans={canCreatePlans} />
           <CreatePlanDialog canCreatePlans={canCreatePlans} />
         </div>
       </div>

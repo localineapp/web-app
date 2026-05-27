@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { Plan } from "@prisma/client"
 import { ImportIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -72,8 +73,10 @@ const IMPORTABLE_PLANS: ImportablePlanProps[] = [
 ]
 
 export default function PlanPresetsDialog({
+  plans,
   canCreatePlans,
 }: {
+  plans: Plan[]
   canCreatePlans: boolean
 }) {
   const router = useRouter()
@@ -81,6 +84,12 @@ export default function PlanPresetsDialog({
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [selectedPlans, setSelectedPlans] = useState<ImportablePlanProps[]>([])
+
+  const isPlanAlreadyImported = (plan: ImportablePlanProps) => {
+    return plans.some((existingPlan) => existingPlan.displayName === plan.displayName)
+  }
+
+  const allPlansAlreadyImported = IMPORTABLE_PLANS.every(isPlanAlreadyImported)
 
   const togglePlan = (plan: ImportablePlanProps) => {
     setSelectedPlans((prev) =>
@@ -95,14 +104,21 @@ export default function PlanPresetsDialog({
 
     try {
       const result = await createPlans(
-        selectedPlans.map((plan) => ({
-          displayName: plan.displayName,
-          description: plan.description,
-          localesLimit: plan.localesLimit,
-          termsLimit: plan.termsLimit,
-          labelsLimit: plan.labelsLimit,
-          membersLimit: plan.membersLimit,
-        }))
+        selectedPlans
+          .sort((a, b) => {
+            const aLimit = a.termsLimit ?? Infinity;
+            const bLimit = b.termsLimit ?? Infinity;
+
+            return aLimit - bLimit;
+          })
+          .map((plan) => ({
+            displayName: plan.displayName,
+            description: plan.description,
+            localesLimit: plan.localesLimit,
+            termsLimit: plan.termsLimit,
+            labelsLimit: plan.labelsLimit,
+            membersLimit: plan.membersLimit,
+          }))
       )
 
       toast.success(
@@ -135,22 +151,26 @@ export default function PlanPresetsDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreatePlans || loading ? "" : "cursor-not-allowed"}
+          className={!canCreatePlans || allPlansAlreadyImported || loading ? "cursor-not-allowed" : ""}
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={!canCreatePlans || loading}>
-              <Button variant="outline" disabled={!canCreatePlans || loading}>
+            <DialogTrigger asChild disabled={!canCreatePlans || allPlansAlreadyImported || loading}>
+              <Button variant="outline" disabled={!canCreatePlans || allPlansAlreadyImported || loading}>
                 <ImportIcon className="mr-2 h-4 w-4" />
                 Presets
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {!canCreatePlans && (
+        {!canCreatePlans ? (
           <TooltipContent>
             You don&rsquo;t have permission to create new plans.
           </TooltipContent>
-        )}
+        ) : allPlansAlreadyImported ? (
+          <TooltipContent>
+            All plan presets have already been imported.
+          </TooltipContent>
+        ) : null}
       </Tooltip>
 
       <DialogContent className="sm:max-w-2xl">
@@ -167,13 +187,16 @@ export default function PlanPresetsDialog({
               key={plan.displayName}
               role="button"
               tabIndex={0}
+              aria-disabled={isPlanAlreadyImported(plan) || loading}
               aria-pressed={selectedPlans.includes(plan)}
               onClick={() => {
+                if (isPlanAlreadyImported(plan) || loading) return
                 togglePlan(plan)
               }}
               className={cn(
                 "cursor-pointer transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
-                selectedPlans.includes(plan) && "bg-primary/5"
+                selectedPlans.includes(plan) && "bg-primary/5",
+                isPlanAlreadyImported(plan) && "cursor-not-allowed opacity-50 hover:bg-transparent",
               )}
             >
               <CardHeader>
@@ -181,6 +204,9 @@ export default function PlanPresetsDialog({
                   <span>{plan.displayName}</span>
                   {selectedPlans.includes(plan) && (
                     <Badge variant="outline">Selected</Badge>
+                  )}
+                  {isPlanAlreadyImported(plan) && (
+                    <Badge variant="destructive">Already Imported</Badge>
                   )}
                 </CardTitle>
                 <CardDescription className={cn(!plan.description && "italic")}>
