@@ -86,7 +86,9 @@ export default function PlanPresetsDialog({
   const [selectedPlans, setSelectedPlans] = useState<ImportablePlanProps[]>([])
 
   const isPlanAlreadyImported = (plan: ImportablePlanProps) => {
-    return plans.some((existingPlan) => existingPlan.displayName === plan.displayName)
+    return plans.some(
+      (existingPlan) => existingPlan.displayName === plan.displayName
+    )
   }
 
   const allPlansAlreadyImported = IMPORTABLE_PLANS.every(isPlanAlreadyImported)
@@ -106,10 +108,10 @@ export default function PlanPresetsDialog({
       const result = await createPlans(
         selectedPlans
           .sort((a, b) => {
-            const aLimit = a.termsLimit ?? Infinity;
-            const bLimit = b.termsLimit ?? Infinity;
+            const aLimit = a.termsLimit ?? Infinity
+            const bLimit = b.termsLimit ?? Infinity
 
-            return aLimit - bLimit;
+            return aLimit - bLimit
           })
           .map((plan) => ({
             displayName: plan.displayName,
@@ -151,11 +153,21 @@ export default function PlanPresetsDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={!canCreatePlans || allPlansAlreadyImported || loading ? "cursor-not-allowed" : ""}
+          className={
+            !canCreatePlans || allPlansAlreadyImported || loading
+              ? "cursor-not-allowed"
+              : ""
+          }
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={!canCreatePlans || allPlansAlreadyImported || loading}>
-              <Button variant="outline" disabled={!canCreatePlans || allPlansAlreadyImported || loading}>
+            <DialogTrigger
+              asChild
+              disabled={!canCreatePlans || allPlansAlreadyImported || loading}
+            >
+              <Button
+                variant="outline"
+                disabled={!canCreatePlans || allPlansAlreadyImported || loading}
+              >
                 <ImportIcon className="mr-2 h-4 w-4" />
                 Presets
               </Button>
@@ -196,7 +208,8 @@ export default function PlanPresetsDialog({
               className={cn(
                 "cursor-pointer transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
                 selectedPlans.includes(plan) && "bg-primary/5",
-                isPlanAlreadyImported(plan) && "cursor-not-allowed opacity-50 hover:bg-transparent",
+                isPlanAlreadyImported(plan) &&
+                  "cursor-not-allowed opacity-50 hover:bg-transparent"
               )}
             >
               <CardHeader>

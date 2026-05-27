@@ -833,7 +833,7 @@ export default function ImportLocalesDialog({
             </TabsList>
           </ScrollArea>
 
-          <ScrollArea className="w-full max-w-full min-w-0 max-h-100 mt-4">
+          <ScrollArea className="mt-4 max-h-100 w-full max-w-full min-w-0">
             {IMPORTABLE_LOCALE_GROUPS.map((group) => (
               <TabsContent key={group.language} value={group.language}>
                 <FieldGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
