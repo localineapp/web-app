@@ -832,29 +832,32 @@ export default function ImportLocalesDialog({
               ))}
             </TabsList>
           </ScrollArea>
-          {IMPORTABLE_LOCALE_GROUPS.map((group) => (
-            <TabsContent key={group.language} value={group.language}>
-              <FieldGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {group.locales.map((locale) => (
-                  <Field key={locale.code} orientation="horizontal">
-                    <Checkbox
-                      id={locale.code}
-                      checked={selectedLocales.some(
-                        (currentLocale) => currentLocale.code === locale.code
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleLocaleChange(locale, checked)
-                      }
-                      disabled={loading}
-                    />
-                    <Label
-                      htmlFor={locale.code}
-                    >{`${locale.language}${locale.region ? ` (${locale.region})` : ""}`}</Label>
-                  </Field>
-                ))}
-              </FieldGroup>
-            </TabsContent>
-          ))}
+
+          <ScrollArea className="w-full max-w-full min-w-0 max-h-100 mt-4">
+            {IMPORTABLE_LOCALE_GROUPS.map((group) => (
+              <TabsContent key={group.language} value={group.language}>
+                <FieldGroup className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                  {group.locales.map((locale) => (
+                    <Field key={locale.code} orientation="horizontal">
+                      <Checkbox
+                        id={locale.code}
+                        checked={selectedLocales.some(
+                          (currentLocale) => currentLocale.code === locale.code
+                        )}
+                        onCheckedChange={(checked) =>
+                          handleLocaleChange(locale, checked)
+                        }
+                        disabled={loading}
+                      />
+                      <Label
+                        htmlFor={locale.code}
+                      >{`${locale.language}${locale.region ? ` (${locale.region})` : ""}`}</Label>
+                    </Field>
+                  ))}
+                </FieldGroup>
+              </TabsContent>
+            ))}
+          </ScrollArea>
         </Tabs>
 
         <DialogFooter>
