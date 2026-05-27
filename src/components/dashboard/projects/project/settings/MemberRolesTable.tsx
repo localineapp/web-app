@@ -1,12 +1,41 @@
 "use client"
 
 import TablePagination from "@/components/dashboard/table-pagination"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card"
+import { HoverCardContent } from "@/components/ui/hover-card"
+import { Input } from "@/components/ui/input"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { Label } from "@/components/ui/label"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Table,
   TableBody,
@@ -15,13 +44,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { getPermissions } from "@/lib/project-permissions"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { Project, ProjectMemberRole } from "@prisma/client"
-import { SearchIcon } from "lucide-react"
+import { PencilIcon, SearchIcon, StarIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { SubmitEvent, useState } from "react"
 
 const PAGE_SIZE = 10
 
@@ -96,7 +130,21 @@ export default function MemberRolesTable({
                     {role.id.slice(0, 8)}
                   </TableCell>
 
-                  <TableCell className="min-w-40">{role.name}</TableCell>
+                  <TableCell className="min-w-40">
+                    {role.name}
+                    {role.id === project.id && (
+                      <HoverCard openDelay={10} closeDelay={10}>
+                        <HoverCardTrigger asChild>
+                          <StarIcon className="ml-2 inline h-4 w-4 cursor-pointer text-yellow-500 hover:opacity-80" />
+                        </HoverCardTrigger>
+                        <HoverCardContent>
+                          This is the Owner role, which is automatically
+                          assigned to the project creator and has all
+                          permissions by default.
+                        </HoverCardContent>
+                      </HoverCard>
+                    )}
+                  </TableCell>
 
                   <TableCell
                     className={cn(
@@ -159,7 +207,19 @@ export default function MemberRolesTable({
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <p>None</p>
+                      <EditMemberRoleSheet
+                        role={role}
+                        canUpdateRoles={canManageRoles}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
+                      <DeleteMemberRoleDialog
+                        role={role}
+                        canDeleteRoles={canManageRoles}
+                        isOwnerRole={role.id === project.id}
+                        loading={loading}
+                        setLoading={setLoading}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -189,5 +249,282 @@ export default function MemberRolesTable({
         setPage={setPage}
       />
     </>
+  )
+}
+
+function EditMemberRoleSheet({
+  role,
+  canUpdateRoles,
+  loading,
+  setLoading,
+}: {
+  role: ProjectMemberRole
+  canUpdateRoles: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [editingRole, setEditingRole] = useState<ProjectMemberRole | null>(null)
+
+  const [name, setName] = useState("")
+  const [color, setColor] = useState<string | null>(null)
+  const [icon, setIcon] = useState<string | null>(null)
+
+  function openEditor(role: ProjectMemberRole) {
+    setName(role.name ?? "")
+    setColor(role.color)
+    setIcon(role.icon)
+    setEditingRole(role)
+  }
+
+  function closeEditor() {
+    setEditingRole(null)
+    setName("")
+    setColor(null)
+    setIcon(null)
+  }
+
+  async function handleUpdateRole(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!editingRole) return
+
+    setLoading(true)
+  }
+
+  return (
+    <Sheet
+      open={editingRole?.id === role.id}
+      onOpenChange={(open) => {
+        if (!open) {
+          closeEditor()
+        }
+      }}
+    >
+      <Tooltip>
+        <TooltipTrigger
+          asChild
+          className={!canUpdateRoles || loading ? "cursor-not-allowed" : ""}
+        >
+          <SheetTrigger asChild>
+            <span className="inline-block">
+              <Button
+                variant="outline"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canUpdateRoles || loading}
+                onClick={() => openEditor(role)}
+              >
+                <PencilIcon size={16} />
+              </Button>
+            </span>
+          </SheetTrigger>
+        </TooltipTrigger>
+        {!canUpdateRoles && (
+          <TooltipContent>
+            You don&rsquo;t have permission to edit roles.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <SheetContent className="flex flex-col overflow-hidden">
+        <form
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          onSubmit={handleUpdateRole}
+        >
+          <SheetHeader className="shrink-0">
+            <SheetTitle>
+              Edit{" "}
+              <span className="font-mono">
+                {editingRole?.name} ({editingRole?.id.slice(0, 8)})
+              </span>{" "}
+            </SheetTitle>
+            <SheetDescription>
+              Here you can edit the role&rsquo;s name, color, and icon.
+            </SheetDescription>
+          </SheetHeader>
+
+          <ScrollArea className="min-h-0 flex-1 overflow-hidden">
+            <div className="grid auto-rows-min gap-6 px-4 py-4">
+              <div className="grid gap-3">
+                <Label htmlFor="roleName">Name</Label>
+                <Input
+                  id="roleName"
+                  value={name}
+                  required
+                  disabled={loading}
+                  onChange={({ target: { value } }) => setName(value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="roleColor">Color (optional)</Label>
+                <Input
+                  id="roleColor"
+                  value={color || ""}
+                  disabled={loading}
+                  onChange={({ target: { value } }) => setColor(value)}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="roleIcon">Icon (optional)</Label>
+                <Input
+                  id="roleIcon"
+                  value={icon || ""}
+                  disabled={loading}
+                  onChange={({ target: { value } }) => setIcon(value)}
+                />
+              </div>
+            </div>
+          </ScrollArea>
+
+          <SheetFooter className="shrink-0">
+            <Button
+              type="submit"
+              disabled={loading || !editingRole || !name.trim()}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Saving changes...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </Button>
+
+            <SheetClose asChild>
+              <Button
+                variant="outline"
+                disabled={loading}
+                onClick={() => setEditingRole(null)}
+              >
+                Close
+              </Button>
+            </SheetClose>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+function DeleteMemberRoleDialog({
+  role,
+  canDeleteRoles,
+  isOwnerRole,
+  loading,
+  setLoading,
+}: {
+  role: ProjectMemberRole
+  canDeleteRoles: boolean
+  isOwnerRole: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const [deletingRole, setDeletingRole] = useState<ProjectMemberRole | null>(
+    null
+  )
+
+  async function handleDeleteRole(role: ProjectMemberRole) {
+    setLoading(true)
+  }
+
+  return (
+    <AlertDialog
+      open={!!deletingRole}
+      onOpenChange={(open) => !open && setDeletingRole(null)}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "inline-flex",
+              !canDeleteRoles || isOwnerRole || loading
+                ? "cursor-not-allowed"
+                : ""
+            )}
+          >
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="inline-flex items-center p-1 text-sm"
+                disabled={!canDeleteRoles || isOwnerRole || loading}
+                onClick={() => setDeletingRole(role)}
+              >
+                <TrashIcon size={16} />
+              </Button>
+            </AlertDialogTrigger>
+          </span>
+        </TooltipTrigger>
+        {!canDeleteRoles && (
+          <TooltipContent>
+            You don&rsquo;t have permission to delete roles.
+          </TooltipContent>
+        )}
+        {isOwnerRole && (
+          <TooltipContent>
+            The Owner role cannot be deleted as it is required for project
+            ownership and permissions management.
+          </TooltipContent>
+        )}
+      </Tooltip>
+
+      <AlertDialogPortal>
+        <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              role{" "}
+              <span className="font-mono">
+                {deletingRole?.name} ({deletingRole?.id.slice(0, 8)})
+              </span>{" "}
+              and all associated translations in all projects. Please confirm
+              that you want to proceed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              variant="outline"
+              disabled={loading}
+              onClick={() => setDeletingRole(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+
+            <Button
+              variant="destructive"
+              disabled={loading || deletingRole === null}
+              onClick={(event) => {
+                event.preventDefault()
+                if (!deletingRole) return
+
+                void handleDeleteRole(deletingRole)
+              }}
+            >
+              {loading ? (
+                <>
+                  <Spinner className="h-4 w-4" />
+                  Deleting role...
+                </>
+              ) : (
+                <>
+                  <TrashIcon className="h-4 w-4" />
+                  Delete Role
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogPortal>
+    </AlertDialog>
   )
 }
