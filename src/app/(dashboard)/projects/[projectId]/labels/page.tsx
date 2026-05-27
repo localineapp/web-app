@@ -1,7 +1,9 @@
 import { getProject } from "@/actions/projects"
 import CreateLabelDialog from "@/components/dashboard/projects/project/labels/CreateLabelDialog"
+import LabelsTable from "@/components/dashboard/projects/project/labels/LabelsTable"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { ArrowLeftIcon } from "lucide-react"
 import { headers } from "next/headers"
 import Link from "next/link"
@@ -19,6 +21,26 @@ export default async function ProjectLabelsPage({
   const session = await auth.api.getSession({
     headers: await headers(),
   })
+
+  const user = session?.user
+  const member = project.members.find((m) => m.userId === user?.id)
+
+  const canManageLabels =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_LABELS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,7 +65,10 @@ export default async function ProjectLabelsPage({
       </div>
 
       <div>
-        <p>Not implemented yet.</p>
+        <LabelsTable
+          labels={project.labels}
+          canManageLabels={canManageLabels}
+        />
       </div>
     </div>
   )

@@ -173,18 +173,24 @@ export async function createProject({
           id: projectId,
           projectId,
           name: "Owner",
+          color: "#FF5555",
+          icon: "Star",
           permissions: AllProjectPermissions,
         },
         {
           id: generateId(),
           projectId,
           name: "Admin",
+          color: "#FF5555",
+          icon: "Shield",
           permissions: AllProjectPermissions,
         },
         {
           id: generateId(),
           projectId,
           name: "Editor",
+          color: "#8CB3FF",
+          icon: "Pencil",
           permissions: combinePermissions(
             ProjectPermission.TRANSLATE,
             ProjectPermission.ASSIGN_LABELS
@@ -194,6 +200,8 @@ export async function createProject({
           id: generateId(),
           projectId,
           name: "Read-Only",
+          color: "#AAAAAA",
+          icon: "Eye",
           permissions: 0n,
         },
       ],

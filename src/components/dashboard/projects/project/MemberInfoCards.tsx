@@ -1,10 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSession } from "@/lib/auth-client"
-import {
-  getRoleColorClassName,
-  getRoleColorStyle,
-  getRoleIcon,
-} from "@/lib/project-utils"
+import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { FullProject } from "@/types/project"
 import { ProjectMemberRole } from "@prisma/client"
 import { CalendarIcon, FlagIcon, Globe2Icon, TagIcon } from "lucide-react"
@@ -36,9 +32,9 @@ function RoleCard({
   isMember: boolean
 }) {
   const roleColor = role?.color
-  const colorStyle = getRoleColorStyle(roleColor)
-  const colorClassName = getRoleColorClassName(roleColor)
-  const RoleIcon = getRoleIcon(role?.icon)
+  const colorStyle = getColorStyle(roleColor)
+  const colorClassName = getColorClassName(roleColor)
+  const RoleIcon = getIcon(role?.icon)
 
   return (
     <Card>

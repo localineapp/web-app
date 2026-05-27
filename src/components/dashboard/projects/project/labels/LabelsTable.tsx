@@ -15,24 +15,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getPermissions } from "@/lib/project-permissions"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
-import { Project, ProjectMemberRole } from "@prisma/client"
+import { ProjectLabel } from "@prisma/client"
 import { SearchIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 const PAGE_SIZE = 10
 
-export default function MemberRolesTable({
-  project,
-  memberRoles,
-  canManageRoles,
+export default function LabelsTable({
+  labels,
+  canManageLabels,
 }: {
-  project: Project
-  memberRoles: ProjectMemberRole[]
-  canManageRoles: boolean
+  labels: ProjectLabel[]
+  canManageLabels: boolean
 }) {
   const router = useRouter()
 
@@ -41,27 +38,27 @@ export default function MemberRolesTable({
   const [searchQuery, setSearchQuery] = useState("")
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
-  const filteredMemberRoles = normalizedSearchQuery
-    ? memberRoles.filter(
-        (role) =>
-          (role.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (role.name ?? "").toLowerCase().includes(normalizedSearchQuery)
+  const filteredLabels = normalizedSearchQuery
+    ? labels.filter(
+        (label) =>
+          (label.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (label.name ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : memberRoles
+    : labels
 
-  const total = filteredMemberRoles.length
+  const total = filteredLabels.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const startIndex = (currentPage - 1) * PAGE_SIZE
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
-  const currentRoles = filteredMemberRoles.slice(startIndex, endIndex)
+  const currentLabels = filteredLabels.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
   return (
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search roles by name or ID..."
+          placeholder="Search labels by name or ID..."
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -79,41 +76,41 @@ export default function MemberRolesTable({
             <TableRow>
               <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead className="text-center">Color</TableHead>
               <TableHead className="text-center">Icon</TableHead>
-              <TableHead className="max-w-32 text-center">
-                Permissions
-              </TableHead>
               <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {currentRoles.length > 0 ? (
-              currentRoles.map((role) => (
-                <TableRow key={role.id}>
+            {currentLabels.length > 0 ? (
+              currentLabels.map((label) => (
+                <TableRow key={label.id}>
                   <TableCell className="text-center">
-                    {role.id.slice(0, 8)}
+                    {label.id.slice(0, 8)}
                   </TableCell>
 
-                  <TableCell className="min-w-40">{role.name}</TableCell>
+                  <TableCell className="min-w-40">{label.name}</TableCell>
+
+                  <TableCell>{label.description}</TableCell>
 
                   <TableCell
                     className={cn(
                       "max-w-16 text-center",
-                      !role.color && "text-muted-foreground italic"
+                      !label.color && "text-muted-foreground italic"
                     )}
                   >
-                    {role.color ? (
+                    {label.color ? (
                       <>
                         <Badge
                           variant="outline"
-                          style={getColorStyle(role.color)}
-                          className={getColorClassName(role.color)}
+                          style={getColorStyle(label.color)}
+                          className={getColorClassName(label.color)}
                         >
-                          {role.name}
+                          {label.name}
                         </Badge>
-                        <p className="sr-only">{role.color}</p>
+                        <p className="sr-only">{label.color}</p>
                       </>
                     ) : (
                       <p>No color specified</p>
@@ -123,14 +120,14 @@ export default function MemberRolesTable({
                   <TableCell
                     className={cn(
                       "max-w-16 text-center",
-                      !role.icon && "text-muted-foreground italic"
+                      !label.icon && "text-muted-foreground italic"
                     )}
                   >
-                    {role.icon ? (
+                    {label.icon ? (
                       (() => {
-                        const RoleIcon = getIcon(role.icon)
-                        return RoleIcon ? (
-                          <RoleIcon
+                        const LabelIcon = getIcon(label.icon)
+                        return LabelIcon ? (
+                          <LabelIcon
                             className="mx-auto h-5 w-5"
                             aria-hidden="true"
                           />
@@ -142,26 +139,6 @@ export default function MemberRolesTable({
                       <p>No icon specified</p>
                     )}
                   </TableCell>
-
-                  <TableCell
-                    className={cn(
-                      "max-w-16 text-center",
-                      role.permissions === BigInt(0) &&
-                        "text-muted-foreground italic"
-                    )}
-                  >
-                    {role.permissions === BigInt(0) ? (
-                      <p>No permissions</p>
-                    ) : (
-                      <>{getPermissions(role.permissions).length}</>
-                    )}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center justify-center gap-2">
-                      <p>None</p>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))
             ) : (
@@ -171,8 +148,8 @@ export default function MemberRolesTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No roles found matching your search."
-                    : "No roles found."}
+                    ? "No labels found matching your search."
+                    : "No labels found."}
                 </TableCell>
               </TableRow>
             )}
