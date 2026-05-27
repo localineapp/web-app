@@ -114,7 +114,7 @@ export default function ProjectDetailsCard({
                 <span
                   className={cn(
                     "inline-flex",
-                    canManageSettings ? "cursor-pointer" : "cursor-not-allowed"
+                    !canManageSettings || loading ? "cursor-not-allowed" : ""
                   )}
                 >
                   <DialogTrigger asChild>
@@ -221,7 +221,7 @@ export default function ProjectDetailsCard({
                 <span
                   className={cn(
                     "inline-flex",
-                    canManageSettings ? "cursor-pointer" : "cursor-not-allowed"
+                    !canManageSettings || loading ? "cursor-not-allowed" : ""
                   )}
                 >
                   <DialogTrigger asChild>

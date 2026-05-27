@@ -99,7 +99,7 @@ export default function CreateApiKeyDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreateApiKey && !loading ? "" : "cursor-not-allowed"}
+          className={!canCreateApiKey || loading ? "cursor-not-allowed" : ""}
         >
           <span className="inline-block">
             <DialogTrigger asChild disabled={loading}>

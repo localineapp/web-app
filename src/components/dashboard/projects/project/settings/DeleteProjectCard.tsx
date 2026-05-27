@@ -85,7 +85,7 @@ export default function DeleteProjectCard({
               <span
                 className={cn(
                   "inline-flex",
-                  canDeleteProject ? "cursor-pointer" : "cursor-not-allowed"
+                  !canDeleteProject || loading ? "cursor-not-allowed" : ""
                 )}
               >
                 <AlertDialogTrigger asChild>

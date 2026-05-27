@@ -401,9 +401,7 @@ function EditPlanSheet({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={cn(
-            canUpdatePlans ? "cursor-pointer" : "cursor-not-allowed"
-          )}
+          className={!canUpdatePlans || loading ? "cursor-not-allowed" : ""}
         >
           <SheetTrigger asChild>
             <span className="inline-block">
@@ -617,7 +615,7 @@ function DeletePlanDialog({
           <span
             className={cn(
               "inline-flex",
-              canDeletePlans ? "cursor-pointer" : "cursor-not-allowed"
+              !canDeletePlans || loading ? "cursor-not-allowed" : ""
             )}
           >
             <AlertDialogTrigger asChild>

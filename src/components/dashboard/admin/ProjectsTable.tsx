@@ -290,7 +290,7 @@ function ChangePlanDialog({
           <span
             className={cn(
               "inline-flex",
-              canUpdatePlan ? "cursor-pointer" : "cursor-not-allowed"
+              !canUpdatePlan || loading ? "cursor-not-allowed" : ""
             )}
           >
             <DialogTrigger asChild>

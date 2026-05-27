@@ -66,7 +66,7 @@ export default function CreatePlanDialog({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={canCreatePlans || loading ? "" : "cursor-not-allowed"}
+          className={!canCreatePlans || loading ? "cursor-not-allowed" : ""}
         >
           <span className="inline-block">
             <DialogTrigger asChild disabled={!canCreatePlans || loading}>

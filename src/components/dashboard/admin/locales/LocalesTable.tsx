@@ -345,9 +345,7 @@ function EditLocaleSheet({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={cn(
-            canUpdateLocales ? "cursor-pointer" : "cursor-not-allowed"
-          )}
+          className={!canUpdateLocales || loading ? "cursor-not-allowed" : ""}
         >
           <SheetTrigger asChild>
             <span className="inline-block">
@@ -551,7 +549,7 @@ function DeleteLocaleDialog({
           <span
             className={cn(
               "inline-flex",
-              canDeleteLocales ? "cursor-pointer" : "cursor-not-allowed"
+              !canDeleteLocales || loading ? "cursor-not-allowed" : ""
             )}
           >
             <AlertDialogTrigger asChild>

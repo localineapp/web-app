@@ -529,8 +529,7 @@ function EditUserSheet({
             </SheetTitle>
             <SheetDescription>
               Here you can edit the user&rsquo;s details, change their role, or
-              ban/unban the user. Please note that you cannot edit your own
-              account from here.
+              ban/unban the user.
             </SheetDescription>
             {session?.user.id === editingUser?.id && (
               <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
@@ -773,9 +772,7 @@ function ImpersonateUserButton({
     <Tooltip>
       <TooltipTrigger
         asChild
-        className={cn(
-          canImpersonateUser ? "cursor-pointer" : "cursor-not-allowed"
-        )}
+        className={!canImpersonateUser || loading ? "cursor-not-allowed" : ""}
       >
         <span className="inline-block">
           <Button
@@ -850,7 +847,7 @@ function DeleteUserDialog({
           <span
             className={cn(
               "inline-flex",
-              canDeleteUser ? "cursor-pointer" : "cursor-not-allowed"
+              !canDeleteUser || loading ? "cursor-not-allowed" : ""
             )}
           >
             <AlertDialogTrigger asChild>
