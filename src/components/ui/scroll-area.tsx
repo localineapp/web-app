@@ -19,26 +19,37 @@ function ScrollArea({
 
   const handleWheel = React.useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
-      if (scrollbarOrientation !== "horizontal") {
-        return
-      }
-
       const viewport = viewportRef.current
 
       if (!viewport) {
         return
       }
 
-      const horizontalDelta =
-        Math.abs(event.deltaX) > Math.abs(event.deltaY)
-          ? event.deltaX
-          : event.deltaY
+      if (scrollbarOrientation === "horizontal") {
+        const horizontalDelta =
+          Math.abs(event.deltaX) > Math.abs(event.deltaY)
+            ? event.deltaX
+            : event.deltaY
 
-      if (horizontalDelta === 0) {
+        if (horizontalDelta === 0) {
+          return
+        }
+
+        viewport.scrollLeft += horizontalDelta
+        event.preventDefault()
         return
       }
 
-      viewport.scrollLeft += horizontalDelta
+      const verticalDelta =
+        Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+          ? event.deltaY
+          : event.deltaX
+
+      if (verticalDelta === 0) {
+        return
+      }
+
+      viewport.scrollTop += verticalDelta
       event.preventDefault()
     },
     [scrollbarOrientation]

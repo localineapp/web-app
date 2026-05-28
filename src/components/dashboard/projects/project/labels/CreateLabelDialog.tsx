@@ -1,8 +1,6 @@
 "use client"
 
 import { createProjectLabel } from "@/actions/projects"
-import ColorPickerField from "@/components/dashboard/projects/project/shared/ColorPickerField"
-import IconPickerField from "@/components/dashboard/projects/project/shared/IconPickerField"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -40,8 +38,6 @@ export default function CreateLabelDialog({
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
-  const [color, setColor] = useState("#FFFFFF")
-  const [icon, setIcon] = useState("")
 
   const isLimitReached =
     project.plan.labelsLimit !== null &&
@@ -55,8 +51,6 @@ export default function CreateLabelDialog({
       projectId: project.id,
       name: name.trim(),
       description: description?.trim() || null,
-      color,
-      icon,
     })
       .then((label) => {
         toast.success(`Created label ${label.name}.`)
@@ -72,8 +66,6 @@ export default function CreateLabelDialog({
         setDialogOpen(false)
         setName("")
         setDescription(null)
-        setColor("#FFFFFF")
-        setIcon("")
       })
   }
 
@@ -141,22 +133,6 @@ export default function CreateLabelDialog({
               onChange={({ target: { value } }) => setDescription(value)}
             />
           </div>
-
-          <ColorPickerField
-            id="labelColor"
-            label="Color"
-            value={color}
-            onChange={setColor}
-            disabled={loading}
-          />
-
-          <IconPickerField
-            id="labelIcon"
-            label="Icon (optional)"
-            value={icon}
-            onChange={setIcon}
-            disabled={loading}
-          />
         </div>
 
         <DialogFooter>
@@ -166,8 +142,6 @@ export default function CreateLabelDialog({
               setDialogOpen(false)
               setName("")
               setDescription(null)
-              setColor("#FFFFFF")
-              setIcon("")
             }}
             disabled={loading}
           >

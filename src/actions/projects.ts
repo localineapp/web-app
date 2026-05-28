@@ -14,18 +14,7 @@ import {
 } from "@/lib/project-permissions"
 import { FullProject, fullProjectArgs } from "@/types/project"
 import { findProject } from "@/lib/project"
-import { getIcon } from "@/lib/project-utils"
-
-function normalizeHexColor(color?: string | null): string | null {
-  if (!color || !color.trim()) return null
-
-  const normalizedColor = color.trim().toUpperCase()
-  if (!/^#[0-9A-F]{6}$/.test(normalizedColor)) {
-    throw new Error("Color must be a valid hex code in the format #RRGGBB.")
-  }
-
-  return normalizedColor
-}
+import { getIcon, normalizeHexColor } from "@/lib/project-utils"
 
 async function canManageProjectFeature({
   projectId,
@@ -108,12 +97,12 @@ export async function getProjects({
     where: includeAll
       ? undefined
       : {
-          members: {
-            some: {
-              userId: user.id,
-            },
+        members: {
+          some: {
+            userId: user.id,
           },
         },
+      },
     orderBy: {
       createdAt: "asc",
     },
@@ -147,22 +136,22 @@ export async function getProject(
 
   return canReadAllProjects
     ? await prisma.project.findUnique({
-        ...fullProjectArgs,
-        where: {
-          id: projectId,
-        },
-      })
+      ...fullProjectArgs,
+      where: {
+        id: projectId,
+      },
+    })
     : await prisma.project.findFirst({
-        ...fullProjectArgs,
-        where: {
-          id: projectId,
-          members: {
-            some: {
-              userId: user?.id,
-            },
+      ...fullProjectArgs,
+      where: {
+        id: projectId,
+        members: {
+          some: {
+            userId: user?.id,
           },
         },
-      })
+      },
+    })
 }
 
 export async function createProject({
@@ -285,13 +274,10 @@ export async function updateProject({
   name?: string
   description?: string
 }): Promise<Project | null> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
+  const project = await canManageProjectFeature({
+    projectId,
+    permission: ProjectPermission.MANAGE_PROJECT,
   })
-
-  if (!session || !session.user) {
-    return unauthorized()
-  }
 
   if (name && name.length > 32) {
     throw new Error("Project name must be at most 32 characters.")
@@ -301,38 +287,8 @@ export async function updateProject({
     throw new Error("Project description must be at most 255 characters.")
   }
 
-  const user = session.user
-  const project = await findProject(projectId, user)
-
-  if (!project) {
-    return notFound()
-  }
-
-  const member = project.members.find((m) => m.userId === user.id)
-
-  const canUpdateProject =
-    hasPermission(
-      member?.role.permissions ?? 0n,
-      ProjectPermission.MANAGE_PROJECT
-    ) ||
-    (
-      await auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            projects: ["update"],
-          },
-        },
-      })
-    ).success
-
-  if (!canUpdateProject) {
-    return forbidden()
-  }
-
   return await prisma.project.update({
-    where: { id: projectId },
+    where: { id: project.id },
     data: {
       name: name,
       description: description || null,
@@ -361,6 +317,12 @@ export async function createProjectLabel({
   const normalizedName = name.trim()
   if (!normalizedName) {
     throw new Error("Label name is required.")
+  }
+
+  if (project.plan.labelsLimit !== null && project.labels.length + 1 >= project.plan.labelsLimit) {
+    throw new Error(
+      "This project has reached the maximum number of labels allowed by the current plan."
+    )
   }
 
   if (
@@ -504,6 +466,18 @@ export async function createProjectMemberRole({
   const normalizedName = name.trim()
   if (!normalizedName) {
     throw new Error("Role name is required.")
+  }
+
+  if (
+    await prisma.projectMemberRole.count({
+      where: {
+        projectId: project.id,
+      },
+    }) >= 100 // Arbitrary limit to prevent too many roles
+  ) {
+    throw new Error(
+      "This project has reached the maximum number of roles a project can have."
+    )
   }
 
   if (

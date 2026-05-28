@@ -6,8 +6,8 @@ import {
   updateProjectMemberRolePermissions,
 } from "@/actions/projects"
 import TablePagination from "@/components/dashboard/table-pagination"
-import ColorPickerField from "@/components/dashboard/projects/project/shared/ColorPickerField"
-import IconPickerField from "@/components/dashboard/projects/project/shared/IconPickerField"
+import ColorPickerField from "@/components/ui/custom/ColorPickerField"
+import IconPickerField from "@/components/ui/custom/IconPickerField"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -355,12 +355,12 @@ function EditMemberRoleSheet({
   const [editingRole, setEditingRole] = useState<ProjectMemberRole | null>(null)
 
   const [name, setName] = useState("")
-  const [color, setColor] = useState("#FFFFFF")
+  const [color, setColor] = useState("")
   const [icon, setIcon] = useState("")
 
   function openEditor(currentRole: ProjectMemberRole) {
     setName(currentRole.name ?? "")
-    setColor((currentRole.color ?? "#FFFFFF").toUpperCase())
+    setColor(currentRole.color ?? "")
     setIcon(currentRole.icon ?? "")
     setEditingRole(currentRole)
   }
@@ -368,7 +368,7 @@ function EditMemberRoleSheet({
   function closeEditor() {
     setEditingRole(null)
     setName("")
-    setColor("#FFFFFF")
+    setColor("")
     setIcon("")
   }
 
@@ -468,7 +468,7 @@ function EditMemberRoleSheet({
 
               <ColorPickerField
                 id="roleColor"
-                label="Color"
+                label="Color (optional)"
                 value={color}
                 onChange={setColor}
                 disabled={loading}

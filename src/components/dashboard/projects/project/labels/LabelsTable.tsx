@@ -2,8 +2,8 @@
 
 import { deleteProjectLabel, updateProjectLabel } from "@/actions/projects"
 import TablePagination from "@/components/dashboard/table-pagination"
-import ColorPickerField from "@/components/dashboard/projects/project/shared/ColorPickerField"
-import IconPickerField from "@/components/dashboard/projects/project/shared/IconPickerField"
+import ColorPickerField from "@/components/ui/custom/ColorPickerField"
+import IconPickerField from "@/components/ui/custom/IconPickerField"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -250,13 +250,13 @@ function EditLabelSheet({
 
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
-  const [color, setColor] = useState("#FFFFFF")
+  const [color, setColor] = useState("")
   const [icon, setIcon] = useState("")
 
   function openEditor(currentLabel: ProjectLabel) {
     setName(currentLabel.name ?? "")
     setDescription(currentLabel.description ?? null)
-    setColor((currentLabel.color ?? "#FFFFFF").toUpperCase())
+    setColor(currentLabel.color ?? "")
     setIcon(currentLabel.icon ?? "")
     setEditingLabel(currentLabel)
   }
@@ -265,7 +265,7 @@ function EditLabelSheet({
     setEditingLabel(null)
     setName("")
     setDescription(null)
-    setColor("#FFFFFF")
+    setColor("")
     setIcon("")
   }
 
@@ -371,7 +371,7 @@ function EditLabelSheet({
 
               <ColorPickerField
                 id="labelColor"
-                label="Color"
+                label="Color (optional)"
                 value={color}
                 onChange={setColor}
                 disabled={loading}

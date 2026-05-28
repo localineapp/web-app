@@ -35,3 +35,14 @@ export function getColorClassName(color: string | null | undefined): string {
 export function getAllLucideIconNames(): string[] {
   return lucideIconNames
 }
+
+export function normalizeHexColor(color?: string | null): string | null {
+  if (!color || !color.trim()) return null
+
+  const normalizedColor = color.trim().toUpperCase()
+  if (!/^#[0-9A-F]{6}$/.test(normalizedColor)) {
+    throw new Error("Color must be a valid hex code in the format #RRGGBB.")
+  }
+
+  return normalizedColor
+}
