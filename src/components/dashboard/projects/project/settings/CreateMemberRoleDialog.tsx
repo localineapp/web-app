@@ -1,5 +1,8 @@
 "use client"
 
+import { createProjectMemberRole } from "@/actions/projects"
+import ColorPickerField from "@/components/dashboard/projects/project/shared/ColorPickerField"
+import IconPickerField from "@/components/dashboard/projects/project/shared/IconPickerField"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -22,6 +25,7 @@ import { FullProject } from "@/types/project"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
 export default function CreateMemberRoleDialog({
   project,
@@ -35,12 +39,35 @@ export default function CreateMemberRoleDialog({
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
+  const [color, setColor] = useState("#FFFFFF")
+  const [icon, setIcon] = useState("")
 
   const isLimitReached = project.memberRoles.length >= 100 // Arbitrary limit to prevent too many roles
 
   const handleCreateRole = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    await createProjectMemberRole({
+      projectId: project.id,
+      name: name.trim(),
+      color,
+      icon,
+    })
+      .then((role) => {
+        toast.success(`Created role ${role.name}.`)
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(error?.message || "Failed to create role. Please try again.")
+      })
+      .finally(() => {
+        setLoading(false)
+        setDialogOpen(false)
+        setName("")
+        setColor("#FFFFFF")
+        setIcon("")
+      })
   }
 
   return (
@@ -98,12 +125,30 @@ export default function CreateMemberRoleDialog({
           />
         </div>
 
+        <ColorPickerField
+          id="roleColor"
+          label="Color"
+          value={color}
+          onChange={setColor}
+          disabled={loading}
+        />
+
+        <IconPickerField
+          id="roleIcon"
+          label="Icon (optional)"
+          value={icon}
+          onChange={setIcon}
+          disabled={loading}
+        />
+
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
               setName("")
+              setColor("#FFFFFF")
+              setIcon("")
             }}
             disabled={loading}
           >

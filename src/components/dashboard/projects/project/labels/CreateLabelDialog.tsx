@@ -1,5 +1,8 @@
 "use client"
 
+import { createProjectLabel } from "@/actions/projects"
+import ColorPickerField from "@/components/dashboard/projects/project/shared/ColorPickerField"
+import IconPickerField from "@/components/dashboard/projects/project/shared/IconPickerField"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,31 +21,28 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { FullProject } from "@/types/project"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
 export default function CreateLabelDialog({
-  session,
   project,
+  canManageLabels,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   project: FullProject
+  canManageLabels: boolean
 }) {
   const router = useRouter()
-
-  const user = session?.user
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
-  const [color, setColor] = useState("#ffffff")
+  const [color, setColor] = useState("#FFFFFF")
   const [icon, setIcon] = useState("")
 
-  const canCreateLabels = true // TODO: Determine if the user can create labels based on their membership role
   const isLimitReached =
     project.plan.labelsLimit !== null &&
     project.labels.length >= project.plan.labelsLimit
@@ -50,6 +50,31 @@ export default function CreateLabelDialog({
   const handleCreateLabel = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    await createProjectLabel({
+      projectId: project.id,
+      name: name.trim(),
+      description: description?.trim() || null,
+      color,
+      icon,
+    })
+      .then((label) => {
+        toast.success(`Created label ${label.name}.`)
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to create label. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDialogOpen(false)
+        setName("")
+        setDescription(null)
+        setColor("#FFFFFF")
+        setIcon("")
+      })
   }
 
   return (
@@ -58,7 +83,7 @@ export default function CreateLabelDialog({
         <TooltipTrigger
           asChild
           className={
-            canCreateLabels && !isLimitReached && !loading
+            canManageLabels && !isLimitReached && !loading
               ? ""
               : "cursor-not-allowed"
           }
@@ -66,11 +91,11 @@ export default function CreateLabelDialog({
           <span className="inline-block">
             <DialogTrigger
               asChild
-              disabled={!canCreateLabels || isLimitReached || loading}
+              disabled={!canManageLabels || isLimitReached || loading}
             >
               <Button
                 variant="outline"
-                disabled={!canCreateLabels || isLimitReached || loading}
+                disabled={!canManageLabels || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New Label
@@ -78,9 +103,9 @@ export default function CreateLabelDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canCreateLabels || isLimitReached) && (
+        {(!canManageLabels || isLimitReached) && (
           <TooltipContent>
-            {!canCreateLabels
+            {!canManageLabels
               ? "You don't have permission to create labels in this project."
               : (isLimitReached ??
                 "This project has reached the maximum number of labels allowed by your plan.")}
@@ -116,6 +141,22 @@ export default function CreateLabelDialog({
               onChange={({ target: { value } }) => setDescription(value)}
             />
           </div>
+
+          <ColorPickerField
+            id="labelColor"
+            label="Color"
+            value={color}
+            onChange={setColor}
+            disabled={loading}
+          />
+
+          <IconPickerField
+            id="labelIcon"
+            label="Icon (optional)"
+            value={icon}
+            onChange={setIcon}
+            disabled={loading}
+          />
         </div>
 
         <DialogFooter>
@@ -125,7 +166,7 @@ export default function CreateLabelDialog({
               setDialogOpen(false)
               setName("")
               setDescription(null)
-              setColor("#ffffff")
+              setColor("#FFFFFF")
               setIcon("")
             }}
             disabled={loading}

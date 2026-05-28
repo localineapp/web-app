@@ -1,6 +1,16 @@
 import * as LucideIcons from "lucide-react"
 import { ComponentType, CSSProperties, SVGProps } from "react"
 
+const lucideIconNames = Object.keys(LucideIcons)
+  .filter(
+    (name) =>
+      /^[A-Z]/.test(name) &&
+      !name.startsWith("Lucide") &&
+      !name.endsWith("Icon") &&
+      name !== "Icon"
+  )
+  .sort((a, b) => a.localeCompare(b))
+
 export function getIcon(
   iconName: string | null | undefined
 ): ComponentType<SVGProps<SVGSVGElement>> | undefined {
@@ -20,4 +30,8 @@ export function getColorStyle(
 export function getColorClassName(color: string | null | undefined): string {
   if (!color) return ""
   return "text-[color-mix(in_oklab,var(--role-color)_80%,black)] dark:text-[color-mix(in_oklab,var(--role-color)_80%,white)]"
+}
+
+export function getAllLucideIconNames(): string[] {
+  return lucideIconNames
 }

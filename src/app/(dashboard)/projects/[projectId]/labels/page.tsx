@@ -60,12 +60,16 @@ export default async function ProjectLabelsPage({
         </div>
 
         <div className="flex gap-2">
-          <CreateLabelDialog session={session} project={project} />
+          <CreateLabelDialog
+            project={project}
+            canManageLabels={canManageLabels}
+          />
         </div>
       </div>
 
       <div>
         <LabelsTable
+          projectId={project.id}
           labels={project.labels}
           canManageLabels={canManageLabels}
         />
