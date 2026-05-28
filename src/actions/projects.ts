@@ -413,7 +413,9 @@ export async function updateProjectLabel({
     permission: ProjectPermission.MANAGE_LABELS,
   })
 
-  const label = project.labels.find((currentLabel) => currentLabel.id === labelId)
+  const label = project.labels.find(
+    (currentLabel) => currentLabel.id === labelId
+  )
   if (!label) {
     return notFound()
   }
@@ -469,7 +471,9 @@ export async function deleteProjectLabel({
     permission: ProjectPermission.MANAGE_LABELS,
   })
 
-  const label = project.labels.find((currentLabel) => currentLabel.id === labelId)
+  const label = project.labels.find(
+    (currentLabel) => currentLabel.id === labelId
+  )
   if (!label) {
     return notFound()
   }
@@ -550,7 +554,9 @@ export async function updateProjectMemberRole({
     permission: ProjectPermission.MANAGE_ROLES,
   })
 
-  const role = project.memberRoles.find((memberRole) => memberRole.id === roleId)
+  const role = project.memberRoles.find(
+    (memberRole) => memberRole.id === roleId
+  )
   if (!role) {
     return notFound()
   }
@@ -606,7 +612,9 @@ export async function updateProjectMemberRolePermissions({
     permission: ProjectPermission.MANAGE_ROLES,
   })
 
-  const role = project.memberRoles.find((memberRole) => memberRole.id === roleId)
+  const role = project.memberRoles.find(
+    (memberRole) => memberRole.id === roleId
+  )
   if (!role) {
     return notFound()
   }
@@ -637,7 +645,9 @@ export async function deleteProjectMemberRole({
     permission: ProjectPermission.MANAGE_ROLES,
   })
 
-  const role = project.memberRoles.find((memberRole) => memberRole.id === roleId)
+  const role = project.memberRoles.find(
+    (memberRole) => memberRole.id === roleId
+  )
   if (!role) {
     return notFound()
   }

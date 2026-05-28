@@ -35,17 +35,13 @@ export default function IconPickerField({
           { id: "__none__", name: "None" },
           ...allIconNames.map((name) => ({ id: name, name })),
         ]}
-        value={value ? [value] : []}
+        value={value || undefined}
         onValueChange={(nextValue) => {
-          if (!nextValue || nextValue.length === 0) {
-            onChange("")
-            return
-          }
+          const selectedValue = Array.isArray(nextValue)
+            ? nextValue[0]
+            : nextValue
 
-          onChange(nextValue[0] === "__none__" ? "" : nextValue[0])
-        }}
-        onInputValueChange={(nextValue) => {
-          onChange(nextValue && allIconNames.includes(nextValue) ? nextValue : "")
+          onChange(selectedValue === "__none__" ? "" : selectedValue ?? "")
         }}
       >
         <ComboboxInput
@@ -69,7 +65,9 @@ export default function IconPickerField({
               const Icon = getIcon(name)
               return (
                 <ComboboxItem key={itemId} value={name}>
-                  {Icon ? <Icon className="h-4 w-4" aria-hidden="true" /> : null}
+                  {Icon ? (
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                  ) : null}
                   {name}
                 </ComboboxItem>
               )
