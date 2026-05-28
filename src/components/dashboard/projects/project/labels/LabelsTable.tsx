@@ -129,7 +129,15 @@ export default function LabelsTable({
 
                   <TableCell className="min-w-40">{label.name}</TableCell>
 
-                  <TableCell>{label.description}</TableCell>
+                  <TableCell>
+                    {label.description ? (
+                      <span className="line-clamp-2">{label.description}</span>
+                    ) : (
+                      <span className="text-muted-foreground italic">
+                        No description
+                      </span>
+                    )}
+                  </TableCell>
 
                   <TableCell
                     className={cn(
@@ -281,7 +289,9 @@ function EditLabelSheet({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || "Failed to update label. Please try again.")
+        toast.error(
+          error?.message || "Failed to update label. Please try again."
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -378,7 +388,10 @@ function EditLabelSheet({
           </ScrollArea>
 
           <SheetFooter className="shrink-0">
-            <Button type="submit" disabled={loading || !editingLabel || !name.trim()}>
+            <Button
+              type="submit"
+              disabled={loading || !editingLabel || !name.trim()}
+            >
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
@@ -390,7 +403,11 @@ function EditLabelSheet({
             </Button>
 
             <SheetClose asChild>
-              <Button variant="outline" disabled={loading} onClick={closeEditor}>
+              <Button
+                variant="outline"
+                disabled={loading}
+                onClick={closeEditor}
+              >
                 Close
               </Button>
             </SheetClose>
@@ -430,7 +447,9 @@ function DeleteLabelDialog({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || "Failed to delete label. Please try again.")
+        toast.error(
+          error?.message || "Failed to delete label. Please try again."
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -476,7 +495,8 @@ function DeleteLabelDialog({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete label?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the label{" "}
+              This action cannot be undone. This will permanently delete the
+              label{" "}
               <span className="font-mono">
                 {deletingLabel?.name} ({deletingLabel?.id.slice(0, 8)})
               </span>

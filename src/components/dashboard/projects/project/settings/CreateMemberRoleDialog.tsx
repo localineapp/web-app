@@ -59,7 +59,9 @@ export default function CreateMemberRoleDialog({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || "Failed to create role. Please try again.")
+        toast.error(
+          error?.message || "Failed to create role. Please try again."
+        )
       })
       .finally(() => {
         setLoading(false)

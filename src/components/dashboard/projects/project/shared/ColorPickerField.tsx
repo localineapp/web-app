@@ -35,7 +35,12 @@ export default function ColorPickerField({
             onChange(toUpperHex(nextValue))
           }
         />
-        <Input value={toUpperHex(value)} disabled readOnly className="font-mono" />
+        <Input
+          value={toUpperHex(value)}
+          disabled
+          readOnly
+          className="font-mono"
+        />
       </div>
     </div>
   )

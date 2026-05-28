@@ -254,7 +254,10 @@ export default function MemberRolesTable({
                       (() => {
                         const RoleIcon = getIcon(role.icon)
                         return RoleIcon ? (
-                          <RoleIcon className="mx-auto h-5 w-5" aria-hidden="true" />
+                          <RoleIcon
+                            className="mx-auto h-5 w-5"
+                            aria-hidden="true"
+                          />
                         ) : (
                           <p>Invalid icon</p>
                         )
@@ -389,7 +392,9 @@ function EditMemberRoleSheet({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || "Failed to update role. Please try again.")
+        toast.error(
+          error?.message || "Failed to update role. Please try again."
+        )
       })
       .finally(() => {
         setLoading(false)
@@ -495,7 +500,11 @@ function EditMemberRoleSheet({
             </Button>
 
             <SheetClose asChild>
-              <Button variant="outline" disabled={loading} onClick={closeEditor}>
+              <Button
+                variant="outline"
+                disabled={loading}
+                onClick={closeEditor}
+              >
                 Close
               </Button>
             </SheetClose>
@@ -572,7 +581,8 @@ function EditMemberRolePermissionsSheet({
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to update role permissions. Please try again."
+          error?.message ||
+            "Failed to update role permissions. Please try again."
         )
       })
       .finally(() => {
@@ -592,7 +602,11 @@ function EditMemberRolePermissionsSheet({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={!canUpdateRoles || isOwnerRole || loading ? "cursor-not-allowed" : ""}
+          className={
+            !canUpdateRoles || isOwnerRole || loading
+              ? "cursor-not-allowed"
+              : ""
+          }
         >
           <SheetTrigger asChild>
             <span className="inline-block">
@@ -664,7 +678,11 @@ function EditMemberRolePermissionsSheet({
           </Button>
 
           <SheetClose asChild>
-            <Button variant="outline" disabled={loading} onClick={() => setEditingRole(null)}>
+            <Button
+              variant="outline"
+              disabled={loading}
+              onClick={() => setEditingRole(null)}
+            >
               Close
             </Button>
           </SheetClose>
@@ -708,7 +726,9 @@ function DeleteMemberRoleDialog({
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || "Failed to delete role. Please try again.")
+        toast.error(
+          error?.message || "Failed to delete role. Please try again."
+        )
       })
       .finally(() => {
         setLoading(false)
