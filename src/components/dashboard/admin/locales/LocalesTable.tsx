@@ -75,6 +75,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import FlagPickerField from "@/components/ui/custom/FlagPickerField"
+import { getFlag } from "@/lib/project-utils"
 
 const PAGE_SIZE = 10
 
@@ -96,17 +98,17 @@ export default function LocalesTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredLocales = normalizedSearchQuery
     ? locales.filter(
-        (locale) =>
-          (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (locale.displayName ?? "")
-            .toLowerCase()
-            .includes(normalizedSearchQuery) ||
-          (locale.language ?? "")
-            .toLowerCase()
-            .includes(normalizedSearchQuery) ||
-          (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-          (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
-      )
+      (locale) =>
+        (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (locale.displayName ?? "")
+          .toLowerCase()
+          .includes(normalizedSearchQuery) ||
+        (locale.language ?? "")
+          .toLowerCase()
+          .includes(normalizedSearchQuery) ||
+        (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+        (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
+    )
     : locales
 
   const total = filteredLocales.length
@@ -207,11 +209,25 @@ export default function LocalesTable({
 
                   <TableCell
                     className={cn(
-                      "max-w-16 text-center",
+                      "max-w-24 text-center",
                       !locale.flag && "text-muted-foreground italic"
                     )}
                   >
-                    {locale.flag ?? "None"}
+                    {locale.flag ? (
+                      (() => {
+                        const FlagIcon = getFlag(locale.flag)
+                        return FlagIcon ? (
+                          <FlagIcon
+                            className="mx-auto h-5 w-5"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <p>Invalid flag</p>
+                        )
+                      })()
+                    ) : (
+                      <p>None</p>
+                    )}
                   </TableCell>
 
                   <TableCell className="text-center">
@@ -430,15 +446,13 @@ function EditLocaleSheet({
                 />
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="flag">Flag</Label>
-                <Input
-                  id="flag"
-                  value={flag ?? ""}
-                  disabled={loading}
-                  onChange={(event) => setFlag(event.target.value)}
-                />
-              </div>
+              <FlagPickerField
+                id="localeFlag"
+                label="Flag (optional)"
+                value={flag || ""}
+                onChange={setFlag}
+                disabled={loading}
+              />
 
               <div className="grid gap-3">
                 <Label htmlFor="enabled">Enabled</Label>

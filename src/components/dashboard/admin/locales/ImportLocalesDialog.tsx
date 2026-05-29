@@ -23,6 +23,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { getFlagCodeForLocale } from "@/lib/project-utils"
 import { AlertTriangleIcon, ImportIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
@@ -716,6 +717,7 @@ export default function ImportLocalesDialog({
           language: locale.language,
           region: locale.region ?? null,
           code: locale.code,
+          flag: getFlagCodeForLocale(locale) ?? null,
           enabled: true,
         }))
       )
