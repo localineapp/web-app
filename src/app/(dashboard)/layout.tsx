@@ -1,3 +1,4 @@
+import { getAppName } from "@/actions/get-env"
 import { getProjects } from "@/actions/projects"
 import AppHeader from "@/components/dashboard/header"
 import AppSidebar from "@/components/dashboard/sidebar"
@@ -14,6 +15,8 @@ export default async function DashboardLayout({
     headers: await headers(),
   })
 
+  const appName = await getAppName()
+
   const projects = await getProjects({
     includeAll: false,
   })
@@ -21,7 +24,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden">
       <SidebarProvider>
-        <AppSidebar session={session} />
+        <AppSidebar appName={appName} session={session} />
 
         <div className="flex flex-1 flex-col overflow-hidden">
           <AppHeader session={session} projects={projects} />

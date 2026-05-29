@@ -38,8 +38,10 @@ import {
 } from "@/components/dashboard/navigation-items"
 
 export default function AppSidebar({
+  appName,
   session,
 }: {
+  appName: string
   session: ReturnType<typeof useSession>["data"]
 }) {
   const pathname = usePathname()
@@ -121,7 +123,7 @@ export default function AppSidebar({
           </div>
           {isExpanded && (
             <div className="grid flex-1 text-left">
-              <span className="truncate text-lg font-semibold">Localine</span>
+              <span className="truncate text-lg font-semibold">{appName}</span>
             </div>
           )}
         </Link>

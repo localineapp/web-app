@@ -57,7 +57,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ProjectPermission, getPermissions } from "@/lib/project-permissions"
+import {
+  ProjectPermission,
+  ProjectPermissionValue,
+  getPermissions,
+} from "@/lib/project-permissions"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { Project, ProjectMemberRole } from "@prisma/client"
@@ -74,68 +78,93 @@ import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
-const PERMISSION_ITEMS = [
+const PERMISSION_GROUPS: {
+  label: string
+  items: { key: string; label: string; value: ProjectPermissionValue }[]
+}[] = [
   {
-    key: "TRANSLATE",
-    label: "Translate terms",
-    value: ProjectPermission.TRANSLATE,
+    label: "General",
+    items: [
+      {
+        key: "TRANSLATE",
+        label: "Translate",
+        value: ProjectPermission.TRANSLATE,
+      },
+    ],
   },
   {
-    key: "CREATE_TERMS",
-    label: "Create terms",
-    value: ProjectPermission.CREATE_TERMS,
+    label: "Terms",
+    items: [
+      {
+        key: "CREATE_TERMS",
+        label: "Create",
+        value: ProjectPermission.CREATE_TERMS,
+      },
+      {
+        key: "UPDATE_TERMS",
+        label: "Update",
+        value: ProjectPermission.UPDATE_TERMS,
+      },
+      {
+        key: "ASSIGN_LABELS",
+        label: "Assign Labels",
+        value: ProjectPermission.ASSIGN_LABELS,
+      },
+      {
+        key: "LOCK_TERMS",
+        label: "Lock",
+        value: ProjectPermission.LOCK_TERMS,
+      },
+      {
+        key: "DELETE_TERMS",
+        label: "Delete",
+        value: ProjectPermission.DELETE_TERMS,
+      },
+    ],
   },
   {
-    key: "UPDATE_TERMS",
-    label: "Update terms",
-    value: ProjectPermission.UPDATE_TERMS,
+    label: "Members",
+    items: [
+      {
+        key: "INVITE_MEMBERS",
+        label: "Invite",
+        value: ProjectPermission.INVITE_MEMBERS,
+      },
+      {
+        key: "MANAGE_MEMBERS",
+        label: "Manage",
+        value: ProjectPermission.MANAGE_MEMBERS,
+      },
+    ],
   },
   {
-    key: "ASSIGN_LABELS",
-    label: "Assign labels",
-    value: ProjectPermission.ASSIGN_LABELS,
-  },
-  {
-    key: "LOCK_TERMS",
-    label: "Lock terms",
-    value: ProjectPermission.LOCK_TERMS,
-  },
-  {
-    key: "DELETE_TERMS",
-    label: "Delete terms",
-    value: ProjectPermission.DELETE_TERMS,
-  },
-  {
-    key: "MANAGE_LABELS",
-    label: "Manage labels",
-    value: ProjectPermission.MANAGE_LABELS,
-  },
-  {
-    key: "INVITE_MEMBERS",
-    label: "Invite members",
-    value: ProjectPermission.INVITE_MEMBERS,
-  },
-  {
-    key: "MANAGE_MEMBERS",
-    label: "Manage members",
-    value: ProjectPermission.MANAGE_MEMBERS,
-  },
-  {
-    key: "MANAGE_PROJECT",
-    label: "Manage project",
-    value: ProjectPermission.MANAGE_PROJECT,
-  },
-  {
-    key: "MANAGE_ROLES",
-    label: "Manage roles",
-    value: ProjectPermission.MANAGE_ROLES,
-  },
-  {
-    key: "MANAGE_WORKFLOWS",
-    label: "Manage workflows",
-    value: ProjectPermission.MANAGE_WORKFLOWS,
+    label: "Settings",
+    items: [
+      {
+        key: "MANAGE_LABELS",
+        label: "Manage labels",
+        value: ProjectPermission.MANAGE_LABELS,
+      },
+      {
+        key: "MANAGE_PROJECT",
+        label: "Manage project",
+        value: ProjectPermission.MANAGE_PROJECT,
+      },
+      {
+        key: "MANAGE_ROLES",
+        label: "Manage roles",
+        value: ProjectPermission.MANAGE_ROLES,
+      },
+      {
+        key: "MANAGE_WORKFLOWS",
+        label: "Manage workflows",
+        value: ProjectPermission.MANAGE_WORKFLOWS,
+      },
+    ],
   },
 ] as const
+
+const PERMISSION_ITEMS = PERMISSION_GROUPS.flatMap((group) => group.items)
 
 export default function MemberRolesTable({
   project,
@@ -646,18 +675,29 @@ function EditMemberRolePermissionsSheet({
 
         <ScrollArea className="min-h-0 flex-1 overflow-hidden">
           <div className="grid gap-4 px-4 py-4">
-            {PERMISSION_ITEMS.map((permission) => (
-              <label
-                key={permission.key}
-                className="flex items-center gap-3 rounded-md border border-border px-3 py-2"
-              >
-                <Checkbox
-                  checked={selectedPermissions.has(permission.value)}
-                  disabled={loading || isOwnerRole}
-                  onCheckedChange={() => togglePermission(permission.value)}
-                />
-                <div className="text-sm">{permission.label}</div>
-              </label>
+            {PERMISSION_GROUPS.map((group) => (
+              <div key={group.label} className="grid gap-2">
+                <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                  {group.label}
+                </div>
+                <div className="grid gap-2">
+                  {group.items.map((permission) => (
+                    <label
+                      key={permission.key}
+                      className="flex items-center gap-3 rounded-md border border-border px-3 py-2"
+                    >
+                      <Checkbox
+                        checked={selectedPermissions.has(permission.value)}
+                        disabled={loading || isOwnerRole}
+                        onCheckedChange={() =>
+                          togglePermission(permission.value)
+                        }
+                      />
+                      <div className="text-sm">{permission.label}</div>
+                    </label>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </ScrollArea>

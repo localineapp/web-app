@@ -98,17 +98,17 @@ export default function LocalesTable({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredLocales = normalizedSearchQuery
     ? locales.filter(
-      (locale) =>
-        (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (locale.displayName ?? "")
-          .toLowerCase()
-          .includes(normalizedSearchQuery) ||
-        (locale.language ?? "")
-          .toLowerCase()
-          .includes(normalizedSearchQuery) ||
-        (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
-        (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (locale) =>
+          (locale.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (locale.displayName ?? "")
+            .toLowerCase()
+            .includes(normalizedSearchQuery) ||
+          (locale.language ?? "")
+            .toLowerCase()
+            .includes(normalizedSearchQuery) ||
+          (locale.region ?? "").toLowerCase().includes(normalizedSearchQuery) ||
+          (locale.code ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : locales
 
   const total = filteredLocales.length

@@ -97,12 +97,12 @@ export async function getProjects({
     where: includeAll
       ? undefined
       : {
-        members: {
-          some: {
-            userId: user.id,
+          members: {
+            some: {
+              userId: user.id,
+            },
           },
         },
-      },
     orderBy: {
       createdAt: "asc",
     },
@@ -136,22 +136,22 @@ export async function getProject(
 
   return canReadAllProjects
     ? await prisma.project.findUnique({
-      ...fullProjectArgs,
-      where: {
-        id: projectId,
-      },
-    })
+        ...fullProjectArgs,
+        where: {
+          id: projectId,
+        },
+      })
     : await prisma.project.findFirst({
-      ...fullProjectArgs,
-      where: {
-        id: projectId,
-        members: {
-          some: {
-            userId: user?.id,
+        ...fullProjectArgs,
+        where: {
+          id: projectId,
+          members: {
+            some: {
+              userId: user?.id,
+            },
           },
         },
-      },
-    })
+      })
 }
 
 export async function createProject({
@@ -319,7 +319,10 @@ export async function createProjectLabel({
     throw new Error("Label name is required.")
   }
 
-  if (project.plan.labelsLimit !== null && project.labels.length + 1 >= project.plan.labelsLimit) {
+  if (
+    project.plan.labelsLimit !== null &&
+    project.labels.length + 1 >= project.plan.labelsLimit
+  ) {
     throw new Error(
       "This project has reached the maximum number of labels allowed by the current plan."
     )
@@ -469,11 +472,11 @@ export async function createProjectMemberRole({
   }
 
   if (
-    await prisma.projectMemberRole.count({
+    (await prisma.projectMemberRole.count({
       where: {
         projectId: project.id,
       },
-    }) >= 100 // Arbitrary limit to prevent too many roles
+    })) >= 100 // Arbitrary limit to prevent too many roles
   ) {
     throw new Error(
       "This project has reached the maximum number of roles a project can have."

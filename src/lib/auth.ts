@@ -12,7 +12,7 @@ import { ac, admin, user } from "@/lib/permission"
 const signUpDisabled = process.env.DISABLE_SIGNUP === "true"
 
 export const auth = betterAuth({
-  appName: "Localine",
+  appName: process.env.APP_NAME || "Localine",
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
   database: prismaAdapter(prisma, { provider: "mysql" }),
   emailVerification: {

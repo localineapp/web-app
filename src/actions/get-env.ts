@@ -6,6 +6,10 @@ export async function isProduction(): Promise<boolean> {
   return process.env.NODE_ENV === "production"
 }
 
+export async function getAppName(): Promise<string> {
+  return process.env.APP_NAME || "Localine"
+}
+
 export async function areSignUpsDisabled(): Promise<boolean> {
   const signUpsDisabled = process.env.DISABLE_SIGNUP === "true"
   return signUpsDisabled

@@ -1,3 +1,4 @@
+import { getAppName } from "@/actions/get-env"
 import BackgroundPattern from "@/components/background-pattern"
 import LocalineLogo from "@/components/logo"
 import { KeyRoundIcon, LanguagesIcon, UsersIcon } from "lucide-react"
@@ -10,11 +11,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const appName = await getAppName()
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="relative hidden flex-col overflow-hidden bg-muted p-10 text-foreground lg:flex">
@@ -22,7 +25,7 @@ export default function AuthLayout({
 
         <div className="relative z-10 flex items-center gap-2 font-semibold">
           <LocalineLogo />
-          <span className="text-xl">Localine</span>
+          <span className="text-xl">{appName}</span>
         </div>
 
         <div className="relative z-10 flex flex-1 flex-col justify-center">

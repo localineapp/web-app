@@ -70,7 +70,7 @@ export default function ColorPickerField({
         <Input
           id={id}
           type="color"
-          className="h-8 w-14 cursor-pointer overflow-hidden rounded-md border p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-0 [&::-moz-color-swatch]:border-0"
+          className="h-8 w-14 cursor-pointer overflow-hidden rounded-md border p-0 [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
           value={colorInputValue}
           disabled={disabled}
           onChange={({ target: { value: nextValue } }) =>

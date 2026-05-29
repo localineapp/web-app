@@ -5,8 +5,10 @@ import { AlertCircleIcon, HomeIcon, LogInIcon } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import LocalineLogo from "@/components/logo"
+import { getAppName } from "@/actions/get-env"
 
 export default async function NotFoundPage() {
+  const appName = await getAppName()
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -19,7 +21,7 @@ export default async function NotFoundPage() {
       <div className="relative z-10 space-y-8 px-4 text-center">
         <div className="mb-8 inline-flex items-center gap-2 font-semibold">
           <LocalineLogo />
-          <span className="text-2xl">Localine</span>
+          <span className="text-2xl">{appName}</span>
         </div>
 
         <div className="space-y-4">

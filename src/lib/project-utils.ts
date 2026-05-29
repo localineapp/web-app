@@ -12,7 +12,9 @@ const lucideIconNames = Object.keys(LucideIcons)
   )
   .sort((a, b) => a.localeCompare(b))
 
-const flagKeys = Object.keys(FlagIcons).filter((k) => k !== "default").sort()
+const flagKeys = Object.keys(FlagIcons)
+  .filter((k) => k !== "default")
+  .sort()
 
 const flagDisplayNames: Intl.DisplayNames | null =
   typeof Intl !== "undefined" && (Intl as any).DisplayNames
@@ -48,17 +50,15 @@ export function getFlag(
   flagCode: string | null | undefined
 ): ComponentType<SVGProps<SVGSVGElement>> | undefined {
   if (!flagCode || !(flagCode.toUpperCase() in FlagIcons)) return undefined
-  return FlagIcons[flagCode.toUpperCase() as keyof typeof FlagIcons] as ComponentType<
-    SVGProps<SVGSVGElement>
-  >
+  return FlagIcons[
+    flagCode.toUpperCase() as keyof typeof FlagIcons
+  ] as ComponentType<SVGProps<SVGSVGElement>>
 }
 
-export function getFlagCodeForLocale(
-  locale: {
-    region?: string | null
-    code: string
-  }
-): string | undefined {
+export function getFlagCodeForLocale(locale: {
+  region?: string | null
+  code: string
+}): string | undefined {
   const normalizedRegion = locale.region ? normalizeFlagName(locale.region) : ""
 
   if (normalizedRegion) {
@@ -104,5 +104,8 @@ export function normalizeHexColor(color?: string | null): string | null {
 }
 
 function normalizeFlagName(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "")
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "")
 }

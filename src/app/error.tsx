@@ -1,5 +1,6 @@
 "use client"
 
+import { getAppName } from "@/actions/get-env"
 import BackgroundPattern from "@/components/background-pattern"
 import LocalineLogo from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ import {
   RefreshCwIcon,
 } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function ErrorPage({
   error,
@@ -20,6 +22,18 @@ export default function ErrorPage({
   unstable_retry: () => void
 }) {
   const { data: session } = useSession()
+
+  const [appName, setAppName] = useState("Localine")
+
+  useEffect(() => {
+    const fetchAppName = async () => {
+      const name = await getAppName()
+      setAppName(name)
+    }
+
+    fetchAppName()
+  }, [appName])
+
   const isAuthenticated = !!session?.session
 
   return (
@@ -29,7 +43,7 @@ export default function ErrorPage({
       <div className="relative z-10 space-y-8 px-4 text-center">
         <div className="mb-8 inline-flex items-center gap-2 font-semibold">
           <LocalineLogo />
-          <span className="text-2xl">Localine</span>
+          <span className="text-2xl">{appName}</span>
         </div>
 
         <div className="space-y-4">

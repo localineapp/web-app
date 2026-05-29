@@ -3,7 +3,11 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
@@ -93,23 +97,28 @@ export default function FlagPickerField({
           >
             <span className="flex min-w-0 items-center gap-3">
               {selectedPreview}
-              <span className="truncate">{value ? getFlagLabel(value.toUpperCase()) : "Select a flag"}</span>
+              <span className="truncate">
+                {value ? getFlagLabel(value.toUpperCase()) : "Select a flag"}
+              </span>
             </span>
             <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <PopoverContent
+          className="w-[--radix-popover-trigger-width] p-0"
+          align="start"
+        >
           <div className="grid gap-3 p-3">
             <div className="relative">
-              <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={({ target: { value: nextValue } }) =>
                   setSearchQuery(nextValue)
                 }
                 placeholder="Search flags by name or code..."
-                className="pl-9 pr-9"
+                className="pr-9 pl-9"
                 autoComplete="off"
               />
               {searchQuery ? (
@@ -117,7 +126,7 @@ export default function FlagPickerField({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-1 top-1/2 size-7 -translate-y-1/2"
+                  className="absolute top-1/2 right-1 size-7 -translate-y-1/2"
                   onClick={() => setSearchQuery("")}
                   aria-label="Clear flag search"
                 >
@@ -146,17 +155,20 @@ export default function FlagPickerField({
                 <button
                   type="button"
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm outline-none transition-colors hover:bg-muted focus-visible:bg-muted",
+                    "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-muted focus-visible:bg-muted",
                     !value && "bg-muted"
                   )}
                   onClick={() => selectFlag("")}
                 >
                   <span className="flex h-8 w-12 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
-                      <XIcon className="h-4 w-4" aria-hidden="true" />
-                    </span>
+                    <XIcon className="h-4 w-4" aria-hidden="true" />
+                  </span>
                   <span className="min-w-0 flex-1 truncate">None</span>
                   {!value ? (
-                    <CheckIcon className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />
+                    <CheckIcon
+                      className="h-4 w-4 shrink-0 text-foreground"
+                      aria-hidden="true"
+                    />
                   ) : null}
                 </button>
 
@@ -169,7 +181,7 @@ export default function FlagPickerField({
                         key={code}
                         type="button"
                         className={cn(
-                          "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm outline-none transition-colors hover:bg-muted focus-visible:bg-muted",
+                          "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-muted focus-visible:bg-muted",
                           selectedFlag && "bg-muted"
                         )}
                         onClick={() => selectFlag(code)}
@@ -181,9 +193,14 @@ export default function FlagPickerField({
                             <span className="text-sm">{code}</span>
                           )}
                         </span>
-                        <span className="min-w-0 flex-1 truncate">{getFlagLabel(code)}</span>
+                        <span className="min-w-0 flex-1 truncate">
+                          {getFlagLabel(code)}
+                        </span>
                         {selectedFlag ? (
-                          <CheckIcon className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />
+                          <CheckIcon
+                            className="h-4 w-4 shrink-0 text-foreground"
+                            aria-hidden="true"
+                          />
                         ) : null}
                       </button>
                     )
