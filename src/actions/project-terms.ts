@@ -25,6 +25,18 @@ export async function createProjectTerm({
     throw new Error("Term key is required.")
   }
 
+  if (normalizedKey.length > 255) {
+    throw new Error("Term key must be 255 characters or less.")
+  }
+
+  if (normalizedKey.includes(" ")) {
+    throw new Error("Term key cannot contain spaces.")
+  }
+
+  if (context && context.length > 255) {
+    throw new Error("Term context must be 255 characters or less.")
+  }
+
   if (project.terms.some((term) => term.key === normalizedKey)) {
     throw new Error(`A term with the key "${normalizedKey}" already exists.`)
   }
@@ -72,6 +84,18 @@ export async function updateProjectTerm({
   const normalizedKey = key?.trim()
   if (key !== undefined && !normalizedKey) {
     throw new Error("Term key is required.")
+  }
+
+  if (normalizedKey && normalizedKey.length > 255) {
+    throw new Error("Term key must be 255 characters or less.")
+  }
+
+  if (normalizedKey && normalizedKey.includes(" ")) {
+    throw new Error("Term key cannot contain spaces.")
+  }
+
+  if (context && context.length > 255) {
+    throw new Error("Term context must be 255 characters or less.")
   }
 
   if (

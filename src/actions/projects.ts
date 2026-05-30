@@ -180,11 +180,16 @@ export async function createProject({
     return unauthorized()
   }
 
-  if (name.length > 32) {
+  const normalizedName = name.trim()
+  if (!normalizedName) {
+    throw new Error("Project name is required.")
+  }
+
+  if (normalizedName.length > 32) {
     throw new Error("Project name must be at most 32 characters.")
   }
 
-  if (description && description.length > 255) {
+  if (description && description.trim().length > 255) {
     throw new Error("Project description must be at most 255 characters.")
   }
 
@@ -215,8 +220,8 @@ export async function createProject({
     const project = await tx.project.create({
       data: {
         id: projectId,
-        name,
-        description,
+        name: normalizedName,
+        description: description?.trim() || null,
         planId,
       },
     })
@@ -288,19 +293,24 @@ export async function updateProject({
     permission: ProjectPermission.MANAGE_PROJECT,
   })
 
-  if (name && name.length > 32) {
+  const normalizedName = name?.trim()
+  if (name !== undefined && !normalizedName) {
+    throw new Error("Project name is required.")
+  }
+
+  if (normalizedName && normalizedName.length > 32) {
     throw new Error("Project name must be at most 32 characters.")
   }
 
-  if (description && description.length > 255) {
+  if (description && description.trim().length > 255) {
     throw new Error("Project description must be at most 255 characters.")
   }
 
   return await prisma.project.update({
     where: { id: project.id },
     data: {
-      name: name,
-      description: description || null,
+      name: normalizedName || project.name,
+      description: description?.trim() || null,
     },
   })
 }

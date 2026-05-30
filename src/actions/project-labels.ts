@@ -31,6 +31,14 @@ export async function createProjectLabel({
     throw new Error("Label name is required.")
   }
 
+  if (normalizedName.length > 255) {
+    throw new Error("Label name must be 255 characters or less.")
+  }
+
+  if (description && description.trim().length > 500) {
+    throw new Error("Label description must be 500 characters or less.")
+  }
+
   if (project.labels.some((label) => label.name === normalizedName)) {
     throw new Error(`A label named "${normalizedName}" already exists.`)
   }
@@ -93,6 +101,14 @@ export async function updateProjectLabel({
   const normalizedName = name?.trim()
   if (name !== undefined && !normalizedName) {
     throw new Error("Label name is required.")
+  }
+
+  if (normalizedName && normalizedName.length > 255) {
+    throw new Error("Label name must be 255 characters or less.")
+  }
+
+  if (description && description?.trim().length > 500) {
+    throw new Error("Label description must be 500 characters or less.")
   }
 
   if (

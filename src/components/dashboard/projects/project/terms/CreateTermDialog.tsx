@@ -116,7 +116,7 @@ export default function CreateTermDialog({
             <Label htmlFor="termKey">Term key</Label>
             <Input
               id="termKey"
-              placeholder="My Term"
+              placeholder="message.welcome"
               value={key}
               onChange={({ target: { value } }) => setKey(value)}
             />

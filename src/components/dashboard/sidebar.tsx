@@ -36,7 +36,6 @@ import {
   projectNavigationItems,
   projectSettingsNavigationItems,
 } from "@/components/dashboard/navigation-items"
-import { Badge } from "@/components/ui/badge"
 
 export default function AppSidebar({
   appName,
