@@ -372,21 +372,27 @@ function EditLabelSheet({
                 />
               </div>
 
-              <ColorPickerField
-                id="labelColor"
-                label="Color (optional)"
-                value={color}
-                onChange={setColor}
-                disabled={loading}
-              />
+              <div className="grid gap-3">
+                <Label htmlFor="labelColor">Color (optional)</Label>
+                <ColorPickerField
+                  id="labelColor"
+                  label="Color (optional)"
+                  value={color}
+                  onChange={setColor}
+                  disabled={loading}
+                />
+              </div>
 
-              <IconPickerField
-                id="labelIcon"
-                label="Icon (optional)"
-                value={icon}
-                onChange={setIcon}
-                disabled={loading}
-              />
+              <div className="grid gap-3">
+                <Label htmlFor="labelIcon">Icon (optional)</Label>
+                <IconPickerField
+                  id="labelIcon"
+                  label="Icon (optional)"
+                  value={icon}
+                  onChange={setIcon}
+                  disabled={loading}
+                />
+              </div>
             </div>
           </ScrollArea>
 

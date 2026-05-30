@@ -48,6 +48,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { formatDate } from "@/lib/utils"
 
 type ApiKey = NonNullable<
   Awaited<ReturnType<typeof auth.api.listApiKeys>>
@@ -190,43 +191,15 @@ export default function ApiKeysTable({
 
                   <TableCell>
                     {apiKey.lastRequest
-                      ? new Date(apiKey.lastRequest).toLocaleDateString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )
+                      ? formatDate(apiKey.lastRequest)
                       : "Never used"}
                   </TableCell>
 
                   <TableCell>
-                    {apiKey.expiresAt
-                      ? new Date(apiKey.expiresAt).toLocaleDateString(
-                          undefined,
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )
-                      : "Never"}
+                    {apiKey.expiresAt ? formatDate(apiKey.expiresAt) : "Never"}
                   </TableCell>
 
-                  <TableCell>
-                    {new Date(apiKey.createdAt).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </TableCell>
+                  <TableCell>{formatDate(apiKey.createdAt)}</TableCell>
 
                   <TableCell className="text-center">
                     <DeleteApiKeyDialog

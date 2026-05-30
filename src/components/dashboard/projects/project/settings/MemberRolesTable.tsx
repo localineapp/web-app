@@ -510,21 +510,27 @@ function EditMemberRoleSheet({
                 />
               </div>
 
-              <ColorPickerField
-                id="roleColor"
-                label="Color (optional)"
-                value={color}
-                onChange={setColor}
-                disabled={loading}
-              />
+              <div className="grid gap-3">
+                <Label htmlFor="roleColor">Color (optional)</Label>
+                <ColorPickerField
+                  id="roleColor"
+                  label="Color (optional)"
+                  value={color}
+                  onChange={setColor}
+                  disabled={loading}
+                />
+              </div>
 
-              <IconPickerField
-                id="roleIcon"
-                label="Icon (optional)"
-                value={icon}
-                onChange={setIcon}
-                disabled={loading}
-              />
+              <div className="grid gap-3">
+                <Label htmlFor="roleIcon">Icon (optional)</Label>
+                <IconPickerField
+                  id="roleIcon"
+                  label="Icon (optional)"
+                  value={icon}
+                  onChange={setIcon}
+                  disabled={loading}
+                />
+              </div>
             </div>
           </ScrollArea>
 

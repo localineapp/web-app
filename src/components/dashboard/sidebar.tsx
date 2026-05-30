@@ -58,7 +58,7 @@ export default function AppSidebar({
     const match = pathname?.match(/\/projects\/([^/]+)/)
     const projectId = match ? match[1] : null
 
-    if (!projectId) return
+    if (!projectId || projectId === "invitations") return
 
     const loadProject = async () => {
       try {
@@ -165,10 +165,11 @@ export default function AppSidebar({
                   size="sm"
                   className={cn(
                     "w-full justify-start gap-4 py-4 text-base font-medium",
-                    isActive("/invitations")
+                    isActive("/projects/invitations") &&
+                      "bg-primary/10 text-primary"
                   )}
                 >
-                  <Link href="/invitations" passHref>
+                  <Link href="/projects/invitations" passHref>
                     <SendIcon className="h-4 w-4" />
                     <span>Invitations</span>
                     <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">

@@ -137,22 +137,25 @@ export default function InviteMemberDialog({
           />
         </div>
 
-        <RolePickerField
-          id="role"
-          label="Role"
-          roles={project.memberRoles
-            .filter((role) => role.id !== project.id)
-            .sort((a, b) => {
-              if (a.permissions !== b.permissions) {
-                return a.permissions > b.permissions ? -1 : 1
-              }
+        <div className="space-y-2">
+          <Label htmlFor="role">Role</Label>
+          <RolePickerField
+            id="role"
+            label="Role"
+            roles={project.memberRoles
+              .filter((role) => role.id !== project.id)
+              .sort((a, b) => {
+                if (a.permissions !== b.permissions) {
+                  return a.permissions > b.permissions ? -1 : 1
+                }
 
-              return a.name.localeCompare(b.name)
-            })}
-          value={roleId}
-          onChange={setRoleId}
-          disabled={loading}
-        />
+                return a.name.localeCompare(b.name)
+              })}
+            value={roleId}
+            onChange={setRoleId}
+            disabled={loading}
+          />
+        </div>
 
         <DialogFooter>
           <Button

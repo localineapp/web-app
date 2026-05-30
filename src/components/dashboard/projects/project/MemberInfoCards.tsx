@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSession } from "@/lib/auth-client"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
+import { formatDate } from "@/lib/utils"
 import { FullProject } from "@/types/project"
 import { ProjectMemberRole } from "@prisma/client"
 import { CalendarIcon, FlagIcon, Globe2Icon, TagIcon } from "lucide-react"
@@ -125,14 +126,6 @@ function JoinedAtCard({
   joinedAt: Date | undefined
   isMember: boolean
 }) {
-  const date = new Date(joinedAt ?? "").toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -146,7 +139,7 @@ function JoinedAtCard({
             You haven&rsquo;t joined this project.
           </p>
         ) : (
-          <div className="text-2xl font-medium">{date}</div>
+          <div className="text-2xl font-medium">{formatDate(joinedAt)}</div>
         )}
       </CardContent>
     </Card>

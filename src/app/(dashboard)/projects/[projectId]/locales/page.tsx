@@ -24,6 +24,10 @@ export default async function ProjectLocalesPage({
     headers: await headers(),
   })
 
+  const locales = await getLocales({
+    includeDisabled: false,
+  })
+
   const user = session?.user
   const member = project.members.find((m) => m.userId === user?.id)
 
@@ -43,10 +47,6 @@ export default async function ProjectLocalesPage({
         },
       })
     ).success
-
-  const locales = await getLocales({
-    includeDisabled: false,
-  })
 
   return (
     <div className="flex flex-col gap-4">

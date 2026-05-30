@@ -446,13 +446,15 @@ function EditLocaleSheet({
                 />
               </div>
 
-              <FlagPickerField
-                id="localeFlag"
-                label="Flag (optional)"
-                value={flag || ""}
-                onChange={setFlag}
-                disabled={loading}
-              />
+              <div className="grid gap-3">
+                <Label htmlFor="localeFlag">Flag (optional)</Label>
+                <FlagPickerField
+                  id="localeFlag"
+                  value={flag || ""}
+                  onChange={setFlag}
+                  disabled={loading}
+                />
+              </div>
 
               <div className="grid gap-3">
                 <Label htmlFor="enabled">Enabled</Label>

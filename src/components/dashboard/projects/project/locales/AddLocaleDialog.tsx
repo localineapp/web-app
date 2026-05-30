@@ -3,6 +3,7 @@
 import { addProjectLocale } from "@/actions/project-locales"
 import { Button } from "@/components/ui/button"
 import LocalePickerField from "@/components/ui/custom/LocalePickerField"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -128,14 +129,17 @@ export default function AddLocaleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <LocalePickerField
-          id="locale"
-          label="Locale"
-          locales={locales}
-          value={localeId}
-          onChange={setLocaleId}
-          disabled={loading}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="locale">Locale</Label>
+          <LocalePickerField
+            id="locale"
+            label="Locale"
+            locales={locales}
+            value={localeId}
+            onChange={setLocaleId}
+            disabled={loading}
+          />
+        </div>
 
         <DialogFooter>
           <Button

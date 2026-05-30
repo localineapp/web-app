@@ -26,7 +26,7 @@ export default async function DashboardPage() {
     startYear === currentYear ? `${currentYear}` : `${startYear}-${currentYear}`
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
 
@@ -53,7 +53,7 @@ export default async function DashboardPage() {
         <p>Moin Moin!</p>
       </div>
 
-      <footer className="fixed bottom-0 left-0 w-full py-3 text-center text-sm text-muted-foreground">
+      <footer className="mt-auto text-center text-sm text-muted-foreground">
         © {dateRange} Localine. All rights reserved.
       </footer>
     </div>

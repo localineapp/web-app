@@ -47,7 +47,7 @@ export default async function ProjectsPage() {
 
       <div>
         <ProjectsList
-          projectLimit={projectLimit}
+          session={session}
           projects={projects}
           defaultPlan={defaultPlan}
         />

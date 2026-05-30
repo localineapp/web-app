@@ -1,5 +1,5 @@
 import { getAppName } from "@/actions/get-env"
-import { getUsersProjectInvitations } from "@/actions/project-invitations"
+import { getProjectInvitations } from "@/actions/project-invitations"
 import { getProjects } from "@/actions/projects"
 import AppHeader from "@/components/dashboard/header"
 import AppSidebar from "@/components/dashboard/sidebar"
@@ -22,7 +22,9 @@ export default async function DashboardLayout({
     includeAll: false,
   })
 
-  const invitations = await getUsersProjectInvitations()
+  const invitations = await getProjectInvitations({
+    includeExpired: false,
+  })
 
   return (
     <div className="flex h-screen overflow-hidden">

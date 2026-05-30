@@ -1,4 +1,11 @@
-import { Locale, Prisma, ProjectLocale } from "@prisma/client"
+import {
+  Locale,
+  Prisma,
+  Project,
+  ProjectInvitation,
+  ProjectLocale,
+  ProjectMemberRole,
+} from "@prisma/client"
 
 export const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
   include: {
@@ -61,3 +68,16 @@ export type FullProject = Prisma.ProjectGetPayload<{
 }>
 
 export type ProjectLocaleWithLocale = ProjectLocale & { locale: Locale }
+
+export type ProjectInvitationWithProject = ProjectInvitation & {
+  project: Project
+}
+
+export type ProjectInvitationWithRole = ProjectInvitation & {
+  role: ProjectMemberRole
+}
+
+export type ProjectInvitationWithProjectAndRole = ProjectInvitation & {
+  project: Project
+  role: ProjectMemberRole
+}

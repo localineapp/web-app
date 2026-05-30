@@ -1,16 +1,21 @@
-import { getUsersProjectInvitations } from "@/actions/project-invitations"
+import { getProjectInvitations } from "@/actions/project-invitations"
+import InvitationsTable from "@/components/dashboard/projects/invitation/InvitationsTable"
+import { decrypt } from "@/lib/crypto"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Invitations",
-  robots: {
-    index: false,
-    follow: false,
-  },
 }
 
 export default async function InvitationsPage() {
-  const invitations = await getUsersProjectInvitations()
+  const invitations = await getProjectInvitations({ includeExpired: false })
+
+  const invitationsWithDecryptedTokens = await Promise.all(
+    invitations.map(async (invitation) => ({
+      ...invitation,
+      token: decrypt(invitation.token),
+    }))
+  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -23,7 +28,7 @@ export default async function InvitationsPage() {
       </div>
 
       <div>
-        <p>Nix hier jetzt</p>
+        <InvitationsTable invitations={invitationsWithDecryptedTokens} />
       </div>
     </div>
   )

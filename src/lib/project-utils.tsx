@@ -1,6 +1,7 @@
 import * as LucideIcons from "lucide-react"
 import * as FlagIcons from "country-flag-icons/react/3x2"
-import { ComponentType, CSSProperties, SVGProps } from "react"
+import { ComponentType, createElement, CSSProperties, SVGProps } from "react"
+import { Badge } from "@/components/ui/badge"
 
 const lucideIconNames = Object.keys(LucideIcons)
   .filter(
@@ -84,6 +85,32 @@ export function getColorStyle(
 export function getColorClassName(color: string | null | undefined): string {
   if (!color) return ""
   return "text-[color-mix(in_oklab,var(--role-color)_80%,black)] dark:text-[color-mix(in_oklab,var(--role-color)_80%,white)]"
+}
+
+export function generateRoleBadge(
+  roleName: string,
+  color?: string,
+  icon?: string
+) {
+  const roleIcon = getIcon(icon)
+  const colorStyle = getColorStyle(color)
+  const colorClassName = getColorClassName(color)
+
+  return (
+    <Badge
+      variant="outline"
+      className={`font-medium ${colorClassName}`}
+      style={colorStyle}
+    >
+      {roleIcon
+        ? createElement(roleIcon, {
+            className: "h-3 w-3 shrink-0",
+            "aria-hidden": true,
+          })
+        : null}
+      {roleName}
+    </Badge>
+  )
 }
 
 export function getAllLucideIconNames(): string[] {

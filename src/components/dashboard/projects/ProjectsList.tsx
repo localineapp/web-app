@@ -35,6 +35,8 @@ import { Plan } from "@prisma/client"
 import { cn } from "@/lib/utils"
 import TablePagination from "@/components/dashboard/table-pagination"
 import { FullProject } from "@/types/project"
+import { generateRoleBadge } from "@/lib/project-utils"
+import { useSession } from "@/lib/auth-client"
 
 interface ProjectsListProps {
   projects: FullProject[]
@@ -61,16 +63,18 @@ function setCookie(name: string, value: string, days = 365) {
 }
 
 export default function ProjectsList({
-  projectLimit,
+  session,
   projects = [],
   defaultPlan,
 }: {
-  projectLimit: number
+  session: ReturnType<typeof useSession>["data"]
   projects: FullProject[]
   defaultPlan: Plan | null
 }) {
   const [view, setView] = useState<"table" | "cards">("table")
   const [page, setPage] = useState<number>(1)
+
+  const projectLimit = session?.user.projectsLimit ?? 0
 
   useEffect(() => {
     const v = getCookie(COOKIE_NAME)
@@ -131,7 +135,12 @@ export default function ProjectsList({
       </div>
 
       {view === "table" ? (
-        <ProjectsTable projects={projects} page={page} setPage={setPage} />
+        <ProjectsTable
+          session={session}
+          projects={projects}
+          page={page}
+          setPage={setPage}
+        />
       ) : (
         <ProjectCards projects={projects} page={page} setPage={setPage} />
       )}
@@ -209,7 +218,12 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
   )
 }
 
-export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
+export function ProjectsTable({
+  session,
+  projects,
+  page,
+  setPage,
+}: { session: ReturnType<typeof useSession>["data"] } & ProjectsListProps) {
   const total = projects.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_TABLE))
   const currentPage = Math.min(page, totalPages)
@@ -227,6 +241,7 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
               <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead className="text-center">Role</TableHead>
               <TableHead>Plan</TableHead>
               <TableHead className="max-w-24 text-center">Actions</TableHead>
             </TableRow>
@@ -234,64 +249,82 @@ export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
 
           <TableBody>
             {currentProjects.map(
-              ({ id, name, description, plan: { displayName } }) => (
-                <TableRow key={id}>
-                  <TableCell className="text-center font-medium">
-                    <Link
-                      href={`/projects/${id}`}
-                      className="block h-full w-full"
-                    >
-                      {id.slice(0, 8)}
-                    </Link>
-                  </TableCell>
+              ({ id, name, description, members, plan: { displayName } }) => {
+                const member = members.find(
+                  (m) => m.userId === session?.user.id
+                )
+                return (
+                  <TableRow key={id}>
+                    <TableCell className="text-center font-medium">
+                      <Link
+                        href={`/projects/${id}`}
+                        className="block h-full w-full"
+                      >
+                        {id.slice(0, 8)}
+                      </Link>
+                    </TableCell>
 
-                  <TableCell>
-                    <Link
-                      href={`/projects/${id}`}
-                      className="block h-full w-full"
-                    >
-                      {name}
-                    </Link>
-                  </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/projects/${id}`}
+                        className="block h-full w-full"
+                      >
+                        {name}
+                      </Link>
+                    </TableCell>
 
-                  <TableCell>
-                    <Link
-                      href={`/projects/${id}`}
-                      className={cn(
-                        "block h-full w-full",
-                        !description && "text-muted-foreground italic"
-                      )}
-                    >
-                      {description ?? "None"}
-                    </Link>
-                  </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/projects/${id}`}
+                        className={cn(
+                          "block h-full w-full",
+                          !description && "text-muted-foreground italic"
+                        )}
+                      >
+                        {description ?? "None"}
+                      </Link>
+                    </TableCell>
 
-                  <TableCell>
-                    <Link
-                      href={`/projects/${id}`}
-                      className="block h-full w-full"
-                    >
-                      {displayName}
-                    </Link>
-                  </TableCell>
+                    <TableCell className="text-center">
+                      <Link
+                        href={`/projects/${id}`}
+                        className="block h-full w-full"
+                      >
+                        {generateRoleBadge(
+                          member?.role.name ?? "N/A",
+                          member?.role.color ?? undefined,
+                          member?.role.icon ?? undefined
+                        )}
+                      </Link>
+                    </TableCell>
 
-                  <TableCell className="cursor-default text-center">
-                    <Link
-                      href={`/projects/${id}`}
-                      className="inline-flex items-center px-2 py-1 text-sm"
-                    >
-                      <ExternalLinkIcon size={16} />
-                    </Link>
+                    <TableCell>
+                      <Link
+                        href={`/projects/${id}`}
+                        className="block h-full w-full"
+                      >
+                        {displayName}
+                      </Link>
+                    </TableCell>
 
-                    <Link
-                      href={`/projects/${id}/settings`}
-                      className="inline-flex items-center px-2 py-1 text-sm"
-                    >
-                      <CogIcon size={16} />
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              )
+                    <TableCell className="cursor-default text-center">
+                      <Link
+                        href={`/projects/${id}`}
+                        className="inline-flex items-center px-2 py-1 text-sm"
+                      >
+                        <ExternalLinkIcon size={16} />
+                      </Link>
+
+                      <Link
+                        href={`/projects/${id}/settings`}
+                        className="inline-flex items-center px-2 py-1 text-sm"
+                      >
+                        <CogIcon size={16} />
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                )
+              }
             )}
           </TableBody>
         </Table>

@@ -23,10 +23,45 @@ export default async function ProjectMembersPage({
   })
 
   const member = project.members.find((m) => m.userId === session?.user.id)
+
   const canInviteMembers =
     hasPermission(
       member?.role.permissions ?? 0n,
       ProjectPermission.INVITE_MEMBERS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
+
+  const canUpdateMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.UPDATE_MEMBERS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
+
+  const canRemoveMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.REMOVE_MEMBERS
     ) ||
     (
       await auth.api.userHasPermission({
@@ -59,7 +94,7 @@ export default async function ProjectMembersPage({
 
         <div className="flex gap-2">
           <InvitationsDialog
-            invitations={project.invitations}
+            project={project}
             canInviteMembers={canInviteMembers}
           />
           <InviteMemberDialog

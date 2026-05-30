@@ -5,10 +5,11 @@ import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
-import { createHash } from "node:crypto"
 import { notFound, unauthorized } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { ProjectInvitationWithProjectAndRole } from "@/types/project"
+import { encrypt } from "@/lib/crypto"
 
 export async function createProjectInvitation({
   projectId,
@@ -54,15 +55,17 @@ export async function createProjectInvitation({
       id: generateId(),
       projectId: project.id,
       email,
-      token: createHash("sha256").update(generateId()).digest("hex"),
+      token: encrypt(generateId()),
       roleId: role.id,
     },
   })
 }
 
-export async function getUsersProjectInvitations(): Promise<
-  ProjectInvitation[]
-> {
+export async function getProjectInvitations({
+  includeExpired = false,
+}: {
+  includeExpired: boolean
+}): Promise<ProjectInvitationWithProjectAndRole[]> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -76,20 +79,22 @@ export async function getUsersProjectInvitations(): Promise<
       user: {
         id: session.user.id,
       },
+      expiresAt: includeExpired ? undefined : { gt: new Date() },
     },
     include: {
       project: true,
+      role: true,
     },
   })
 }
 
-export async function getProjectInvitationByToken(
+export async function getProjectInvitation(
   token: string
-): Promise<ProjectInvitation | null> {
-  const hashedToken = createHash("sha256").update(token).digest("hex")
+): Promise<ProjectInvitationWithProjectAndRole | null> {
+  const encryptedToken = encrypt(token)
   return await prisma.projectInvitation.findUnique({
     where: {
-      token: hashedToken,
+      token: encryptedToken,
     },
     include: {
       project: true,
@@ -101,11 +106,11 @@ export async function getProjectInvitationByToken(
 export async function updateProjectInvitation({
   projectId,
   invitationId,
-  newRoleId,
+  roleId,
 }: {
   projectId: string
   invitationId: string
-  newRoleId: string
+  roleId: string
 }): Promise<ProjectInvitation> {
   const project = await canManageProjectFeature({
     projectId,
@@ -118,7 +123,7 @@ export async function updateProjectInvitation({
   }
 
   const role = project.memberRoles.find(
-    (memberRole) => memberRole.id === newRoleId
+    (memberRole) => memberRole.id === roleId
   )
   if (!role) {
     throw new Error("Selected role does not exist.")
@@ -151,10 +156,10 @@ export async function acceptProjectInvitation({
     return unauthorized()
   }
 
-  const hashedToken = createHash("sha256").update(token).digest("hex")
+  const encryptedToken = encrypt(token)
   const invitation = await prisma.projectInvitation.findUnique({
     where: {
-      token: hashedToken,
+      token: encryptedToken,
       userId: session.user.id,
     },
     include: {
@@ -211,10 +216,10 @@ export async function declineProjectInvitation({
     return unauthorized()
   }
 
-  const hashedToken = createHash("sha256").update(token).digest("hex")
+  const encryptedToken = encrypt(token)
   const invitation = await prisma.projectInvitation.findUnique({
     where: {
-      token: hashedToken,
+      token: encryptedToken,
       userId: session.user.id,
     },
     include: {
