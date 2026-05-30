@@ -31,7 +31,6 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
-import { useSession } from "@/lib/auth-client"
 import { Plan } from "@prisma/client"
 import { cn } from "@/lib/utils"
 import TablePagination from "@/components/dashboard/table-pagination"
@@ -62,11 +61,11 @@ function setCookie(name: string, value: string, days = 365) {
 }
 
 export default function ProjectsList({
-  session,
+  projectLimit,
   projects = [],
   defaultPlan,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  projectLimit: number
   projects: FullProject[]
   defaultPlan: Plan | null
 }) {
@@ -102,7 +101,7 @@ export default function ProjectsList({
 
         <EmptyContent>
           <CreateProjectDialog
-            session={session}
+            projectLimit={projectLimit}
             projectCount={projects.length}
             defaultPlan={defaultPlan}
           />

@@ -90,13 +90,17 @@ export default function CreateMemberRoleDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canManageRoles || isLimitReached) && (
+        {!canManageRoles ? (
           <TooltipContent>
-            {!canManageRoles
-              ? "You don't have permission to manage roles in this project."
-              : (isLimitReached ??
-                "This project has reached the maximum number of roles a project can have.")}
+            You don&rsquo;t have permission to manage roles in this project.
           </TooltipContent>
+        ) : (
+          isLimitReached && (
+            <TooltipContent>
+              You can&rsquo;t create more than 100 roles for a project. Please
+              delete unused roles before creating new ones.
+            </TooltipContent>
+          )
         )}
       </Tooltip>
 

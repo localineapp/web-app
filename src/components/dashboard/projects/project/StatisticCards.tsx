@@ -1,7 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { FullProject } from "@/types/project"
-import { GlobeIcon, LibraryIcon, PercentIcon, UsersIcon } from "lucide-react"
+import {
+  ClockAlertIcon,
+  GlobeIcon,
+  LibraryIcon,
+  PercentIcon,
+  UsersIcon,
+} from "lucide-react"
 
 export default function StatisticCards({ project }: { project: FullProject }) {
   const terms = project?.terms
@@ -65,6 +71,9 @@ export default function StatisticCards({ project }: { project: FullProject }) {
                 <div className="h-2">
                   /{plan?.termsLimit?.toLocaleString("en-US") ?? "∞"}
                 </div>
+                {plan?.termsLimit && terms?.length >= plan?.termsLimit && (
+                  <LimitReachedBadge />
+                )}
               </div>
               <p>terms have been added to this project.</p>
             </>
@@ -92,6 +101,10 @@ export default function StatisticCards({ project }: { project: FullProject }) {
                 <div className="h-2">
                   /{plan?.localesLimit?.toLocaleString("en-US") ?? "∞"}
                 </div>
+                {plan?.localesLimit &&
+                  locales?.length >= plan?.localesLimit && (
+                    <LimitReachedBadge />
+                  )}
               </div>
               <p>locales have been added to this project.</p>
             </>
@@ -119,6 +132,10 @@ export default function StatisticCards({ project }: { project: FullProject }) {
                 <div className="h-2">
                   /{plan?.membersLimit?.toLocaleString("en-US") ?? "∞"}
                 </div>
+                {plan?.membersLimit &&
+                  members?.length >= plan?.membersLimit && (
+                    <LimitReachedBadge />
+                  )}
               </div>
               <p>
                 member{members?.length !== 1 ? "s are" : " is"} contributing to
@@ -129,5 +146,14 @@ export default function StatisticCards({ project }: { project: FullProject }) {
         </CardContent>
       </Card>
     </>
+  )
+}
+
+function LimitReachedBadge() {
+  return (
+    <span className="ml-2 inline-flex items-center rounded bg-red-200 px-2 py-0.5 text-xs font-medium text-red-800">
+      <ClockAlertIcon className="mr-1 h-3 w-3" />
+      Limit reached
+    </span>
   )
 }

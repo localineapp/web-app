@@ -19,7 +19,6 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { Plan } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -27,24 +26,21 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateProjectDialog({
-  session,
+  projectLimit,
   projectCount,
   defaultPlan,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  projectLimit: number
   projectCount: number
   defaultPlan: Plan | null
 }) {
   const router = useRouter()
-
-  const user = session?.user
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
 
-  const projectLimit = user?.projectsLimit ?? 0
   const canCreateProject = projectCount < projectLimit
 
   const handleCreateProject = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -99,14 +95,18 @@ export default function CreateProjectDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canCreateProject || !defaultPlan) && (
+        {!canCreateProject ? (
           <TooltipContent>
-            {!defaultPlan
-              ? "No default plan found. Please contact your administrator."
-              : projectLimit === 0
-                ? "The project limit for your account is currently set to 0."
-                : `You have reached your project limit (${projectCount}/${projectLimit})`}
+            {projectLimit === 0
+              ? "The project limit for your account is currently set to 0."
+              : `You have reached your project limit (${projectCount}/${projectLimit})`}
           </TooltipContent>
+        ) : (
+          !defaultPlan && (
+            <TooltipContent>
+              No default plan found. Please contact your administrator.
+            </TooltipContent>
+          )
         )}
       </Tooltip>
 

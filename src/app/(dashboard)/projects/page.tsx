@@ -21,6 +21,10 @@ export default async function ProjectsPage() {
 
   const defaultPlan = await getDefaultPlan()
 
+  const user = session?.user
+
+  const projectLimit = user?.projectsLimit ?? 0
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -34,7 +38,7 @@ export default async function ProjectsPage() {
 
         <div>
           <CreateProjectDialog
-            session={session}
+            projectLimit={projectLimit}
             projectCount={projects.length}
             defaultPlan={defaultPlan}
           />
@@ -43,7 +47,7 @@ export default async function ProjectsPage() {
 
       <div>
         <ProjectsList
-          session={session}
+          projectLimit={projectLimit}
           projects={projects}
           defaultPlan={defaultPlan}
         />

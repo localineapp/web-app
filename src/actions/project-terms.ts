@@ -43,7 +43,7 @@ export async function createProjectTerm({
 
   if (
     project.plan.termsLimit !== null &&
-    project.terms.length + 1 >= project.plan.termsLimit
+    project.terms.length >= project.plan.termsLimit
   ) {
     throw new Error(
       "This project has reached the maximum number of terms allowed by the current plan."

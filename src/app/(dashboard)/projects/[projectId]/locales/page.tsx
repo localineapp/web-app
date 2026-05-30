@@ -1,9 +1,11 @@
 import { getLocales } from "@/actions/locales"
 import { getProject } from "@/actions/projects"
 import AddLocaleDialog from "@/components/dashboard/projects/project/locales/AddLocaleDialog"
+import LocalesTable from "@/components/dashboard/projects/project/locales/LocalesTable"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { ProjectLocaleWithLocale } from "@/types/project"
 import { ArrowLeftIcon } from "lucide-react"
 import { headers } from "next/headers"
 import Link from "next/link"
@@ -73,7 +75,10 @@ export default async function ProjectLocalesPage({
       </div>
 
       <div>
-        <p>Not implemented yet.</p>
+        <LocalesTable
+          projectLocales={project.locales as ProjectLocaleWithLocale[]}
+          canManageLocales={canManageLocales}
+        />
       </div>
     </div>
   )

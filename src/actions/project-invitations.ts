@@ -155,14 +155,32 @@ export async function acceptProjectInvitation({
   const invitation = await prisma.projectInvitation.findUnique({
     where: {
       token: hashedToken,
+      userId: session.user.id,
     },
     include: {
       user: true,
     },
   })
 
-  if (!invitation || invitation.user.id !== session.user.id) {
+  if (!invitation) {
     return notFound()
+  }
+
+  const memberCount = await prisma.projectMember.count({
+    where: { projectId: invitation.projectId },
+  })
+
+  const memberLimit = await prisma.project
+    .findUnique({
+      where: { id: invitation.projectId },
+      select: { plan: { select: { membersLimit: true } } },
+    })
+    .then((project) => project?.plan.membersLimit)
+
+  if (memberLimit && memberCount >= memberLimit) {
+    throw new Error(
+      "This project has reached the maximum number of members allowed by the current plan."
+    )
   }
 
   await prisma.projectMember.create({
@@ -173,6 +191,41 @@ export async function acceptProjectInvitation({
       roleId: invitation.roleId,
     },
   })
+  return await prisma.projectInvitation.delete({
+    where: {
+      id: invitation.id,
+    },
+  })
+}
+
+export async function declineProjectInvitation({
+  token,
+}: {
+  token: string
+}): Promise<ProjectInvitation> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session?.user) {
+    return unauthorized()
+  }
+
+  const hashedToken = createHash("sha256").update(token).digest("hex")
+  const invitation = await prisma.projectInvitation.findUnique({
+    where: {
+      token: hashedToken,
+      userId: session.user.id,
+    },
+    include: {
+      user: true,
+    },
+  })
+
+  if (!invitation) {
+    return notFound()
+  }
+
   return await prisma.projectInvitation.delete({
     where: {
       id: invitation.id,

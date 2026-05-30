@@ -1,4 +1,5 @@
 import { getProject } from "@/actions/projects"
+import InvitationsDialog from "@/components/dashboard/projects/project/members/InvitationsDialog"
 import InviteMemberDialog from "@/components/dashboard/projects/project/members/InviteMemberDialog"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
@@ -57,6 +58,10 @@ export default async function ProjectMembersPage({
         </div>
 
         <div className="flex gap-2">
+          <InvitationsDialog
+            invitations={project.invitations}
+            canInviteMembers={canInviteMembers}
+          />
           <InviteMemberDialog
             project={project}
             canInviteMembers={canInviteMembers}

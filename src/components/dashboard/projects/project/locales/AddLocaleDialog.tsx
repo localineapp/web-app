@@ -105,13 +105,18 @@ export default function AddLocaleDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canManageLocales || isLimitReached) && (
+        {!canManageLocales ? (
           <TooltipContent>
-            {!canManageLocales
-              ? "You don't have permission to add locales in this project."
-              : (isLimitReached ??
-                "This project has reached the maximum number of locales allowed by your plan.")}
+            You don&rsquo;t have permission to add locales in this project.
           </TooltipContent>
+        ) : (
+          isLimitReached && (
+            <TooltipContent>
+              {project.plan.localesLimit === 0
+                ? "Your current plan does not allow adding locales."
+                : `This project has reached the maximum number of locales allowed by your plan (${project.locales.length}/${project.plan.localesLimit}).`}
+            </TooltipContent>
+          )
         )}
       </Tooltip>
 

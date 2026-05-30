@@ -35,7 +35,7 @@ export async function createProjectMemberRole({
     throw new Error(`A role named "${normalizedName}" already exists.`)
   }
 
-  if (project.memberRoles.length + 1 >= 100) {
+  if (project.memberRoles.length >= 100) {
     throw new Error(
       "This project has reached the maximum number of roles a project can have."
     )

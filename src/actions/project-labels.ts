@@ -45,7 +45,7 @@ export async function createProjectLabel({
 
   if (
     project.plan.labelsLimit !== null &&
-    project.labels.length + 1 >= project.plan.labelsLimit
+    project.labels.length >= project.plan.labelsLimit
   ) {
     throw new Error(
       "This project has reached the maximum number of labels allowed by the current plan."

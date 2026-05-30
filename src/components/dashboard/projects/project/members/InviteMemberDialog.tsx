@@ -103,13 +103,18 @@ export default function InviteMemberDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canInviteMembers || isLimitReached) && (
+        {!canInviteMembers ? (
           <TooltipContent>
-            {!canInviteMembers
-              ? "You don't have permission to invite members in this project."
-              : (isLimitReached ??
-                "This project has reached the maximum number of members allowed by your plan.")}
+            You don&rsquo;t have permission to invite members in this project.
           </TooltipContent>
+        ) : (
+          isLimitReached && (
+            <TooltipContent>
+              {project.plan.membersLimit === 0
+                ? "Your current plan does not allow inviting members."
+                : `This project has reached the maximum number of members allowed by your plan (${project.members.length}/${project.plan.membersLimit}).`}
+            </TooltipContent>
+          )
         )}
       </Tooltip>
 

@@ -25,7 +25,7 @@ export async function addProjectLocale({
 
   if (
     project.plan.localesLimit !== null &&
-    project.locales.length + 1 >= project.plan.localesLimit
+    project.locales.length >= project.plan.localesLimit
   ) {
     throw new Error(
       "This project has reached the maximum number of locales allowed by the current plan."
@@ -53,9 +53,7 @@ export async function removeProjectLocale({
     permission: ProjectPermission.MANAGE_LOCALES,
   })
 
-  const projectLocale = project.locales.find(
-    (locale) => locale.localeId === localeId
-  )
+  const projectLocale = project.locales.find((locale) => locale.id === localeId)
 
   if (!projectLocale) {
     return notFound()

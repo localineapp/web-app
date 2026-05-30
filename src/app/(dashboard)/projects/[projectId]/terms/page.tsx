@@ -1,5 +1,6 @@
 import { getProject } from "@/actions/projects"
 import CreateTermDialog from "@/components/dashboard/projects/project/terms/CreateTermDialog"
+import TermsTable from "@/components/dashboard/projects/project/terms/TermsTable"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
@@ -41,6 +42,57 @@ export default async function ProjectTermsPage({
       })
     ).success
 
+  const canLockTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.LOCK_TERMS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
+
+  const canUpdateTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.UPDATE_TERMS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
+
+  const canDeleteTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.DELETE_TERMS
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -64,7 +116,12 @@ export default async function ProjectTermsPage({
       </div>
 
       <div>
-        <p>Not implemented yet.</p>
+        <TermsTable
+          terms={project.terms}
+          canLockTerms={canLockTerms}
+          canUpdateTerms={canUpdateTerms}
+          canDeleteTerms={canDeleteTerms}
+        />
       </div>
     </div>
   )

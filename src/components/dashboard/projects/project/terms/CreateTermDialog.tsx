@@ -95,13 +95,18 @@ export default function CreateTermDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canCreateTerms || isLimitReached) && (
+        {!canCreateTerms ? (
           <TooltipContent>
-            {!canCreateTerms
-              ? "You don't have permission to create terms in this project."
-              : (isLimitReached ??
-                "This project has reached the maximum number of terms allowed by your plan.")}
+            You don&rsquo;t have permission to create terms in this project.
           </TooltipContent>
+        ) : (
+          isLimitReached && (
+            <TooltipContent>
+              {project.plan.termsLimit === 0
+                ? "Your current plan does not allow adding terms."
+                : `This project has reached the maximum number of terms allowed by your plan (${project.terms.length}/${project.plan.termsLimit}).`}
+            </TooltipContent>
+          )
         )}
       </Tooltip>
 

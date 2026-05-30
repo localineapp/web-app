@@ -1,4 +1,5 @@
 import { getProject } from "@/actions/projects"
+import FirstStepsCards from "@/components/dashboard/projects/project/FirstStepsCards"
 import MemberInfoCards from "@/components/dashboard/projects/project/MemberInfoCards"
 import StatisticCards from "@/components/dashboard/projects/project/StatisticCards"
 import { Button } from "@/components/ui/button"
@@ -66,10 +67,7 @@ export default async function ProjectPage({
             <div>
               <h2 className="mb-2 text-lg font-medium">First Steps</h2>
 
-              <p>1. Add a locale to your project</p>
-              <p>2. Add a term to your project</p>
-              <p>3. Translate your first term</p>
-              <p>4. Invite your team members</p>
+              <FirstStepsCards project={project} />
             </div>
 
             <div className="flex flex-col gap-2">

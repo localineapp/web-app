@@ -90,6 +90,11 @@ const PERMISSION_GROUPS: {
         label: "Translate",
         value: ProjectPermission.TRANSLATE,
       },
+      {
+        key: "TRANSLATE_LOCKED",
+        label: "Translate locked terms",
+        value: ProjectPermission.TRANSLATE_LOCKED,
+      },
     ],
   },
   {

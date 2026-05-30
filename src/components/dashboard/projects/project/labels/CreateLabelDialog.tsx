@@ -95,13 +95,18 @@ export default function CreateLabelDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canManageLabels || isLimitReached) && (
+        {!canManageLabels ? (
           <TooltipContent>
-            {!canManageLabels
-              ? "You don't have permission to create labels in this project."
-              : (isLimitReached ??
-                "This project has reached the maximum number of labels allowed by your plan.")}
+            You don&rsquo;t have permission to create labels in this project.
           </TooltipContent>
+        ) : (
+          isLimitReached && (
+            <TooltipContent>
+              {project.plan.labelsLimit === 0
+                ? "Your current plan does not allow adding labels."
+                : `This project has reached the maximum number of labels allowed by your plan (${project.labels.length}/${project.plan.labelsLimit}).`}
+            </TooltipContent>
+          )
         )}
       </Tooltip>
 
