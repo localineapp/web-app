@@ -1,6 +1,6 @@
 "use client"
 
-import { createProjectMemberRole } from "@/actions/projects"
+import { createProjectMemberRole } from "@/actions/project-member-roles"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

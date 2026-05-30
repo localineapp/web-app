@@ -189,7 +189,7 @@ model ProjectLocale {
 model ProjectTerm {
   id        String   @id
   projectId String
-  value     String
+  key       String
   context   String?  @db.Text
   locked    Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -200,7 +200,7 @@ model ProjectTerm {
   translations ProjectTranslation[]
   labels       ProjectLabel[]
 
-  @@unique([projectId, value])
+  @@unique([projectId, key])
   @@index([projectId(length: 191)])
   @@map("project_term")
 }
@@ -288,7 +288,7 @@ model ProjectInvitation {
   email     String
   token     String   @unique
   roleId    String
-  expiresAt DateTime
+  expiresAt DateTime @default(dbgenerated("DATE_ADD(NOW(), INTERVAL 7 DAY)"))
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

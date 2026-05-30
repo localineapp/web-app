@@ -1,6 +1,6 @@
 "use client"
 
-import { createProjectLabel } from "@/actions/projects"
+import { createProjectLabel } from "@/actions/project-labels"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

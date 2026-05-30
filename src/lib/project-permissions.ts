@@ -5,12 +5,14 @@ export const ProjectPermission = {
   ASSIGN_LABELS: 1n << 3n, // Allows assigning and unassigning labels to terms
   LOCK_TERMS: 1n << 4n, // Allows locking and unlocking terms
   DELETE_TERMS: 1n << 5n, // Allows deleting terms and their translations
-  MANAGE_LABELS: 1n << 6n, // Allows creating, updating and deleting labels
-  INVITE_MEMBERS: 1n << 7n, // Allows inviting new members to the project
-  MANAGE_MEMBERS: 1n << 8n, // Allows changing member permissions and removing members
-  MANAGE_PROJECT: 1n << 9n, // Allows changing basic project settings
-  MANAGE_ROLES: 1n << 10n, // Allows creating, updating and deleting member roles
-  MANAGE_WORKFLOWS: 1n << 11n, // Allows creating, updating and deleting workflows
+  MANAGE_LOCALES: 1n << 6n, // Allows adding and removing project locales
+  MANAGE_LABELS: 1n << 7n, // Allows creating, updating and deleting labels
+  INVITE_MEMBERS: 1n << 8n, // Allows inviting new members to the project
+  UPDATE_MEMBERS: 1n << 9n, // Allows changing the role of members
+  REMOVE_MEMBERS: 1n << 10n, // Allows removing members from the project
+  MANAGE_PROJECT: 1n << 11n, // Allows changing basic project settings
+  MANAGE_ROLES: 1n << 12n, // Allows creating, updating and deleting member roles
+  MANAGE_WORKFLOWS: 1n << 13n, // Allows creating, updating and deleting workflows
 } as const
 
 export const AllProjectPermissions: bigint = combinePermissions(

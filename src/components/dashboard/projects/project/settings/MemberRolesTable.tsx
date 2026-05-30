@@ -1,10 +1,5 @@
 "use client"
 
-import {
-  deleteProjectMemberRole,
-  updateProjectMemberRole,
-  updateProjectMemberRolePermissions,
-} from "@/actions/projects"
 import TablePagination from "@/components/dashboard/table-pagination"
 import ColorPickerField from "@/components/ui/custom/ColorPickerField"
 import IconPickerField from "@/components/ui/custom/IconPickerField"
@@ -75,6 +70,11 @@ import {
 import { useRouter } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
+import {
+  deleteProjectMemberRole,
+  updateProjectMemberRole,
+  updateProjectMemberRolePermissions,
+} from "@/actions/project-member-roles"
 
 const PAGE_SIZE = 10
 
@@ -131,15 +131,25 @@ const PERMISSION_GROUPS: {
         value: ProjectPermission.INVITE_MEMBERS,
       },
       {
-        key: "MANAGE_MEMBERS",
-        label: "Manage",
-        value: ProjectPermission.MANAGE_MEMBERS,
+        key: "UPDATE_MEMBERS",
+        label: "Update",
+        value: ProjectPermission.UPDATE_MEMBERS,
+      },
+      {
+        key: "REMOVE_MEMBERS",
+        label: "Remove",
+        value: ProjectPermission.REMOVE_MEMBERS,
       },
     ],
   },
   {
     label: "Settings",
     items: [
+      {
+        key: "MANAGE_LOCALES",
+        label: "Manage locales",
+        value: ProjectPermission.MANAGE_LOCALES,
+      },
       {
         key: "MANAGE_LABELS",
         label: "Manage labels",

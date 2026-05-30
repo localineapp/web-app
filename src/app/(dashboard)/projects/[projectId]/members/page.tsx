@@ -25,7 +25,7 @@ export default async function ProjectMembersPage({
   const canInviteMembers =
     hasPermission(
       member?.role.permissions ?? 0n,
-      ProjectPermission.MANAGE_MEMBERS
+      ProjectPermission.INVITE_MEMBERS
     ) ||
     (
       await auth.api.userHasPermission({

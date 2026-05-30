@@ -1,6 +1,6 @@
 "use client"
 
-import { updatePlan } from "@/actions/projects"
+import { updateProjectPlan } from "@/actions/projects"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Empty,
@@ -255,7 +255,16 @@ function ChangePlanDialog({
     event.preventDefault()
     setLoading(true)
 
-    await updatePlan(project, plan!)
+    if (!plan) {
+      toast.error("Please select a plan to update.")
+      setLoading(false)
+      return
+    }
+
+    await updateProjectPlan({
+      projectId: project.id,
+      planId: plan.id,
+    })
       .then(() => {
         toast.success(
           `${project.name} has been successfully updated to the ${plan?.displayName} plan.`

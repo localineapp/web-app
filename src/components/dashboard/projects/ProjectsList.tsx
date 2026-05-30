@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/empty"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import { useSession } from "@/lib/auth-client"
-import { Plan, Project } from "@prisma/client"
+import { Plan } from "@prisma/client"
 import { cn } from "@/lib/utils"
 import TablePagination from "@/components/dashboard/table-pagination"
 import { FullProject } from "@/types/project"

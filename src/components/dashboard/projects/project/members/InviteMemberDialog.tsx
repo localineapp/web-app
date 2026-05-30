@@ -1,6 +1,8 @@
 "use client"
 
+import { createProjectInvitation } from "@/actions/project-invitations"
 import { Button } from "@/components/ui/button"
+import RolePickerField from "@/components/ui/custom/RolePickerField"
 import {
   Dialog,
   DialogContent,
@@ -18,11 +20,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { FullProject } from "@/types/project"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
 export default function InviteMemberDialog({
   project,
@@ -36,6 +38,7 @@ export default function InviteMemberDialog({
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [email, setEmail] = useState("")
+  const [roleId, setRoleId] = useState("")
 
   const isLimitReached =
     project.plan.membersLimit !== null &&
@@ -44,6 +47,34 @@ export default function InviteMemberDialog({
   const handleInviteMember = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    if (!roleId) {
+      toast.error("Please select a role for the new member.")
+      setLoading(false)
+      return
+    }
+
+    await createProjectInvitation({
+      projectId: project.id,
+      email: email.trim(),
+      roleId,
+    })
+      .then(() => {
+        toast.success(`Invitation sent to ${email}.`)
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.response?.data?.message ||
+            `Failed to invite ${email}. Please try again.`
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDialogOpen(false)
+        setEmail("")
+        setRoleId("")
+      })
   }
 
   return (
@@ -101,12 +132,30 @@ export default function InviteMemberDialog({
           />
         </div>
 
+        <RolePickerField
+          id="role"
+          label="Role"
+          roles={project.memberRoles
+            .filter((role) => role.id !== project.id)
+            .sort((a, b) => {
+              if (a.permissions !== b.permissions) {
+                return a.permissions > b.permissions ? -1 : 1
+              }
+
+              return a.name.localeCompare(b.name)
+            })}
+          value={roleId}
+          onChange={setRoleId}
+          disabled={loading}
+        />
+
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
               setEmail("")
+              setRoleId("")
             }}
             disabled={loading}
           >

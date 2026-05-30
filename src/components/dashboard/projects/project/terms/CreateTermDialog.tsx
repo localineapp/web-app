@@ -1,5 +1,6 @@
 "use client"
 
+import { createProjectTerm } from "@/actions/project-terms"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,29 +19,26 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { FullProject } from "@/types/project"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
 export default function CreateTermDialog({
-  session,
   project,
+  canCreateTerms,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   project: FullProject
+  canCreateTerms: boolean
 }) {
   const router = useRouter()
 
-  const user = session?.user
-
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [name, setName] = useState("")
+  const [key, setKey] = useState("")
   const [context, setContext] = useState<string | null>(null)
 
-  const canCreateTerms = true // TODO: Determine if the user can create terms based on their membership role
   const isLimitReached =
     project.plan.termsLimit !== null &&
     project.terms.length >= project.plan.termsLimit
@@ -48,6 +46,27 @@ export default function CreateTermDialog({
   const handleCreateTerm = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    await createProjectTerm({
+      projectId: project.id,
+      key: key.trim(),
+      context: context?.trim() || null,
+    })
+      .then((term) => {
+        toast.success(`Created term ${term.key}.`)
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to create term. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDialogOpen(false)
+        setKey("")
+        setContext(null)
+      })
   }
 
   return (
@@ -94,12 +113,12 @@ export default function CreateTermDialog({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="termName">Term name</Label>
+            <Label htmlFor="termKey">Term key</Label>
             <Input
-              id="termName"
+              id="termKey"
               placeholder="My Term"
-              value={name}
-              onChange={({ target: { value } }) => setName(value)}
+              value={key}
+              onChange={({ target: { value } }) => setKey(value)}
             />
           </div>
 
@@ -119,7 +138,7 @@ export default function CreateTermDialog({
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setName("")
+              setKey("")
               setContext(null)
             }}
             disabled={loading}
@@ -130,7 +149,7 @@ export default function CreateTermDialog({
           <Button
             variant="outline"
             onClick={handleCreateTerm}
-            disabled={!name || loading}
+            disabled={!key || loading}
           >
             {loading ? (
               <>

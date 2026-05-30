@@ -1,14 +1,8 @@
 "use client"
 
+import { addProjectLocale } from "@/actions/project-locales"
 import { Button } from "@/components/ui/button"
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@/components/ui/combobox"
+import LocalePickerField from "@/components/ui/custom/LocalePickerField"
 import {
   Dialog,
   DialogContent,
@@ -24,31 +18,30 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { FullProject } from "@/types/project"
 import { Locale } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
+import { toast } from "sonner"
 
 export default function AddLocaleDialog({
-  session,
   project,
   locales,
+  canManageLocales,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   project: FullProject
   locales: Locale[]
+  canManageLocales: boolean
 }) {
   const router = useRouter()
 
-  const user = session?.user
-
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [locale, setLocale] = useState<Locale | null>(null)
+  const [localeId, setLocaleId] = useState("")
 
-  const canAddLocales = true // TODO: Determine if the user can add locales based on their membership role
+  const selectedLocale = locales.find((locale) => locale.id === localeId)
+
   const isLimitReached =
     project.plan.localesLimit !== null &&
     project.locales.length >= project.plan.localesLimit
@@ -56,6 +49,34 @@ export default function AddLocaleDialog({
   const handleAddLocale = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     setLoading(true)
+
+    if (!selectedLocale) {
+      toast.error("Please select a locale.")
+      setLoading(false)
+      return
+    }
+
+    await addProjectLocale({
+      projectId: project.id,
+      localeId: selectedLocale.id,
+    })
+      .then(() => {
+        toast.success(
+          `The locale ${selectedLocale.displayName} has been added to the project.`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.response?.data?.message ||
+            `Failed to add locale. Please try again.`
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+        setDialogOpen(false)
+        setLocaleId("")
+      })
   }
 
   return (
@@ -64,7 +85,7 @@ export default function AddLocaleDialog({
         <TooltipTrigger
           asChild
           className={
-            canAddLocales && !isLimitReached && !loading
+            canManageLocales && !isLimitReached && !loading
               ? ""
               : "cursor-not-allowed"
           }
@@ -72,11 +93,11 @@ export default function AddLocaleDialog({
           <span className="inline-block">
             <DialogTrigger
               asChild
-              disabled={!canAddLocales || isLimitReached || loading}
+              disabled={!canManageLocales || isLimitReached || loading}
             >
               <Button
                 variant="outline"
-                disabled={!canAddLocales || isLimitReached || loading}
+                disabled={!canManageLocales || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
                 Add Locale
@@ -84,9 +105,9 @@ export default function AddLocaleDialog({
             </DialogTrigger>
           </span>
         </TooltipTrigger>
-        {(!canAddLocales || isLimitReached) && (
+        {(!canManageLocales || isLimitReached) && (
           <TooltipContent>
-            {!canAddLocales
+            {!canManageLocales
               ? "You don't have permission to add locales in this project."
               : (isLimitReached ??
                 "This project has reached the maximum number of locales allowed by your plan.")}
@@ -102,37 +123,21 @@ export default function AddLocaleDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Combobox
-          items={locales.map((locale) => ({
-            id: locale.id,
-            displayName: locale.displayName,
-          }))}
-          onInputValueChange={(value) => {
-            const matchedLocale = locales.find(
-              (locale) => locale.displayName === value
-            )
-            setLocale(matchedLocale || null)
-          }}
-        >
-          <ComboboxInput placeholder="Select a locale" />
-          <ComboboxContent>
-            <ComboboxEmpty>No items found.</ComboboxEmpty>
-            <ComboboxList>
-              {({ id, displayName }) => (
-                <ComboboxItem key={id} value={displayName}>
-                  {displayName}
-                </ComboboxItem>
-              )}
-            </ComboboxList>
-          </ComboboxContent>
-        </Combobox>
+        <LocalePickerField
+          id="locale"
+          label="Locale"
+          locales={locales}
+          value={localeId}
+          onChange={setLocaleId}
+          disabled={loading}
+        />
 
         <DialogFooter>
           <Button
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setLocale(null)
+              setLocaleId("")
             }}
             disabled={loading}
           >
@@ -142,7 +147,7 @@ export default function AddLocaleDialog({
           <Button
             variant="outline"
             onClick={handleAddLocale}
-            disabled={!locale || loading}
+            disabled={!selectedLocale || loading}
           >
             {loading ? (
               <>

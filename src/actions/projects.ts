@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { Plan, Project, ProjectLabel, ProjectMemberRole } from "@prisma/client"
+import { Project } from "@prisma/client"
 import { headers } from "next/headers"
 import { forbidden, notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
@@ -14,14 +14,23 @@ import {
 } from "@/lib/project-permissions"
 import { FullProject, fullProjectArgs } from "@/types/project"
 import { findProject } from "@/lib/project"
-import { getIcon, normalizeHexColor } from "@/lib/project-utils"
 
-async function canManageProjectFeature({
+export async function canManageProjectFeature({
   projectId,
   permission,
+  adminPermission = {
+    projects: ["update"],
+  },
 }: {
   projectId: string
   permission: bigint
+  adminPermission?: Parameters<
+    typeof auth.api.userHasPermission
+  >[0] extends undefined
+    ? never
+    : NonNullable<
+        Parameters<typeof auth.api.userHasPermission>[0]
+      >["body"]["permissions"]
 }): Promise<FullProject> {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -47,7 +56,7 @@ async function canManageProjectFeature({
           // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
           role: user.role ?? "user",
           permissions: {
-            projects: ["update"],
+            ...adminPermission,
           },
         },
       })
@@ -296,391 +305,33 @@ export async function updateProject({
   })
 }
 
-export async function createProjectLabel({
+export async function updateProjectPlan({
   projectId,
-  name,
-  description,
-  color,
-  icon,
+  planId,
 }: {
   projectId: string
-  name: string
-  description?: string | null
-  color?: string | null
-  icon?: string | null
-}): Promise<ProjectLabel> {
+  planId: string
+}): Promise<Project> {
   const project = await canManageProjectFeature({
     projectId,
-    permission: ProjectPermission.MANAGE_LABELS,
-  })
-
-  const normalizedName = name.trim()
-  if (!normalizedName) {
-    throw new Error("Label name is required.")
-  }
-
-  if (
-    project.plan.labelsLimit !== null &&
-    project.labels.length + 1 >= project.plan.labelsLimit
-  ) {
-    throw new Error(
-      "This project has reached the maximum number of labels allowed by the current plan."
-    )
-  }
-
-  if (
-    await prisma.projectLabel.count({
-      where: {
-        projectId: project.id,
-        name: normalizedName,
-      },
-    })
-  ) {
-    throw new Error(`A label named "${normalizedName}" already exists.`)
-  }
-
-  const normalizedColor = normalizeHexColor(color)
-  const normalizedIcon = icon?.trim() ? icon.trim() : null
-
-  if (normalizedIcon && !getIcon(normalizedIcon)) {
-    throw new Error("Selected icon is invalid.")
-  }
-
-  return await prisma.projectLabel.create({
-    data: {
-      id: generateId(),
-      projectId: project.id,
-      name: normalizedName,
-      description: description?.trim() || null,
-      color: normalizedColor,
-      icon: normalizedIcon,
+    permission: ProjectPermission.MANAGE_PROJECT,
+    adminPermission: {
+      projects: ["update-plan"],
     },
   })
-}
 
-export async function updateProjectLabel({
-  projectId,
-  labelId,
-  name,
-  description,
-  color,
-  icon,
-}: {
-  projectId: string
-  labelId: string
-  name?: string
-  description?: string | null
-  color?: string | null
-  icon?: string | null
-}): Promise<ProjectLabel> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_LABELS,
-  })
-
-  const label = project.labels.find(
-    (currentLabel) => currentLabel.id === labelId
-  )
-  if (!label) {
-    return notFound()
+  if (project.planId === planId) {
+    throw new Error("This plan is already active for the project.")
   }
 
-  const normalizedName = name?.trim()
-  if (name !== undefined && !normalizedName) {
-    throw new Error("Label name is required.")
-  }
-
-  if (
-    normalizedName &&
-    normalizedName !== label.name &&
-    (await prisma.projectLabel.count({
-      where: {
-        projectId: project.id,
-        name: normalizedName,
-      },
-    })) > 0
-  ) {
-    throw new Error(`A label named "${normalizedName}" already exists.`)
-  }
-
-  const normalizedColor = normalizeHexColor(color)
-  const normalizedIcon = icon?.trim() ? icon.trim() : null
-
-  if (normalizedIcon && !getIcon(normalizedIcon)) {
-    throw new Error("Selected icon is invalid.")
-  }
-
-  return await prisma.projectLabel.update({
+  const plan = await prisma.plan.findUnique({
     where: {
-      id: label.id,
-    },
-    data: {
-      name: normalizedName,
-      description:
-        description !== undefined ? description?.trim() || null : undefined,
-      color: color !== undefined ? normalizedColor : undefined,
-      icon: icon !== undefined ? normalizedIcon : undefined,
-    },
-  })
-}
-
-export async function deleteProjectLabel({
-  projectId,
-  labelId,
-}: {
-  projectId: string
-  labelId: string
-}): Promise<ProjectLabel> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_LABELS,
-  })
-
-  const label = project.labels.find(
-    (currentLabel) => currentLabel.id === labelId
-  )
-  if (!label) {
-    return notFound()
-  }
-
-  return await prisma.projectLabel.delete({
-    where: {
-      id: label.id,
-    },
-  })
-}
-
-export async function createProjectMemberRole({
-  projectId,
-  name,
-  color,
-  icon,
-}: {
-  projectId: string
-  name: string
-  color?: string | null
-  icon?: string | null
-}): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_ROLES,
-  })
-
-  const normalizedName = name.trim()
-  if (!normalizedName) {
-    throw new Error("Role name is required.")
-  }
-
-  if (
-    (await prisma.projectMemberRole.count({
-      where: {
-        projectId: project.id,
-      },
-    })) >= 100 // Arbitrary limit to prevent too many roles
-  ) {
-    throw new Error(
-      "This project has reached the maximum number of roles a project can have."
-    )
-  }
-
-  if (
-    await prisma.projectMemberRole.count({
-      where: {
-        projectId: project.id,
-        name: normalizedName,
-      },
-    })
-  ) {
-    throw new Error(`A role named "${normalizedName}" already exists.`)
-  }
-
-  const normalizedColor = normalizeHexColor(color)
-  const normalizedIcon = icon?.trim() ? icon.trim() : null
-
-  if (normalizedIcon && !getIcon(normalizedIcon)) {
-    throw new Error("Selected icon is invalid.")
-  }
-
-  return await prisma.projectMemberRole.create({
-    data: {
-      id: generateId(),
-      projectId: project.id,
-      name: normalizedName,
-      color: normalizedColor,
-      icon: normalizedIcon,
-      permissions: 0n,
-    },
-  })
-}
-
-export async function updateProjectMemberRole({
-  projectId,
-  roleId,
-  name,
-  color,
-  icon,
-}: {
-  projectId: string
-  roleId: string
-  name?: string
-  color?: string | null
-  icon?: string | null
-}): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_ROLES,
-  })
-
-  const role = project.memberRoles.find(
-    (memberRole) => memberRole.id === roleId
-  )
-  if (!role) {
-    return notFound()
-  }
-
-  const normalizedName = name?.trim()
-  if (name !== undefined && !normalizedName) {
-    throw new Error("Role name is required.")
-  }
-
-  if (
-    normalizedName &&
-    normalizedName !== role.name &&
-    (await prisma.projectMemberRole.count({
-      where: {
-        projectId: project.id,
-        name: normalizedName,
-      },
-    })) > 0
-  ) {
-    throw new Error(`A role named "${normalizedName}" already exists.`)
-  }
-
-  const normalizedColor = normalizeHexColor(color)
-  const normalizedIcon = icon?.trim() ? icon.trim() : null
-
-  if (normalizedIcon && !getIcon(normalizedIcon)) {
-    throw new Error("Selected icon is invalid.")
-  }
-
-  return await prisma.projectMemberRole.update({
-    where: {
-      id: role.id,
-    },
-    data: {
-      name: normalizedName,
-      color: color !== undefined ? normalizedColor : undefined,
-      icon: icon !== undefined ? normalizedIcon : undefined,
-    },
-  })
-}
-
-export async function updateProjectMemberRolePermissions({
-  projectId,
-  roleId,
-  permissions,
-}: {
-  projectId: string
-  roleId: string
-  permissions: bigint
-}): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_ROLES,
-  })
-
-  const role = project.memberRoles.find(
-    (memberRole) => memberRole.id === roleId
-  )
-  if (!role) {
-    return notFound()
-  }
-
-  if (role.id === project.id) {
-    throw new Error("Owner role permissions cannot be edited.")
-  }
-
-  return await prisma.projectMemberRole.update({
-    where: {
-      id: role.id,
-    },
-    data: {
-      permissions,
-    },
-  })
-}
-
-export async function deleteProjectMemberRole({
-  projectId,
-  roleId,
-}: {
-  projectId: string
-  roleId: string
-}): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_ROLES,
-  })
-
-  const role = project.memberRoles.find(
-    (memberRole) => memberRole.id === roleId
-  )
-  if (!role) {
-    return notFound()
-  }
-
-  if (role.id === project.id) {
-    throw new Error("Owner role cannot be deleted.")
-  }
-
-  const inUseByMembers = await prisma.projectMember.count({
-    where: {
-      projectId: project.id,
-      roleId: role.id,
+      id: planId,
     },
   })
 
-  if (inUseByMembers > 0) {
-    throw new Error(
-      "This role is still assigned to one or more project members and cannot be deleted."
-    )
-  }
-
-  const inUseByInvitations = await prisma.projectInvitation.count({
-    where: {
-      projectId: project.id,
-      roleId: role.id,
-    },
-  })
-
-  if (inUseByInvitations > 0) {
-    throw new Error(
-      "This role is still assigned to one or more pending invitations and cannot be deleted."
-    )
-  }
-
-  return await prisma.projectMemberRole.delete({
-    where: {
-      id: role.id,
-    },
-  })
-}
-
-export async function updatePlan(
-  project: Project,
-  plan: Plan
-): Promise<Project> {
-  const canUpdatePlan = await auth.api.userHasPermission({
-    headers: await headers(),
-    body: {
-      permissions: {
-        projects: ["update-plan"],
-      },
-    },
-  })
-
-  if (!canUpdatePlan) {
-    return forbidden()
+  if (!plan) {
+    throw new Error("There is no plan with the specified ID.")
   }
 
   return await prisma.project.update({

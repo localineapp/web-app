@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ChevronRightIcon, CogIcon } from "lucide-react"
+import { ChevronRightIcon, CogIcon, SendIcon } from "lucide-react"
 import { authClient, useSession } from "@/lib/auth-client"
 import {
   Sidebar,
@@ -20,7 +20,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Project } from "@prisma/client"
+import { Project, ProjectInvitation } from "@prisma/client"
 import { useEffect, useState } from "react"
 import { getProject } from "@/actions/projects"
 import {
@@ -36,13 +36,16 @@ import {
   projectNavigationItems,
   projectSettingsNavigationItems,
 } from "@/components/dashboard/navigation-items"
+import { Badge } from "@/components/ui/badge"
 
 export default function AppSidebar({
   appName,
   session,
+  invitations,
 }: {
   appName: string
   session: ReturnType<typeof useSession>["data"]
+  invitations: ProjectInvitation[]
 }) {
   const pathname = usePathname()
   const { state } = useSidebar()
@@ -153,6 +156,31 @@ export default function AppSidebar({
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
+        {invitations.length > 0 && (
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  size="sm"
+                  className={cn(
+                    "w-full justify-start gap-4 py-4 text-base font-medium",
+                    isActive("/invitations")
+                  )}
+                >
+                  <Link href="/invitations" passHref>
+                    <SendIcon className="h-4 w-4" />
+                    <span>Invitations</span>
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
+                      {invitations.length}
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
 
         {isAccountPage && (
           <SidebarGroup>

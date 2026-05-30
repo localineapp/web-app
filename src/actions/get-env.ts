@@ -15,6 +15,10 @@ export async function areSignUpsDisabled(): Promise<boolean> {
   return signUpsDisabled
 }
 
+export async function isEmailVerificationRequired(): Promise<boolean> {
+  return auth.options.emailAndPassword.requireEmailVerification
+}
+
 export async function isAnySocialLoginEnabled(): Promise<boolean> {
   return await Promise.all([
     isGoogleLoginEnabled(),

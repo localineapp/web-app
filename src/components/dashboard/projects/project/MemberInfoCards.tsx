@@ -4,6 +4,7 @@ import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { FullProject } from "@/types/project"
 import { ProjectMemberRole } from "@prisma/client"
 import { CalendarIcon, FlagIcon, Globe2Icon, TagIcon } from "lucide-react"
+import { createElement } from "react"
 
 export default function MemberInfoCards({
   session,
@@ -32,9 +33,9 @@ function RoleCard({
   isMember: boolean
 }) {
   const roleColor = role?.color
+  const roleIcon = getIcon(role?.icon)
   const colorStyle = getColorStyle(roleColor)
   const colorClassName = getColorClassName(roleColor)
-  const RoleIcon = getIcon(role?.icon)
 
   return (
     <Card>
@@ -53,9 +54,12 @@ function RoleCard({
             className={`inline-flex items-center gap-2 text-2xl leading-none font-medium ${colorClassName}`}
             style={colorStyle}
           >
-            {RoleIcon ? (
-              <RoleIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
-            ) : null}
+            {roleIcon
+              ? createElement(roleIcon, {
+                  className: "h-5 w-5 shrink-0",
+                  "aria-hidden": true,
+                })
+              : null}
             {role?.name}
           </div>
         )}

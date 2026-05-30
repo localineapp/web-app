@@ -1,6 +1,5 @@
 "use client"
 
-import { deleteProjectLabel, updateProjectLabel } from "@/actions/projects"
 import TablePagination from "@/components/dashboard/table-pagination"
 import ColorPickerField from "@/components/ui/custom/ColorPickerField"
 import IconPickerField from "@/components/ui/custom/IconPickerField"
@@ -57,6 +56,10 @@ import { PencilIcon, SearchIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
+import {
+  deleteProjectLabel,
+  updateProjectLabel,
+} from "@/actions/project-labels"
 
 const PAGE_SIZE = 10
 

@@ -16,10 +16,12 @@ const flagKeys = Object.keys(FlagIcons)
   .filter((k) => k !== "default")
   .sort()
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const flagDisplayNames: Intl.DisplayNames | null =
   typeof Intl !== "undefined" && (Intl as any).DisplayNames
     ? new (Intl as any).DisplayNames(["en"], { type: "region" })
     : null
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const regionNameToFlagCode = new Map<string, string>()
 
