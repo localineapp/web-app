@@ -133,7 +133,6 @@ export default function AddLocaleDialog({
           <Label htmlFor="locale">Locale</Label>
           <LocalePickerField
             id="locale"
-            label="Locale"
             locales={locales}
             value={localeId}
             onChange={setLocaleId}

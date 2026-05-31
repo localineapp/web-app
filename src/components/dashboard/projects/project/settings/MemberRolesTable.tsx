@@ -514,7 +514,6 @@ function EditMemberRoleSheet({
                 <Label htmlFor="roleColor">Color (optional)</Label>
                 <ColorPickerField
                   id="roleColor"
-                  label="Color (optional)"
                   value={color}
                   onChange={setColor}
                   disabled={loading}
@@ -525,7 +524,6 @@ function EditMemberRoleSheet({
                 <Label htmlFor="roleIcon">Icon (optional)</Label>
                 <IconPickerField
                   id="roleIcon"
-                  label="Icon (optional)"
                   value={icon}
                   onChange={setIcon}
                   disabled={loading}

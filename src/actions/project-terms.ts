@@ -5,6 +5,7 @@ import { ProjectPermission } from "@/lib/project-permissions"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
 import { notFound } from "next/navigation"
+import { ProjectLabel } from "@prisma/client"
 
 export async function createProjectTerm({
   projectId,
@@ -120,11 +121,11 @@ export async function updateProjectTerm({
 export async function assignLabelsToTerm({
   projectId,
   termId,
-  labelIds,
+  labels,
 }: {
   projectId: string
   termId: string
-  labelIds: string[]
+  labels: ProjectLabel[]
 }) {
   const project = await canManageProjectFeature({
     projectId,
@@ -136,16 +137,13 @@ export async function assignLabelsToTerm({
     return notFound()
   }
 
-  const validLabelIds = project.labels.map((label) => label.id)
-  const labelsToAssign = labelIds.filter((id) => validLabelIds.includes(id))
-
   await prisma.projectTerm.update({
     where: {
       id: term.id,
     },
     data: {
       labels: {
-        set: labelsToAssign.map((id) => ({ id })),
+        set: labels,
       },
     },
   })

@@ -249,6 +249,7 @@ function EditLabelSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+
   const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null)
 
   const [name, setName] = useState("")
@@ -376,7 +377,6 @@ function EditLabelSheet({
                 <Label htmlFor="labelColor">Color (optional)</Label>
                 <ColorPickerField
                   id="labelColor"
-                  label="Color (optional)"
                   value={color}
                   onChange={setColor}
                   disabled={loading}
@@ -387,7 +387,6 @@ function EditLabelSheet({
                 <Label htmlFor="labelIcon">Icon (optional)</Label>
                 <IconPickerField
                   id="labelIcon"
-                  label="Icon (optional)"
                   value={icon}
                   onChange={setIcon}
                   disabled={loading}
@@ -441,6 +440,7 @@ function DeleteLabelDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+
   const [deletingLabel, setDeletingLabel] = useState<ProjectLabel | null>(null)
 
   async function handleDeleteLabel(currentLabel: ProjectLabel) {
@@ -452,7 +452,6 @@ function DeleteLabelDialog({
     })
       .then((deletedLabel) => {
         toast.success(`Deleted label ${deletedLabel.name}.`)
-        setDeletingLabel(null)
         router.refresh()
       })
       .catch((error) => {
@@ -462,6 +461,7 @@ function DeleteLabelDialog({
       })
       .finally(() => {
         setLoading(false)
+        setDeletingLabel(null)
       })
   }
 
@@ -500,6 +500,7 @@ function DeleteLabelDialog({
 
       <AlertDialogPortal>
         <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
+
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete label?</AlertDialogTitle>

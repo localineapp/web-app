@@ -121,6 +121,8 @@ export default async function ProjectMembersPage({
 
       <div>
         <MembersTable
+          session={session}
+          project={project}
           projectMembers={filteredProjectMembers}
           canUpdateMembers={canUpdateMembers}
           canRemoveMembers={canRemoveMembers}

@@ -141,7 +141,6 @@ export default function InviteMemberDialog({
           <Label htmlFor="role">Role</Label>
           <RolePickerField
             id="role"
-            label="Role"
             roles={project.memberRoles
               .filter((role) => role.id !== project.id)
               .sort((a, b) => {

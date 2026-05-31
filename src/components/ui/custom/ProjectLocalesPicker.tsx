@@ -10,11 +10,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getFlag, getFlagCodeForLocale } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
-import { Locale } from "@prisma/client"
+import { ProjectLocaleWithLocale } from "@/types/project"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
 import { createElement, useMemo, useState } from "react"
 
-export default function LocalePickerField({
+export default function ProjectLocalesPicker({
   id,
   locales,
   value,
@@ -23,35 +23,56 @@ export default function LocalePickerField({
   allowNone = true,
 }: {
   id: string
-  locales: Locale[]
-  value: string
-  onChange: (value: string) => void
+  locales: ProjectLocaleWithLocale[]
+  value: string[]
+  onChange: (value: string[]) => void
   disabled?: boolean
   allowNone?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const selectedLocale = useMemo(
-    () => locales.find((locale) => locale.id === value),
+  const selectedLocales = useMemo(
+    () => locales.filter((pl) => value.includes(pl.id)),
     [locales, value]
   )
 
-  const selectedLocalePreview = selectedLocale
+  const selectedPreview = selectedLocales.length
     ? (() => {
-        const flagCode =
-          selectedLocale.flag || getFlagCodeForLocale(selectedLocale)
-        const Flag = flagCode ? getFlag(flagCode) : undefined
-
+        const max = 3
+        const items = selectedLocales.slice(0, max)
         return (
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
-            {Flag ? (
-              createElement(Flag, {
-                className: "h-4 w-4",
-                "aria-hidden": true,
-              })
-            ) : (
-              <span className="h-2.5 w-2.5 rounded-full bg-current opacity-70" />
+          <span className="flex items-center gap-2">
+            {items.map((pl) => {
+              const locale = pl.locale
+              const flagCode =
+                locale.flag ||
+                getFlagCodeForLocale({
+                  code: locale.code ?? "",
+                  region: locale.region ?? undefined,
+                })
+              const Flag = flagCode ? getFlag(flagCode) : undefined
+
+              return (
+                <span
+                  key={pl.id}
+                  className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-background text-muted-foreground"
+                >
+                  {Flag ? (
+                    createElement(Flag, {
+                      className: "h-3 w-3",
+                      "aria-hidden": true,
+                    })
+                  ) : (
+                    <span className="h-2 w-2 rounded-full bg-current opacity-70" />
+                  )}
+                </span>
+              )
+            })}
+            {selectedLocales.length > max && (
+              <span className="text-xs text-muted-foreground">
+                +{selectedLocales.length - max}
+              </span>
             )}
           </span>
         )
@@ -61,13 +82,12 @@ export default function LocalePickerField({
   const filteredLocales = useMemo(() => {
     const normalizedSearchQuery = searchQuery.trim().toLowerCase()
 
-    if (!normalizedSearchQuery) {
-      return locales
-    }
+    if (!normalizedSearchQuery) return locales
 
-    return locales.filter((locale) => {
+    return locales.filter((pl) => {
+      const locale = pl.locale
       const displayName = (locale.displayName ?? "").toLowerCase()
-      const code = locale.code.toLowerCase()
+      const code = (locale.code ?? "").toLowerCase()
       const region = (locale.region ?? "").toLowerCase()
       return (
         displayName.includes(normalizedSearchQuery) ||
@@ -77,8 +97,16 @@ export default function LocalePickerField({
     })
   }, [locales, searchQuery])
 
-  function selectLocale(nextValue: string) {
-    onChange(nextValue)
+  function toggleLocale(nextId: string) {
+    if (value.includes(nextId)) {
+      onChange(value.filter((v) => v !== nextId))
+    } else {
+      onChange([...value, nextId])
+    }
+  }
+
+  function clearSelection() {
+    onChange([])
     setOpen(false)
     setSearchQuery("")
   }
@@ -88,9 +116,7 @@ export default function LocalePickerField({
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen)
-        if (!nextOpen) {
-          setSearchQuery("")
-        }
+        if (!nextOpen) setSearchQuery("")
       }}
     >
       <PopoverTrigger asChild>
@@ -101,13 +127,15 @@ export default function LocalePickerField({
           disabled={disabled}
           className={cn(
             "h-auto min-h-10 w-full justify-between gap-3 px-3 py-2 text-left font-normal",
-            !value && "text-muted-foreground"
+            !value.length && "text-muted-foreground"
           )}
         >
           <span className="flex min-w-0 items-center gap-3">
-            {selectedLocalePreview}
+            {selectedPreview}
             <span className="truncate">
-              {selectedLocale ? selectedLocale.displayName : "Select a locale"}
+              {selectedLocales.length > 0
+                ? `${selectedLocales.length} selected`
+                : "Select locales"}
             </span>
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -146,13 +174,13 @@ export default function LocalePickerField({
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{filteredLocales.length.toLocaleString()} locales</span>
-            {allowNone && value ? (
+            {allowNone && value.length > 0 ? (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 className="h-7 px-2 text-xs"
-                onClick={() => selectLocale("")}
+                onClick={clearSelection}
               >
                 Clear selection
               </Button>
@@ -161,43 +189,27 @@ export default function LocalePickerField({
 
           <ScrollArea className="h-72 w-full min-w-0 pr-1">
             <div className="grid gap-1">
-              {allowNone ? (
-                <button
-                  type="button"
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-muted focus-visible:bg-muted",
-                    !value && "bg-muted"
-                  )}
-                  onClick={() => selectLocale("")}
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-md border border-dashed border-border text-muted-foreground">
-                    <XIcon className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">None</span>
-                  {!value ? (
-                    <CheckIcon
-                      className="h-4 w-4 shrink-0 text-foreground"
-                      aria-hidden="true"
-                    />
-                  ) : null}
-                </button>
-              ) : null}
-
               {filteredLocales.length > 0 ? (
-                filteredLocales.map((locale) => {
-                  const selected = value === locale.id
-                  const flagCode = locale.flag || getFlagCodeForLocale(locale)
+                filteredLocales.map((pl) => {
+                  const locale = pl.locale
+                  const selected = value.includes(pl.id)
+                  const flagCode =
+                    locale.flag ||
+                    getFlagCodeForLocale({
+                      code: locale.code ?? "",
+                      region: locale.region ?? undefined,
+                    })
                   const Flag = flagCode ? getFlag(flagCode) : undefined
 
                   return (
                     <button
-                      key={locale.id}
+                      key={pl.id}
                       type="button"
                       className={cn(
                         "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-muted focus-visible:bg-muted",
                         selected && "bg-muted"
                       )}
-                      onClick={() => selectLocale(locale.id)}
+                      onClick={() => toggleLocale(pl.id)}
                     >
                       <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
                         {Flag ? (

@@ -143,7 +143,6 @@ export default function InvitationsDialog({
                       </Label>
                       <RolePickerField
                         id={`role-${invitation.id}`}
-                        label="Role"
                         roles={project.memberRoles
                           .filter((role) => role.id !== project.id)
                           .sort((a, b) => {

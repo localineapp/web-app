@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
@@ -18,14 +17,12 @@ const allIconNames = getAllLucideIconNames()
 
 export default function IconPickerField({
   id,
-  label,
   value,
   onChange,
   disabled,
   allowNone = true,
 }: {
   id: string
-  label: string
   value: string
   onChange: (value: string) => void
   disabled?: boolean

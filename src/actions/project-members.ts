@@ -1,6 +1,6 @@
 "use server"
 
-import { ProjectMember } from "@prisma/client"
+import { ProjectLocale, ProjectMember } from "@prisma/client"
 import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { notFound, unauthorized } from "next/navigation"
@@ -61,7 +61,7 @@ export async function getProjectMembers({
       })
 }
 
-export async function updateProjectMember({
+export async function updateProjectMemberRole({
   projectId,
   memberId,
   roleId,
@@ -85,6 +85,10 @@ export async function updateProjectMember({
     return notFound()
   }
 
+  if (role.id === project.id) {
+    throw new Error("Cannot assign the owner role to members.")
+  }
+
   if (member.roleId === project.id) {
     throw new Error("Owner role cannot be changed.")
   }
@@ -99,13 +103,48 @@ export async function updateProjectMember({
   })
 }
 
+export async function updateProjectMemberLocales({
+  projectId,
+  memberId,
+  locales,
+}: {
+  projectId: string
+  memberId: string
+  locales?: ProjectLocale[]
+}): Promise<ProjectMember> {
+  const project = await canManageProjectFeature({
+    projectId,
+    permission: ProjectPermission.UPDATE_MEMBERS,
+  })
+
+  const member = project.members.find((m) => m.id === memberId)
+  if (!member) {
+    return notFound()
+  }
+
+  if (member.roleId === project.id) {
+    throw new Error("Owner's locales cannot be changed.")
+  }
+
+  return await prisma.projectMember.update({
+    where: {
+      id: member.id,
+    },
+    data: {
+      locales: {
+        set: locales,
+      },
+    },
+  })
+}
+
 export async function removeProjectMember({
   projectId,
   memberId,
 }: {
   projectId: string
   memberId: string
-}): Promise<ProjectMember> {
+}): Promise<ProjectMemberWithUserAndRole> {
   const project = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.REMOVE_MEMBERS,
@@ -121,6 +160,7 @@ export async function removeProjectMember({
   }
 
   return await prisma.projectMember.delete({
+    ...projectMemberArgs,
     where: {
       id: member.id,
     },

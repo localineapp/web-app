@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
@@ -17,7 +16,6 @@ import { useMemo, useState } from "react"
 
 export default function RolePickerField({
   id,
-  label,
   roles,
   value,
   onChange,
@@ -25,7 +23,6 @@ export default function RolePickerField({
   allowNone = true,
 }: {
   id: string
-  label: string
   roles: Pick<ProjectMemberRole, "id" | "name" | "color" | "icon">[]
   value: string
   onChange: (value: string) => void

@@ -46,6 +46,16 @@ export async function createProjectInvitation({
   }
 
   if (
+    (await prisma.user.count({
+      where: { email, emailVerified: false },
+    })) > 0
+  ) {
+    throw new Error(
+      "The user with this email address has an unverified account. Please ask them to verify their email before sending an invitation."
+    )
+  }
+
+  if (
     await prisma.projectMember.count({
       where: { projectId: project.id, user: { email } },
     })

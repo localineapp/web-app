@@ -1,7 +1,6 @@
 "use client"
 
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { Shuffle, Trash2Icon } from "lucide-react"
@@ -9,14 +8,12 @@ import { normalizeHexColor } from "@/lib/project-utils"
 
 export default function ColorPickerField({
   id,
-  label,
   value,
   onChange,
   disabled,
   allowNone = true,
 }: {
   id: string
-  label: string
   value: string
   onChange: (value: string) => void
   disabled?: boolean
