@@ -27,7 +27,7 @@ export function isEncrypted(value: string): boolean {
   try {
     decrypt(value)
     return true
-  } catch (error) {
+  } catch {
     return false
   }
 }
