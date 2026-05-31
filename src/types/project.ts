@@ -63,8 +63,37 @@ export const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
   },
 })
 
+export const projectMemberArgs =
+  Prisma.validator<Prisma.ProjectMemberDefaultArgs>()({
+    include: {
+      user: {
+        omit: {
+          banned: true,
+          banReason: true,
+          banExpires: true,
+          emailVerified: true,
+          lastLoginMethod: true,
+          projectsLimit: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+      role: true,
+      locales: {
+        include: {
+          locale: true,
+        },
+      },
+    },
+  })
+
 export type FullProject = Prisma.ProjectGetPayload<{
   include: typeof fullProjectArgs.include
+}>
+
+export type ProjectMemberWithUserAndRole = Prisma.ProjectMemberGetPayload<{
+  include: typeof projectMemberArgs.include
 }>
 
 export type ProjectLocaleWithLocale = ProjectLocale & { locale: Locale }

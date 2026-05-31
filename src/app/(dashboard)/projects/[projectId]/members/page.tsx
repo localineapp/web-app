@@ -1,6 +1,8 @@
+import { getProjectMembers } from "@/actions/project-members"
 import { getProject } from "@/actions/projects"
 import InvitationsDialog from "@/components/dashboard/projects/project/members/InvitationsDialog"
 import InviteMemberDialog from "@/components/dashboard/projects/project/members/InviteMemberDialog"
+import MembersTable from "@/components/dashboard/projects/project/members/MembersTable"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
@@ -22,7 +24,8 @@ export default async function ProjectMembersPage({
     headers: await headers(),
   })
 
-  const member = project.members.find((m) => m.userId === session?.user.id)
+  const user = session?.user
+  const member = project.members.find((m) => m.userId === user?.id)
 
   const canInviteMembers =
     hasPermission(
@@ -75,6 +78,18 @@ export default async function ProjectMembersPage({
       })
     ).success
 
+  const projectMembers = await getProjectMembers({ projectId })
+  const filteredProjectMembers = projectMembers.map((projectMember) => ({
+    ...projectMember,
+    user: {
+      ...projectMember.user,
+      email:
+        canInviteMembers || canUpdateMembers || canRemoveMembers
+          ? projectMember.user.email
+          : "hidden@localine.app",
+    },
+  }))
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -105,7 +120,11 @@ export default async function ProjectMembersPage({
       </div>
 
       <div>
-        <p>Not implemented yet.</p>
+        <MembersTable
+          projectMembers={filteredProjectMembers}
+          canUpdateMembers={canUpdateMembers}
+          canRemoveMembers={canRemoveMembers}
+        />
       </div>
     </div>
   )

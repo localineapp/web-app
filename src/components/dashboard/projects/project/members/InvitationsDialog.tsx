@@ -91,7 +91,11 @@ export default function InvitationsDialog({
   return (
     <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild disabled={!canInviteMembers || loading}>
-        <Button variant="outline" disabled={!canInviteMembers || loading}>
+        <Button
+          variant="outline"
+          className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+          disabled={!canInviteMembers || loading}
+        >
           <SendIcon className="mr-2 h-4 w-4" />
           Invitations
         </Button>

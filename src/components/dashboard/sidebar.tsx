@@ -23,6 +23,7 @@ import {
 import { Project, ProjectInvitation } from "@prisma/client"
 import { useEffect, useState } from "react"
 import { getProject } from "@/actions/projects"
+import { getProjectInvitations } from "@/actions/project-invitations"
 import {
   Collapsible,
   CollapsibleContent,
@@ -40,11 +41,9 @@ import {
 export default function AppSidebar({
   appName,
   session,
-  invitations,
 }: {
   appName: string
   session: ReturnType<typeof useSession>["data"]
-  invitations: ProjectInvitation[]
 }) {
   const pathname = usePathname()
   const { state } = useSidebar()
@@ -53,6 +52,24 @@ export default function AppSidebar({
 
   const [project, setProject] = useState<Project | null>(null)
   const [canAccessAdmin, setCanAccessAdmin] = useState(false)
+  const [currentInvitations, setCurrentInvitations] = useState<
+    ProjectInvitation[] | null
+  >(null)
+
+  useEffect(() => {
+    const loadInvitations = async () => {
+      try {
+        const invitations = await getProjectInvitations({
+          includeExpired: false,
+        })
+        setCurrentInvitations(invitations)
+      } catch {
+        setCurrentInvitations([])
+      }
+    }
+
+    loadInvitations()
+  }, [pathname, user?.id])
 
   useEffect(() => {
     const match = pathname?.match(/\/projects\/([^/]+)/)
@@ -156,7 +173,7 @@ export default function AppSidebar({
           </SidebarMenu>
         </SidebarGroup>
 
-        {invitations.length > 0 && (
+        {currentInvitations && currentInvitations.length > 0 && (
           <SidebarGroup>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -173,7 +190,7 @@ export default function AppSidebar({
                     <SendIcon className="h-4 w-4" />
                     <span>Invitations</span>
                     <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
-                      {invitations.length}
+                      {currentInvitations?.length}
                     </span>
                   </Link>
                 </SidebarMenuButton>

@@ -8,8 +8,11 @@ import { generateId } from "better-auth"
 import { notFound, unauthorized } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { ProjectInvitationWithProjectAndRole } from "@/types/project"
-import { encrypt } from "@/lib/crypto"
+import {
+  ProjectInvitationWithProject,
+  ProjectInvitationWithProjectAndRole,
+} from "@/types/project"
+import { encrypt, isEncrypted } from "@/lib/crypto"
 
 export async function createProjectInvitation({
   projectId,
@@ -147,7 +150,7 @@ export async function acceptProjectInvitation({
   token,
 }: {
   token: string
-}): Promise<ProjectInvitation> {
+}): Promise<ProjectInvitationWithProject> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -156,14 +159,11 @@ export async function acceptProjectInvitation({
     return unauthorized()
   }
 
-  const encryptedToken = encrypt(token)
+  const encryptedToken = isEncrypted(token) ? token : encrypt(token)
   const invitation = await prisma.projectInvitation.findUnique({
     where: {
       token: encryptedToken,
-      userId: session.user.id,
-    },
-    include: {
-      user: true,
+      email: session.user.email,
     },
   })
 
@@ -200,6 +200,9 @@ export async function acceptProjectInvitation({
     where: {
       id: invitation.id,
     },
+    include: {
+      project: true,
+    },
   })
 }
 
@@ -207,7 +210,7 @@ export async function declineProjectInvitation({
   token,
 }: {
   token: string
-}): Promise<ProjectInvitation> {
+}): Promise<ProjectInvitationWithProject> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -216,14 +219,11 @@ export async function declineProjectInvitation({
     return unauthorized()
   }
 
-  const encryptedToken = encrypt(token)
+  const encryptedToken = isEncrypted(token) ? token : encrypt(token)
   const invitation = await prisma.projectInvitation.findUnique({
     where: {
       token: encryptedToken,
-      userId: session.user.id,
-    },
-    include: {
-      user: true,
+      email: session.user.email,
     },
   })
 
@@ -234,6 +234,9 @@ export async function declineProjectInvitation({
   return await prisma.projectInvitation.delete({
     where: {
       id: invitation.id,
+    },
+    include: {
+      project: true,
     },
   })
 }

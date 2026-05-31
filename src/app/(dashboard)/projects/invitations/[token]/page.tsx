@@ -1,9 +1,10 @@
 import { getProjectInvitation } from "@/actions/project-invitations"
+import BackgroundPattern from "@/components/background-pattern"
 import {
   InvitationExpired,
   InvitationNotFound,
-} from "@/components/dashboard/projects/invitation/InvitationAlerts"
-import { toJsonSafe } from "@/lib/utils"
+} from "@/components/dashboard/projects/invitations/InvitationAlerts"
+import InvitationInformation from "@/components/dashboard/projects/invitations/InvitationInformation"
 import { Metadata } from "next"
 
 export async function generateMetadata({
@@ -52,8 +53,25 @@ export default async function InvitationsPage({
   }
 
   return (
-    <>
-      <p>{JSON.stringify(toJsonSafe(invitation))}</p>
-    </>
+    <main className="relative flex min-h-full overflow-hidden bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.14),transparent_38%),linear-gradient(180deg,hsl(var(--background))_0%,hsl(var(--muted)/0.22)_100%)]">
+      <BackgroundPattern />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 items-center px-4 py-10 sm:px-6 lg:px-8">
+        <div className="w-full space-y-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
+              You have been invited to {invitation.project.name}
+            </h1>
+
+            <p className="mx-auto mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
+              Review the project details, confirm the access role you will get,
+              and check the invitation timeline before accepting.
+            </p>
+          </div>
+
+          <InvitationInformation invitation={invitation} />
+        </div>
+      </div>
+    </main>
   )
 }

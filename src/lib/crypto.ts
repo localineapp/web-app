@@ -22,3 +22,12 @@ export function decrypt(encryptedValue: string): string {
 
   return decrypted
 }
+
+export function isEncrypted(value: string): boolean {
+  try {
+    decrypt(value)
+    return true
+  } catch (error) {
+    return false
+  }
+}

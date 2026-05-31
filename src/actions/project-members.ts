@@ -3,8 +3,63 @@
 import { ProjectMember } from "@prisma/client"
 import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
-import { notFound } from "next/navigation"
+import { notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import {
+  projectMemberArgs,
+  ProjectMemberWithUserAndRole,
+} from "@/types/project"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+
+export async function getProjectMembers({
+  projectId,
+}: {
+  projectId: string
+}): Promise<ProjectMemberWithUserAndRole[]> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session || !session.user) {
+    return unauthorized()
+  }
+
+  const user = session.user
+
+  const canReadAllProjects = (
+    await auth.api.userHasPermission({
+      body: {
+        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+        role: user.role ?? "user",
+        permissions: {
+          projects: ["read"],
+        },
+      },
+    })
+  ).success
+
+  return canReadAllProjects
+    ? await prisma.projectMember.findMany({
+        ...projectMemberArgs,
+        where: {
+          projectId: projectId,
+        },
+      })
+    : await prisma.projectMember.findMany({
+        ...projectMemberArgs,
+        where: {
+          projectId: projectId,
+          project: {
+            members: {
+              some: {
+                userId: user.id,
+              },
+            },
+          },
+        },
+      })
+}
 
 export async function updateProjectMember({
   projectId,

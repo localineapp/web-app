@@ -1,5 +1,5 @@
 import { getProjectInvitations } from "@/actions/project-invitations"
-import InvitationsTable from "@/components/dashboard/projects/invitation/InvitationsTable"
+import InvitationsTable from "@/components/dashboard/projects/invitations/InvitationsTable"
 import { decrypt } from "@/lib/crypto"
 import { Metadata } from "next"
 
