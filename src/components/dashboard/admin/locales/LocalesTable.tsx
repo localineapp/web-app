@@ -69,7 +69,7 @@ import { SubmitEvent, useState } from "react"
 import { toast } from "sonner"
 import CreateLocaleDialog from "@/components/dashboard/admin/locales/CreateLocaleDialog"
 import { cn } from "@/lib/utils"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import {
   InputGroup,
   InputGroupAddon,

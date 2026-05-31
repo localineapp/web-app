@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/table"
 import { authClient, useSession } from "@/lib/auth-client"
 import { auth } from "@/lib/auth"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 
 const PAGE_SIZE = 10
 

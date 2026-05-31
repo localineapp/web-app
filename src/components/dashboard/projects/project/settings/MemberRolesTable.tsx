@@ -1,6 +1,6 @@
 "use client"
 
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import ColorPickerField from "@/components/ui/custom/ColorPickerField"
 import IconPickerField from "@/components/ui/custom/IconPickerField"
 import {

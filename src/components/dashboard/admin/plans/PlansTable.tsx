@@ -64,7 +64,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import {
   InputGroup,
   InputGroupAddon,

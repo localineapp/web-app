@@ -33,7 +33,7 @@ import {
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import { Plan } from "@prisma/client"
 import { cn } from "@/lib/utils"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import { FullProject } from "@/types/project"
 import { generateRoleBadge } from "@/lib/project-utils"
 import { useSession } from "@/lib/auth-client"

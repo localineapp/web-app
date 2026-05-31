@@ -27,7 +27,7 @@ import {
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import {

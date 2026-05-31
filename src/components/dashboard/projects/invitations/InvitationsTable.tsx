@@ -8,7 +8,7 @@ import {
 import { ProjectInvitationWithProjectAndRole } from "@/types/project"
 import { EyeIcon, SearchIcon } from "lucide-react"
 import { useState } from "react"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import {
   Table,
   TableBody,

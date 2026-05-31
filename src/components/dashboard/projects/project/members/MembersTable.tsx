@@ -1,6 +1,6 @@
 "use client"
 
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import {
   InputGroup,
   InputGroupAddon,

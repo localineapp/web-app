@@ -1,7 +1,7 @@
 "use client"
 
 import { removeProjectLocale } from "@/actions/project-locales"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import {
   AlertDialog,
   AlertDialogCancel,

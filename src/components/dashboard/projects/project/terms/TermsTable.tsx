@@ -5,7 +5,7 @@ import {
   lockProjectTerm,
   updateProjectTerm,
 } from "@/actions/project-terms"
-import TablePagination from "@/components/dashboard/table-pagination"
+import TablePagination from "@/components/dashboard/TablePagination"
 import {
   AlertDialog,
   AlertDialogCancel,
