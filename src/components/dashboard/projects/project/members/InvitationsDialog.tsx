@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  extendProjectInvitation,
   revokeProjectInvitation,
   updateProjectInvitation,
 } from "@/actions/project-invitations"
@@ -47,6 +48,8 @@ import { SendIcon, SquareArrowRightExitIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { Badge } from "@/components/ui/badge"
+import { ProjectInvitation } from "@prisma/client"
 
 export default function InvitationsDialog({
   project,
@@ -161,10 +164,25 @@ export default function InvitationsDialog({
                       />
                     </TableCell>
 
-                    <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {formatDate(invitation.expiresAt)}
+                        {invitation.expiresAt < new Date() && (
+                          <Badge variant="destructive" className="ml-2">
+                            Expired
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
+                        <ResendInvitationDialog
+                          invitation={invitation}
+                          canInviteMembers={canInviteMembers}
+                          loading={loading}
+                          setLoading={setLoading}
+                        />
                         <RevokeInvitationDialog
                           invitation={invitation}
                           canInviteMembers={canInviteMembers}
@@ -190,6 +208,81 @@ export default function InvitationsDialog({
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function ResendInvitationDialog({
+  invitation,
+  canInviteMembers,
+  loading,
+  setLoading,
+}: {
+  invitation: ProjectInvitation
+  canInviteMembers: boolean
+  loading: boolean
+  setLoading: (loading: boolean) => void
+}) {
+  const router = useRouter()
+
+  const isExpired = invitation.expiresAt < new Date()
+
+  const handleResendInvitation = async (invitation: ProjectInvitation) => {
+    setLoading(true)
+
+    await extendProjectInvitation({
+      projectId: invitation.projectId,
+      invitationId: invitation.id,
+    })
+      .then(() => {
+        toast.success(
+          `Resent invitation for ${invitation.email} (${invitation.id.slice(0, 8)}).`
+        )
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message || "Failed to resend invitation. Please try again."
+        )
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          className={cn(
+            "inline-flex",
+            !canInviteMembers || !isExpired || loading
+              ? "cursor-not-allowed"
+              : ""
+          )}
+        >
+          <Button
+            variant="outline"
+            size="icon"
+            className="inline-flex items-center p-1 text-sm"
+            disabled={!canInviteMembers || !isExpired || loading}
+            onClick={() => handleResendInvitation(invitation)}
+          >
+            <SendIcon className="h-4 w-4" />
+          </Button>
+        </span>
+      </TooltipTrigger>
+      {!canInviteMembers && (
+        <TooltipContent>
+          You don&rsquo;t have permission to invite members.
+        </TooltipContent>
+      )}
+      {!isExpired && (
+        <TooltipContent>
+          This invitation is not expired yet. You can only resend expired
+          invitations.
+        </TooltipContent>
+      )}
+    </Tooltip>
   )
 }
 

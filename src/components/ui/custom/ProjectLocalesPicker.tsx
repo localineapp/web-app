@@ -24,23 +24,18 @@ export default function ProjectLocalesPicker({
 }: {
   id: string
   locales: ProjectLocaleWithLocale[]
-  value: string[]
-  onChange: (value: string[]) => void
+  value: ProjectLocaleWithLocale[]
+  onChange: (value: ProjectLocaleWithLocale[]) => void
   disabled?: boolean
   allowNone?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const selectedLocales = useMemo(
-    () => locales.filter((pl) => value.includes(pl.id)),
-    [locales, value]
-  )
-
-  const selectedPreview = selectedLocales.length
+  const selectedPreview = value.length
     ? (() => {
         const max = 3
-        const items = selectedLocales.slice(0, max)
+        const items = value.slice(0, max)
         return (
           <span className="flex items-center gap-2">
             {items.map((pl) => {
@@ -69,9 +64,9 @@ export default function ProjectLocalesPicker({
                 </span>
               )
             })}
-            {selectedLocales.length > max && (
+            {value.length > max && (
               <span className="text-xs text-muted-foreground">
-                +{selectedLocales.length - max}
+                +{value.length - max}
               </span>
             )}
           </span>
@@ -97,11 +92,13 @@ export default function ProjectLocalesPicker({
     })
   }, [locales, searchQuery])
 
-  function toggleLocale(nextId: string) {
-    if (value.includes(nextId)) {
-      onChange(value.filter((v) => v !== nextId))
+  function toggleLocale(nextLocale: ProjectLocaleWithLocale) {
+    if (value.some((selectedLocale) => selectedLocale.id === nextLocale.id)) {
+      onChange(
+        value.filter((selectedLocale) => selectedLocale.id !== nextLocale.id)
+      )
     } else {
-      onChange([...value, nextId])
+      onChange([...value, nextLocale])
     }
   }
 
@@ -133,9 +130,7 @@ export default function ProjectLocalesPicker({
           <span className="flex min-w-0 items-center gap-3">
             {selectedPreview}
             <span className="truncate">
-              {selectedLocales.length > 0
-                ? `${selectedLocales.length} selected`
-                : "Select locales"}
+              {value.length > 0 ? `${value.length} selected` : "Select locales"}
             </span>
           </span>
           <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-60" />
@@ -190,9 +185,11 @@ export default function ProjectLocalesPicker({
           <ScrollArea className="h-72 w-full min-w-0 pr-1">
             <div className="grid gap-1">
               {filteredLocales.length > 0 ? (
-                filteredLocales.map((pl) => {
-                  const locale = pl.locale
-                  const selected = value.includes(pl.id)
+                filteredLocales.map((projectLocale) => {
+                  const locale = projectLocale.locale
+                  const selected = value.some(
+                    (selectedLocale) => selectedLocale.id === projectLocale.id
+                  )
                   const flagCode =
                     locale.flag ||
                     getFlagCodeForLocale({
@@ -203,13 +200,13 @@ export default function ProjectLocalesPicker({
 
                   return (
                     <button
-                      key={pl.id}
+                      key={projectLocale.id}
                       type="button"
                       className={cn(
                         "flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-muted focus-visible:bg-muted",
                         selected && "bg-muted"
                       )}
-                      onClick={() => toggleLocale(pl.id)}
+                      onClick={() => toggleLocale(projectLocale)}
                     >
                       <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
                         {Flag ? (
@@ -221,12 +218,15 @@ export default function ProjectLocalesPicker({
                           <span className="h-2.5 w-2.5 rounded-full bg-current opacity-70" />
                         )}
                       </span>
+
                       <span className="min-w-0 flex-1 truncate">
                         {locale.displayName}
                       </span>
+
                       <span className="shrink-0 text-xs text-muted-foreground">
                         {locale.code}
                       </span>
+
                       {selected ? (
                         <CheckIcon
                           className="h-4 w-4 shrink-0 text-foreground"

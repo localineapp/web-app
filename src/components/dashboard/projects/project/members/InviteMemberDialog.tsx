@@ -65,8 +65,7 @@ export default function InviteMemberDialog({
       })
       .catch((error) => {
         toast.error(
-          error?.response?.data?.message ||
-            `Failed to invite ${email}. Please try again.`
+          error?.message || `Failed to invite ${email}. Please try again.`
         )
       })
       .finally(() => {

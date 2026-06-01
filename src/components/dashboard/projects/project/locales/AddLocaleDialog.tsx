@@ -2,7 +2,6 @@
 
 import { addProjectLocale } from "@/actions/project-locales"
 import { Button } from "@/components/ui/button"
-import LocalePickerField from "@/components/ui/custom/LocalePickerField"
 import { Label } from "@/components/ui/label"
 import {
   Dialog,
@@ -25,6 +24,7 @@ import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
+import LocalePickerField from "@/components/ui/custom/LocalePickerField"
 
 export default function AddLocaleDialog({
   project,
@@ -39,9 +39,7 @@ export default function AddLocaleDialog({
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
-  const [localeId, setLocaleId] = useState("")
-
-  const selectedLocale = locales.find((locale) => locale.id === localeId)
+  const [locale, setLocale] = useState<Locale | null>(null)
 
   const isLimitReached =
     project.plan.localesLimit !== null &&
@@ -49,34 +47,30 @@ export default function AddLocaleDialog({
 
   const handleAddLocale = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    setLoading(true)
 
-    if (!selectedLocale) {
-      toast.error("Please select a locale.")
-      setLoading(false)
+    if (!locale) {
+      toast.error("Please select a locale to add.")
       return
     }
 
+    setLoading(true)
     await addProjectLocale({
       projectId: project.id,
-      localeId: selectedLocale.id,
+      localeId: locale.id,
     })
       .then(() => {
         toast.success(
-          `The locale ${selectedLocale.displayName} has been added to the project.`
+          `The locale ${locale.displayName} has been added to the project.`
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.response?.data?.message ||
-            `Failed to add locale. Please try again.`
-        )
+        toast.error(error?.message || `Failed to add locale. Please try again.`)
       })
       .finally(() => {
         setLoading(false)
         setDialogOpen(false)
-        setLocaleId("")
+        setLocale(null)
       })
   }
 
@@ -134,8 +128,8 @@ export default function AddLocaleDialog({
           <LocalePickerField
             id="locale"
             locales={locales}
-            value={localeId}
-            onChange={setLocaleId}
+            value={locale}
+            onChange={setLocale}
             disabled={loading}
           />
         </div>
@@ -145,7 +139,7 @@ export default function AddLocaleDialog({
             variant="outline"
             onClick={() => {
               setDialogOpen(false)
-              setLocaleId("")
+              setLocale(null)
             }}
             disabled={loading}
           >
@@ -155,7 +149,7 @@ export default function AddLocaleDialog({
           <Button
             variant="outline"
             onClick={handleAddLocale}
-            disabled={!selectedLocale || loading}
+            disabled={!locale || loading}
           >
             {loading ? (
               <>

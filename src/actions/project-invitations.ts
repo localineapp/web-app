@@ -13,6 +13,7 @@ import {
   ProjectInvitationWithProjectAndRole,
 } from "@/types/project"
 import { encrypt, isEncrypted } from "@/lib/crypto"
+import { isEmailVerificationRequired } from "@/actions/get-env"
 
 export async function createProjectInvitation({
   projectId,
@@ -46,6 +47,7 @@ export async function createProjectInvitation({
   }
 
   if (
+    (await isEmailVerificationRequired()) &&
     (await prisma.user.count({
       where: { email, emailVerified: false },
     })) > 0
@@ -152,6 +154,33 @@ export async function updateProjectInvitation({
     },
     data: {
       roleId: role.id,
+    },
+  })
+}
+
+export async function extendProjectInvitation({
+  projectId,
+  invitationId,
+}: {
+  projectId: string
+  invitationId: string
+}): Promise<ProjectInvitation> {
+  const project = await canManageProjectFeature({
+    projectId,
+    permission: ProjectPermission.INVITE_MEMBERS,
+  })
+
+  const invitation = project.invitations.find((inv) => inv.id === invitationId)
+  if (!invitation) {
+    return notFound()
+  }
+
+  return await prisma.projectInvitation.update({
+    where: {
+      id: invitation.id,
+    },
+    data: {
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   })
 }

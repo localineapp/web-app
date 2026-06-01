@@ -55,8 +55,12 @@ import {
 import { useSession } from "@/lib/auth-client"
 import { generateRoleBadge } from "@/lib/project-utils"
 import { cn, formatDate } from "@/lib/utils"
-import { FullProject, ProjectMemberWithUserAndRole } from "@/types/project"
-import { ProjectLocale, ProjectMember, ProjectMemberRole } from "@prisma/client"
+import {
+  FullProject,
+  ProjectLocaleWithLocale,
+  ProjectMemberWithUserAndRole,
+} from "@/types/project"
+import { ProjectMember, ProjectMemberRole } from "@prisma/client"
 import {
   AlertTriangleIcon,
   GlobeIcon,
@@ -473,7 +477,9 @@ function EditMemberLocalesDialog({
   const [editingMember, setEditingMember] =
     useState<ProjectMemberWithUserAndRole | null>()
 
-  const [locales, setLocales] = useState<ProjectLocale[]>(projectMember.locales)
+  const [locales, setLocales] = useState<ProjectLocaleWithLocale[]>(
+    projectMember.locales
+  )
 
   const isOwner = projectMember.role.id === project.id
 
@@ -571,10 +577,8 @@ function EditMemberLocalesDialog({
           <ProjectLocalesPicker
             id={`locales-${editingMember?.id}`}
             locales={project.locales}
-            value={locales.map((l) => l.id)}
-            onChange={(ids) =>
-              setLocales(project.locales.filter((pl) => ids.includes(pl.id)))
-            }
+            value={locales}
+            onChange={setLocales}
             disabled={loading || !canUpdateMembers || isOwner}
           />
         </div>
