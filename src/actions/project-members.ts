@@ -11,6 +11,7 @@ import {
 } from "@/types/project"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { updateMember } from "@/services/project-members"
 
 export async function getProjectMembers({
   projectId,
@@ -59,6 +60,30 @@ export async function getProjectMembers({
           },
         },
       })
+}
+
+export async function updateProjectMember({
+  projectId,
+  memberId,
+  roleId,
+  locales,
+}: {
+  projectId: string
+  memberId: string
+  roleId?: string
+  locales?: ProjectLocale[]
+}): Promise<ProjectMember> {
+  const project = await canManageProjectFeature({
+    projectId,
+    permission: ProjectPermission.UPDATE_MEMBERS,
+  })
+
+  return await updateMember({
+    project,
+    memberId,
+    roleId,
+    locales,
+  })
 }
 
 export async function updateProjectMemberRole({

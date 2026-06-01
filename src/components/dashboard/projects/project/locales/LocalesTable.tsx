@@ -212,7 +212,7 @@ function RemoveLocaleDialog({
 
     await removeProjectLocale({
       projectId: projectLocale.projectId,
-      localeId: projectLocale.id,
+      projectLocaleId: projectLocale.id,
     })
       .then(() => {
         toast.success(

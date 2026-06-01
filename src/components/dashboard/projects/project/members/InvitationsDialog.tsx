@@ -1,7 +1,6 @@
 "use client"
 
 import {
-  extendProjectInvitation,
   revokeProjectInvitation,
   updateProjectInvitation,
 } from "@/actions/project-invitations"
@@ -229,9 +228,10 @@ function ResendInvitationDialog({
   const handleResendInvitation = async (invitation: ProjectInvitation) => {
     setLoading(true)
 
-    await extendProjectInvitation({
+    await updateProjectInvitation({
       projectId: invitation.projectId,
       invitationId: invitation.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
       .then(() => {
         toast.success(

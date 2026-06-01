@@ -59,9 +59,7 @@ export default function AppSidebar({
   useEffect(() => {
     const loadInvitations = async () => {
       try {
-        const invitations = await getProjectInvitations({
-          includeExpired: false,
-        })
+        const invitations = await getProjectInvitations()
         setCurrentInvitations(invitations)
       } catch {
         setCurrentInvitations([])

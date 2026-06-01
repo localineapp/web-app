@@ -17,7 +17,7 @@ export async function generateMetadata({
 
   if (!invitation) {
     return {
-      title: "Invitation Not Found",
+      title: "Invitation",
       robots: "noindex",
     }
   }

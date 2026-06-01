@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  deleteProjectTerm,
-  lockProjectTerm,
-  updateProjectTerm,
-} from "@/actions/project-terms"
+import { deleteProjectTerm, updateProjectTerm } from "@/actions/project-terms"
 import TablePagination from "@/components/dashboard/TablePagination"
 import {
   AlertDialog,
@@ -109,7 +105,7 @@ export default function TermsTable({
   async function handleUpdateLockTerm(term: ProjectTerm) {
     setLoading(true)
 
-    await lockProjectTerm({
+    await updateProjectTerm({
       projectId: term.projectId,
       termId: term.id,
       locked: !term.locked,

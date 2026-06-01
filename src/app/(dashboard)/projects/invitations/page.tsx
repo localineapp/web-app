@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default async function InvitationsPage() {
-  const invitations = await getProjectInvitations({ includeExpired: false })
+  const invitations = await getProjectInvitations()
 
   const invitationsWithDecryptedTokens = await Promise.all(
     invitations.map(async (invitation) => ({

@@ -73,7 +73,6 @@ import { toast } from "sonner"
 import {
   deleteProjectMemberRole,
   updateProjectMemberRole,
-  updateProjectMemberRolePermissions,
 } from "@/actions/project-member-roles"
 
 const PAGE_SIZE = 10
@@ -617,7 +616,7 @@ function EditMemberRolePermissionsSheet({
 
     setLoading(true)
 
-    await updateProjectMemberRolePermissions({
+    await updateProjectMemberRole({
       projectId: project.id,
       roleId: editingRole.id,
       permissions,

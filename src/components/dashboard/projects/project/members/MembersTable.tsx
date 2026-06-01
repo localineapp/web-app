@@ -2,8 +2,7 @@
 
 import {
   removeProjectMember,
-  updateProjectMemberLocales,
-  updateProjectMemberRole,
+  updateProjectMember,
 } from "@/actions/project-members"
 import TablePagination from "@/components/dashboard/TablePagination"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -308,7 +307,7 @@ function EditMemberRoleDialog({
     setLoading(true)
     if (!role) return
 
-    await updateProjectMemberRole({
+    await updateProjectMember({
       projectId: projectMember.projectId,
       memberId: projectMember.id,
       roleId: role.id,
@@ -499,7 +498,7 @@ function EditMemberLocalesDialog({
     setLoading(true)
     if (!locales) return
 
-    await updateProjectMemberLocales({
+    await updateProjectMember({
       projectId: projectMember.projectId,
       memberId: projectMember.id,
       locales,

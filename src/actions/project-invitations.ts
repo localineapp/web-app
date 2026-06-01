@@ -13,7 +13,47 @@ import {
   ProjectInvitationWithProjectAndRole,
 } from "@/types/project"
 import { encrypt, isEncrypted } from "@/lib/crypto"
-import { isEmailVerificationRequired } from "@/actions/get-env"
+import {
+  createInvitation,
+  deleteInvitation,
+  getInvitation,
+  getInvitations,
+  updateInvitation,
+} from "@/services/project-invitations"
+
+export async function getProjectInvitations(
+  includeExpired = false
+): Promise<ProjectInvitationWithProjectAndRole[]> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session?.user) {
+    return unauthorized()
+  }
+
+  return await getInvitations({
+    userId: session.user.id,
+    includeExpired,
+  })
+}
+
+export async function getProjectInvitation(
+  token: string
+): Promise<ProjectInvitationWithProjectAndRole | null> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session?.user) {
+    return unauthorized()
+  }
+
+  return await getInvitation({
+    userId: session.user.id,
+    token,
+  })
+}
 
 export async function createProjectInvitation({
   projectId,
@@ -29,92 +69,10 @@ export async function createProjectInvitation({
     permission: ProjectPermission.INVITE_MEMBERS,
   })
 
-  if (project.invitations.some((invitation) => invitation.email === email)) {
-    throw new Error(
-      "An invitation has already been sent to this email address."
-    )
-  }
-
-  const role = project.memberRoles.find(
-    (memberRole) => memberRole.id === roleId
-  )
-  if (!role) {
-    throw new Error("Selected role does not exist.")
-  }
-
-  if (role.id === project.id) {
-    throw new Error("Cannot assign the owner role to new members.")
-  }
-
-  if (
-    (await isEmailVerificationRequired()) &&
-    (await prisma.user.count({
-      where: { email, emailVerified: false },
-    })) > 0
-  ) {
-    throw new Error(
-      "The user with this email address has an unverified account. Please ask them to verify their email before sending an invitation."
-    )
-  }
-
-  if (
-    await prisma.projectMember.count({
-      where: { projectId: project.id, user: { email } },
-    })
-  ) {
-    throw new Error("This user is already a member of the project.")
-  }
-
-  return await prisma.projectInvitation.create({
-    data: {
-      id: generateId(),
-      projectId: project.id,
-      email,
-      token: encrypt(generateId()),
-      roleId: role.id,
-    },
-  })
-}
-
-export async function getProjectInvitations({
-  includeExpired = false,
-}: {
-  includeExpired: boolean
-}): Promise<ProjectInvitationWithProjectAndRole[]> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user) {
-    return unauthorized()
-  }
-
-  return await prisma.projectInvitation.findMany({
-    where: {
-      user: {
-        id: session.user.id,
-      },
-      expiresAt: includeExpired ? undefined : { gt: new Date() },
-    },
-    include: {
-      project: true,
-      role: true,
-    },
-  })
-}
-
-export async function getProjectInvitation(
-  token: string
-): Promise<ProjectInvitationWithProjectAndRole | null> {
-  const encryptedToken = encrypt(token)
-  return await prisma.projectInvitation.findUnique({
-    where: {
-      token: encryptedToken,
-    },
-    include: {
-      project: true,
-      role: true,
-    },
+  return await createInvitation({
+    project,
+    email,
+    roleId,
   })
 }
 
@@ -122,43 +80,27 @@ export async function updateProjectInvitation({
   projectId,
   invitationId,
   roleId,
+  expiresAt,
 }: {
   projectId: string
   invitationId: string
-  roleId: string
+  roleId?: string
+  expiresAt?: Date
 }): Promise<ProjectInvitation> {
   const project = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.INVITE_MEMBERS,
   })
 
-  const invitation = project.invitations.find((inv) => inv.id === invitationId)
-  if (!invitation) {
-    return notFound()
-  }
-
-  const role = project.memberRoles.find(
-    (memberRole) => memberRole.id === roleId
-  )
-  if (!role) {
-    throw new Error("Selected role does not exist.")
-  }
-
-  if (role.id === project.id) {
-    throw new Error("Cannot assign the owner role to members.")
-  }
-
-  return await prisma.projectInvitation.update({
-    where: {
-      id: invitation.id,
-    },
-    data: {
-      roleId: role.id,
-    },
+  return await updateInvitation({
+    project,
+    invitationId,
+    roleId,
+    expiresAt,
   })
 }
 
-export async function extendProjectInvitation({
+export async function revokeProjectInvitation({
   projectId,
   invitationId,
 }: {
@@ -170,18 +112,9 @@ export async function extendProjectInvitation({
     permission: ProjectPermission.INVITE_MEMBERS,
   })
 
-  const invitation = project.invitations.find((inv) => inv.id === invitationId)
-  if (!invitation) {
-    return notFound()
-  }
-
-  return await prisma.projectInvitation.update({
-    where: {
-      id: invitation.id,
-    },
-    data: {
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
+  return await deleteInvitation({
+    project,
+    invitationId,
   })
 }
 
@@ -276,30 +209,6 @@ export async function declineProjectInvitation({
     },
     include: {
       project: true,
-    },
-  })
-}
-
-export async function revokeProjectInvitation({
-  projectId,
-  invitationId,
-}: {
-  projectId: string
-  invitationId: string
-}): Promise<ProjectInvitation> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.INVITE_MEMBERS,
-  })
-
-  const invitation = project.invitations.find((inv) => inv.id === invitationId)
-  if (!invitation) {
-    return notFound()
-  }
-
-  return await prisma.projectInvitation.delete({
-    where: {
-      id: invitation.id,
     },
   })
 }
