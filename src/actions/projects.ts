@@ -12,8 +12,9 @@ import {
   hasPermission,
   ProjectPermission,
 } from "@/lib/project-permissions"
-import { FullProject, fullProjectArgs } from "@/types/project"
+import { FullProject } from "@/types/project"
 import { findProject } from "@/lib/project"
+import { getMany, getOne } from "@/services/projects"
 
 export async function canManageProjectFeature({
   projectId,
@@ -84,38 +85,7 @@ export async function getProjects({
 
   const user = session.user
 
-  if (includeAll) {
-    const canReadAllProjects = (
-      await auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            projects: ["read"],
-          },
-        },
-      })
-    ).success
-    if (!canReadAllProjects) {
-      return forbidden()
-    }
-  }
-
-  return await prisma.project.findMany({
-    ...fullProjectArgs,
-    where: includeAll
-      ? undefined
-      : {
-          members: {
-            some: {
-              userId: user.id,
-            },
-          },
-        },
-    orderBy: {
-      createdAt: "asc",
-    },
-  })
+  return await getMany({ user, includeAll })
 }
 
 export async function getProject(
@@ -131,36 +101,7 @@ export async function getProject(
 
   const user = session.user
 
-  const canReadAllProjects = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          projects: ["read"],
-        },
-      },
-    })
-  ).success
-
-  return canReadAllProjects
-    ? await prisma.project.findUnique({
-        ...fullProjectArgs,
-        where: {
-          id: projectId,
-        },
-      })
-    : await prisma.project.findFirst({
-        ...fullProjectArgs,
-        where: {
-          id: projectId,
-          members: {
-            some: {
-              userId: user?.id,
-            },
-          },
-        },
-      })
+  return await getOne({ user, projectId })
 }
 
 export async function createProject({

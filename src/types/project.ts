@@ -59,7 +59,11 @@ export const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
         role: true,
       },
     },
-    plan: true,
+    plan: {
+      omit: {
+        default: true,
+      },
+    },
   },
 })
 

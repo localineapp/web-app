@@ -19,4 +19,4 @@ These endpoints were used to manage project members. Due to drastic changes in h
 ### `GET /api/v1/projects`
 This endpoint used to return the member's role name in the `memberRole` field. This has been changed to return the member's role ID. For project owners, this field will still return `null`, like it used to, even though owners are now also considered members of the project as of v2.
 ### `GET /api/v1/projects/[projectId]`
-This endpoint used to return the `email` of the project owner. This field is now populated with the keyword "redacted" for security reasons.
+This endpoint used to return the `email` of the project owner. This field is now populated with the keyword "[redacted]" for security reasons. (Exception: if the requester is the project owner, the actual email will be returned as before.)

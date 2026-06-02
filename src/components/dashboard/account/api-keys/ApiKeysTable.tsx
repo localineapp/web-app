@@ -48,7 +48,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { formatDate } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 
 type ApiKey = NonNullable<
   Awaited<ReturnType<typeof auth.api.listApiKeys>>
@@ -189,13 +189,21 @@ export default function ApiKeysTable({
                     </Button>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell
+                    className={cn(
+                      !apiKey.lastRequest && "text-muted-foreground italic"
+                    )}
+                  >
                     {apiKey.lastRequest
                       ? formatDate(apiKey.lastRequest)
                       : "Never used"}
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell
+                    className={cn(
+                      !apiKey.expiresAt && "text-muted-foreground italic"
+                    )}
+                  >
                     {apiKey.expiresAt ? formatDate(apiKey.expiresAt) : "Never"}
                   </TableCell>
 

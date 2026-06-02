@@ -1,48 +1,41 @@
-import { createHeaders, withApiKey } from "@/lib/api"
-import { prisma } from "@/lib/prisma"
+import { createHeaders, validateRequest } from "@/lib/api"
+import { getMany } from "@/services/projects"
 
 /**
  * GET /api/v1/projects - List user's projects
  * @deprecated Use v2 instead
  */
-export const GET = withApiKey(async (_, __, { apiKey, user }) => {
-  const projects = await prisma?.project.findMany({
-    where: {
-      members: {
-        some: {
-          userId: user?.id,
-        },
-      },
-    },
-    include: {
-      members: true,
-    },
-  })
+export const GET = validateRequest(async (request, _, { user }) => {
+  const projects = await getMany({ user })
 
   return Response.json(
     {
-      data:
-        projects?.map((project) => {
-          const owner = project.members.find((m) => m.roleId === project.id)
-          const member = project.members.find((m) => m.userId === user?.id)
+      data: projects.map((project) => {
+        const member = project.members.find(
+          (member) => member.userId === user.id
+        )
+        const owner = project.members.find(
+          (member) => member.roleId === project.id
+        )
+        const isOwner = owner?.userId === user.id
 
-          return {
-            id: project.id,
-            name: project.name,
-            description: project.description,
-            ownerId: owner?.userId || null,
-            createdAt: project.createdAt,
-            updatedAt: project.updatedAt,
-            memberRole:
-              owner?.userId === user?.id ? null : member?.roleId || null,
-          }
-        }) || [],
+        return {
+          id: project.id,
+          name: project.name,
+          description: project.description,
+          ownerId: owner?.userId || null,
+          memberRole: isOwner ? null : member?.roleId || null,
+          createdAt: project.createdAt,
+          updatedAt: project.updatedAt,
+        }
+      }),
     },
     {
       status: 200,
-      headers: createHeaders(apiKey, {
-        version: "v1",
-        deprecated: true,
+      headers: createHeaders({
+        options: {
+          version: "v1",
+        },
       }),
     }
   )
