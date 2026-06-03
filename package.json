@@ -17,6 +17,7 @@
     "@better-auth/api-key": "^1.6.13",
     "@better-auth/prisma-adapter": "^1.6.13",
     "@prisma/adapter-mariadb": "^7.8.0",
+    "@scalar/nextjs-api-reference": "^0.10.20",
     "better-auth": "^1.6.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

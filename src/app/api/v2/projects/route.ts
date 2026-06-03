@@ -62,7 +62,7 @@ export const GET = validateRequest(async (request, _, { user }) => {
         {
           error: {
             code: "INTERNAL_SERVER_ERROR",
-            message: "An unknown error occurred.",
+            message: "An unexpected error occurred. Please try again later.",
             status: 500,
           },
         },

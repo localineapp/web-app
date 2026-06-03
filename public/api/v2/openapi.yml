@@ -1,0 +1,640 @@
+openapi: "3.0.3"
+info:
+  title: Localine API
+  description: Localine is an open translation management platform that helps teams to collaborate on localization.
+  version: "2.0.0"
+servers:
+  - url: /api/v2
+    description: The base URL for the API endpoints (v2)
+components:
+  schemas:
+    Project:
+      type: object
+      description: The basic structure of a project in the Localine system.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 1
+        name:
+          type: string
+          description: Name of the project
+          example: "My Project"
+          x-order: 2
+        description:
+          type: string
+          description: Description of the project
+          example: "This is a sample project for localization."
+          nullable: true
+          x-order: 3
+        planId:
+          type: string
+          description: Identifier for the subscription plan associated with the project
+          example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+          x-order: 4
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 5
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 6
+      required:
+        - id
+        - name
+        - planId
+        - createdAt
+        - updatedAt
+    ProjectLocale:
+      type: object
+      description: The structure of a locale as it relates to a specific project, including project-specific settings.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project locale
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+          x-order: 1
+        projectId:
+          type: string
+          description: Identifier for the project this locale belongs to
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        localeId:
+          type: string
+          description: Identifier for the locale (references the Locale schema)
+          example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+          x-order: 3
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project locale was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 4
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project locale was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 5
+      required:
+        - id
+        - projectId
+        - localeId
+        - createdAt
+        - updatedAt
+    ProjectTerm:
+      type: object
+      description: The structure of a translation term as it relates to a specific project, including project-specific settings.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project term
+          example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 1
+        projectId:
+          type: string
+          description: Identifier for the project this term belongs to
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        key:
+          type: string
+          description: Key of the translation term
+          example: "welcome.message"
+          x-order: 3
+        context:
+          type: string
+          description: Context or description for the translation term to help translators understand its usage
+          example: "A welcome message shown on the homepage"
+          nullable: true
+          x-order: 4
+        locked:
+          type: boolean
+          description: Indicates whether the translation term is locked from editing
+          default: false
+          example:
+            - true
+            - false
+          x-order: 5
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project term was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 6
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project term was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 7
+      required:
+        - id
+        - projectId
+        - key
+        - locked
+        - createdAt
+        - updatedAt
+    ProjectTranslation:
+      type: object
+      description: The structure of a translation for a specific term and locale within a project, including translation-specific settings.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project translation
+          example: "tr1a2n3s4l5a6t7i8o9n0p1q2r3s4t5u6"
+          x-order: 1
+        termId:
+          type: string
+          description: Identifier for the project term this translation belongs to
+          example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 2
+        localeId:
+          type: string
+          description: Identifier for the locale this translation belongs to
+          example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+          x-order: 3
+        value:
+          type: string
+          description: The translated text for the term in the specified locale
+          example: "Welcome to our website!"
+          x-order: 4
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project translation was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 5
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project translation was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 6
+      required:
+        - id
+        - termId
+        - localeId
+        - value
+        - createdAt
+        - updatedAt
+    ProjectLabel:
+      type: object
+      description: The structure of a label as it relates to a specific project, including project-specific settings.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project label
+          example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+          x-order: 1
+        projectId:
+          type: string
+          description: Identifier for the project this label belongs to
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        name:
+          type: string
+          description: Name of the label
+          example: "UI"
+          x-order: 3
+        description:
+          type: string
+          description: Description of the label to help users understand its purpose
+          example: "Labels related to user interface translations"
+          nullable: true
+          x-order: 4
+        color:
+          type: string
+          description: Color code for the label (e.g., hex code like #FF5733)
+          example: "#FF5733"
+          nullable: true
+          x-order: 5
+        icon:
+          type: string
+          description: Icon name for the label (using https://lucide.dev/icons/)
+          example: "Monitor"
+          nullable: true
+          x-order: 6
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project label was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 7
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project label was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 8
+      required:
+        - id
+        - projectId
+        - name
+        - createdAt
+        - updatedAt
+    ProjectMember:
+      type: object
+      description: The structure of a project member, including their role and permissions within the project.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project member
+          example: "m1e2m3b4e5r6i7d8n9o0p1q2r3s4t5u6"
+          x-order: 1
+        projectId:
+          type: string
+          description: Identifier for the project this member belongs to
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        userId:
+          type: string
+          description: Identifier for the user who is a member of the project
+          example: "u1s2e3r4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 3
+        roleId:
+          type: string
+          description: Identifier for the role assigned to the member within the project
+          example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 4
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project member was added
+          example: "2026-01-01T12:00:00Z"
+          x-order: 5
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project member's information was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 6
+      required:
+        - id
+        - projectId
+        - userId
+        - roleId
+        - createdAt
+        - updatedAt
+    ProjectMemberRole:
+      type: object
+      description: The structure of a project member role, defining the permissions associated with that role within the project.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project member role
+          example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 1
+        projectId:
+          type: string
+          description: Identifier for the project this role belongs to
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        name:
+          type: string
+          description: Name of the role (e.g., Admin, Editor, Read-only)
+          example: "Editor"
+          x-order: 3
+        color:
+          type: string
+          description: Color code for the role (e.g., hex code like #FF5733)
+          example: "#FF5733"
+          nullable: true
+          x-order: 4
+        icon:
+          type: string
+          description: Icon name for the role (using https://lucide.dev/icons/)
+          example: "Pencil"
+          nullable: true
+          x-order: 5
+        permissions:
+          type: integer
+          format: int64
+          description: Bitmask representing the permissions associated with the role
+          x-order: 6
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project member role was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 7
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project member role was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 8
+      required:
+        - id
+        - projectId
+        - name
+        - permissions
+        - createdAt
+        - updatedAt
+    ProjectInvitation:
+      type: object
+      description: The structure of a project invitation, representing an invitation sent to a user to join a project with a specific role.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project invitation
+          example: "i1n2v3i4t5a6t7i8o9n0p1q2r3s4t5u6"
+          x-order: 1
+        projectId:
+          type: string
+          description: Identifier for the project this invitation belongs to
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        email:
+          type: string
+          description: Email address of the invited user
+          example: "user@example.com"
+          x-order: 3
+        token:
+          type: string
+          description: Unique token for accepting the invitation
+          example: "invitationtoken1234567890"
+          x-order: 4
+        roleId:
+          type: string
+          description: Identifier for the role assigned to the invited user within the project
+          example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 4
+        expiresAt:
+          type: string
+          format: date-time
+          description: Timestamp when the invitation expires
+          example: "2026-01-10T12:00:00Z"
+          x-order: 5
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project invitation was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 6
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project invitation was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 7
+      required:
+        - id
+        - projectId
+        - email
+        - token
+        - roleId
+        - expiresAt
+        - createdAt
+        - updatedAt
+    Locale:
+      type: object
+      description: The basic structure of a locale in the Localine system.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the locale
+          example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+          x-order: 1
+        displayName:
+          type: string
+          description: Display name of the locale
+          example: "English (United States)"
+          x-order: 2
+        language:
+          type: string
+          description: Language that the locale represents
+          example: "English"
+          x-order: 3
+        region:
+          type: string
+          description: Region that the locale represents
+          example: "United States"
+          nullable: true
+          x-order: 4
+        code:
+          type: string
+          description: Locale code of the locale, typically in the format of language_REGION (e.g., en_US)
+          example: "en_US"
+          x-order: 5
+        flag:
+          type: string
+          description: Flag emoji representing the locale (using https://npmjs.com/package/country-flag-icons)
+          example: "US"
+          nullable: true
+          x-order: 6
+        enabled:
+          type: boolean
+          description: Indicates whether this locale can be added to projects by users
+          default: true
+          example:
+            - true
+            - false
+          x-order: 7
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the locale was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 8
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the locale was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 9
+      required:
+        - id
+        - displayName
+        - language
+        - code
+        - enabled
+        - createdAt
+        - updatedAt
+    Plan:
+      type: object
+      description: The basic structure of a subscription plan in the Localine system.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the plan
+          example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+          x-order: 1
+        displayName:
+          type: string
+          description: Display name of the plan
+          example: "Basic"
+          x-order: 2
+        description:
+          type: string
+          description: Description of the plan
+          example: "A basic plan with limited features."
+          nullable: true
+          x-order: 3
+        localesLimit:
+          type: integer
+          description: Number of locales allowed in projects under this plan
+          example: 5
+          nullable: true
+          x-order: 4
+        termsLimit:
+          type: integer
+          description: Number of translation terms allowed in projects under this plan
+          example: 500
+          nullable: true
+          x-order: 5
+        labelsLimit:
+          type: integer
+          description: Number of labels allowed in projects under this plan
+          example: 20
+          nullable: true
+          x-order: 6
+        membersLimit:
+          type: integer
+          description: Number of team members allowed in projects under this plan
+          example: 5
+          nullable: true
+          x-order: 7
+        default:
+          type: boolean
+          description: Indicates whether this plan is the default plan for new projects
+          default: false
+          example:
+            - true
+            - false
+          x-order: 8
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the plan was created
+          example: "2026-01-01T12:00:00Z"
+          x-order: 9
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the plan was last updated
+          example: "2026-01-02T12:00:00Z"
+          x-order: 10
+      required:
+        - id
+        - displayName
+        - default
+        - createdAt
+        - updatedAt
+    ApiError:
+      type: object
+      description: Standard error response.
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code.
+              example: INVALID_API_KEY
+            message:
+              type: string
+              description: Human-readable error message.
+              example: The provided API key is invalid
+            status:
+              type: integer
+              description: HTTP status code.
+              example: 401
+          required:
+            - code
+            - message
+            - status
+      required:
+        - error
+  responses:
+    UnauthorizedError:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            missingAuthorization:
+              summary: Missing Authorization header
+              value:
+                error:
+                  code: MISSING_AUTHORIZATION
+                  message: Authorization header is required
+                  status: 401
+            invalidAuthorization:
+              summary: Invalid Authorization header format
+              value:
+                error:
+                  code: INVALID_AUTHORIZATION
+                  message: Authorization header must start with 'Bearer '
+                  status: 401
+            invalidApiKey:
+              summary: Invalid API key
+              value:
+                error:
+                  code: INVALID_API_KEY
+                  message: The provided API key is invalid
+                  status: 401
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            projectNotFound:
+              summary: Project not found
+              value:
+                error:
+                  code: PROJECT_NOT_FOUND
+                  message: Project not found or you don't have access to it
+                  status: 404
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            genericError:
+              summary: Generic internal server error
+              value:
+                error:
+                  code: INTERNAL_SERVER_ERROR
+                  message: An unexpected error occurred. Please try again later.
+                  status: 500
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+security:
+  - BearerAuth: []
+paths:
+  "/projects":
+    get:
+      summary: Get a list of projects
+      description: Retrieve a list of all projects associated with the authenticated user's API key.
+      operationId: getProjects
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: A list of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
