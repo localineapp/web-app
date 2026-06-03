@@ -5,8 +5,14 @@ import { User } from "@prisma/client"
 import { ApiKey } from "@better-auth/api-key"
 import { FullProject } from "@/types/project"
 import { findProject } from "@/lib/project"
+import {
+  hasPermission,
+  ProjectPermissionValue,
+} from "@/lib/project-permissions"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export function validateRequest<T = {}>(
+  permission: ProjectPermissionValue | null,
   handler: (
     request: NextRequest,
     params: T,
@@ -139,6 +145,43 @@ export function validateRequest<T = {}>(
           }
         )
       }
+
+      if (permission) {
+        const member = project.members.find((m) => m.userId === user.id)
+        const canManage =
+          hasPermission(member?.role.permissions ?? 0n, permission) ||
+          (
+            await auth.api.userHasPermission({
+              body: {
+                // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+                role: user.role ?? "user",
+                permissions: {
+                  projects: ["update"],
+                },
+              },
+            })
+          ).success
+
+        if (!canManage) {
+          return Response.json(
+            {
+              error: {
+                code: "FORBIDDEN",
+                message: "You don't have permission to access this resource",
+                status: 403,
+              },
+            },
+            {
+              status: 403,
+              headers: createHeaders({
+                options: {
+                  version: apiVersion,
+                },
+              }),
+            }
+          )
+        }
+      }
     }
 
     return handler(request, params, {
@@ -179,5 +222,59 @@ export function createHeaders({
           : "0",
       }),
     }),
+  }
+}
+
+export function handleApiError(
+  error: unknown,
+  options: { version: string }
+): Response {
+  if (error instanceof Error) {
+    const code =
+      error.cause && typeof error.cause === "object" && "code" in error.cause
+        ? error.cause.code
+        : "INTERNAL_SERVER_ERROR"
+    const status =
+      error.cause && typeof error.cause === "object" && "status" in error.cause
+        ? error.cause.status
+        : 500
+    const message = error.message || "An unknown error occurred."
+
+    return Response.json(
+      {
+        error: {
+          code,
+          message,
+          status,
+        },
+      },
+      {
+        // @ts-expect-error - status can be any number, but the ResponseInit type expects a specific set of numbers.
+        status,
+        headers: createHeaders({
+          options: {
+            version: options.version,
+          },
+        }),
+      }
+    )
+  } else {
+    return Response.json(
+      {
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred. Please try again later.",
+          status: 500,
+        },
+      },
+      {
+        status: 500,
+        headers: createHeaders({
+          options: {
+            version: options.version,
+          },
+        }),
+      }
+    )
   }
 }

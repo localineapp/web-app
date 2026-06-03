@@ -12,9 +12,9 @@ import {
   hasPermission,
   ProjectPermission,
 } from "@/lib/project-permissions"
-import { FullProject } from "@/types/project"
+import { FullProject, fullProjectArgs } from "@/types/project"
 import { findProject } from "@/lib/project"
-import { getMany, getOne } from "@/services/projects"
+import { getMany, getOne, update } from "@/services/projects"
 
 export async function canManageProjectFeature({
   projectId,
@@ -234,25 +234,10 @@ export async function updateProject({
     permission: ProjectPermission.MANAGE_PROJECT,
   })
 
-  const normalizedName = name?.trim()
-  if (name !== undefined && !normalizedName) {
-    throw new Error("Project name is required.")
-  }
-
-  if (normalizedName && normalizedName.length > 32) {
-    throw new Error("Project name must be at most 32 characters.")
-  }
-
-  if (description && description.trim().length > 255) {
-    throw new Error("Project description must be at most 255 characters.")
-  }
-
-  return await prisma.project.update({
-    where: { id: project.id },
-    data: {
-      name: normalizedName || project.name,
-      description: description?.trim() || null,
-    },
+  return await update({
+    project,
+    name,
+    description,
   })
 }
 
@@ -263,33 +248,43 @@ export async function updateProjectPlan({
   projectId: string
   planId: string
 }): Promise<Project> {
-  const project = await canManageProjectFeature({
-    projectId,
-    permission: ProjectPermission.MANAGE_PROJECT,
-    adminPermission: {
-      projects: ["update-plan"],
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session || !session.user) {
+    return unauthorized()
+  }
+
+  const user = session.user
+  const canUpdatePlan = await auth.api.userHasPermission({
+    body: {
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update-plan"],
+      },
     },
   })
 
-  if (project.planId === planId) {
-    throw new Error("This plan is already active for the project.")
+  if (!canUpdatePlan.success) {
+    return forbidden()
   }
 
-  const plan = await prisma.plan.findUnique({
+  const project = await prisma.project.findUnique({
+    ...fullProjectArgs,
     where: {
-      id: planId,
+      id: projectId,
     },
   })
 
-  if (!plan) {
-    throw new Error("There is no plan with the specified ID.")
+  if (!project) {
+    return notFound()
   }
 
-  return await prisma.project.update({
-    where: { id: project.id },
-    data: {
-      planId: plan.id,
-    },
+  return await update({
+    project,
+    planId,
   })
 }
 

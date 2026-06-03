@@ -115,11 +115,11 @@ components:
           x-order: 4
         locked:
           type: boolean
-          description: Indicates whether the translation term is locked from editing
+          description: |
+            Indicates whether the translation term is locked from editing
+            - true = the term is locked and cannot be edited by translators
+            - false = the term is unlocked and can be edited by translators
           default: false
-          example:
-            - true
-            - false
           x-order: 5
         createdAt:
           type: string
@@ -430,11 +430,11 @@ components:
           x-order: 6
         enabled:
           type: boolean
-          description: Indicates whether this locale can be added to projects by users
+          description: |
+            Indicates whether this locale can be added to projects by users
+            - true = the locale is enabled and can be added to projects
+            - false = the locale is disabled and can't be added to projects
           default: true
-          example:
-            - true
-            - false
           x-order: 7
         createdAt:
           type: string
@@ -502,11 +502,11 @@ components:
           x-order: 7
         default:
           type: boolean
-          description: Indicates whether this plan is the default plan for new projects
+          description: |
+            Indicates whether this plan is the default plan for new projects
+            true = this plan is the default and will be assigned to new projects
+            false = this plan is not the default and must be manually assigned to projects
           default: false
-          example:
-            - true
-            - false
           x-order: 8
         createdAt:
           type: string
@@ -552,6 +552,20 @@ components:
       required:
         - error
   responses:
+    BadRequestError:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            noFieldsToUpdate:
+              summary: Missing required field in request body
+              value:
+                error:
+                  code: NO_FIELDS_TO_UPDATE
+                  message: At least one of 'name' or 'description' must be provided.
+                  status: 400
     UnauthorizedError:
       description: Authentication failed
       content:
@@ -580,6 +594,20 @@ components:
                   code: INVALID_API_KEY
                   message: The provided API key is invalid
                   status: 401
+    ForbiddenError:
+      description: Access forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            forbiddenAccess:
+              summary: Insufficient permissions
+              value:
+                error:
+                  code: FORBIDDEN
+                  message: You don't have permission to access this resource
+                  status: 403
     NotFoundError:
       description: Resource not found
       content:
@@ -634,6 +662,544 @@ paths:
                   $ref: "#/components/schemas/Project"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}":
+    get:
+      summary: Get project details
+      description: Retrieve detailed information about a specific project by its ID.
+      operationId: getProjectById
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project to retrieve.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: The details of the project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update project details
+      description: Update the details of a specific project by its ID.
+      operationId: updateProjectById
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project to update.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The new name of the project
+                  example: "Updated Project Name"
+                description:
+                  type: string
+                  description: The new description of the project
+                  example: "This is an updated description for the project."
+      responses:
+        "200":
+          description: The updated project details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/terms":
+    get:
+      summary: Get project translation terms
+      description: Retrieve a list of all translation terms associated with a specific project.
+      operationId: getProjectTerms
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project to retrieve translation terms for.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: A list of project translation terms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/ProjectTerm"
+                    - type: object
+                      properties:
+                        translations:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/ProjectTranslation"
+                        labels:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Create a new project translation term
+      description: Create a new translation term for a specific project.
+      operationId: createProjectTerm
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project to create a translation term for.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The key of the translation term to create (e.g., "welcome.message").
+                  example: "welcome.message"
+                  maxLength: 255
+                context:
+                  type: string
+                  description: A context or description for the translation term to help translators understand its usage.
+                  example: "A welcome message shown on the homepage"
+                  maxLength: 255
+                locked:
+                  type: boolean
+                  description: |
+                    Indicates whether the translation term should be locked from editing.
+                    - true = the term is locked and cannot be edited by translators
+                    - false = the term is unlocked and can be edited by translators
+                  default: false
+                  example: false
+      responses:
+        "201":
+          description: The created project translation term
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectTerm"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/terms/{termId}":
+    get:
+      summary: Get project translation term details
+      description: Retrieve detailed information about a specific project translation term by its ID.
+      operationId: getProjectTermById
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project this translation term belongs to.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: termId
+          in: path
+          required: true
+          description: The unique identifier of the translation term to retrieve.
+          schema:
+            type: string
+            example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+      responses:
+        "200":
+          description: The details of the project translation term
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectTerm"
+                  - type: object
+                    properties:
+                      translations:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProjectTranslation"
+                      labels:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update project translation term details
+      description: Update the details of a specific project translation term by its ID.
+      operationId: updateProjectTermById
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project this translation term belongs to.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: termId
+          in: path
+          required: true
+          description: The unique identifier of the translation term to update.
+          schema:
+            type: string
+            example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The new key of the translation term (e.g., "welcome.message").
+                  example: "welcome.message"
+                context:
+                  type: string
+                  description: A new context or description for the translation term to help translators understand its usage.
+                  example: "A welcome message shown on the homepage"
+                locked:
+                  type: boolean
+                  description: |
+                    Indicates whether the translation term should be locked from editing.
+                    - true = the term is locked and cannot be edited by translators
+                    - false = the term is unlocked and can be edited by translators
+                  default: false
+                  example: false
+      responses:
+        "200":
+          description: The updated project translation term details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectTerm"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a project translation term
+      description: Delete a specific project translation term by its ID.
+      operationId: deleteProjectTermById
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project this translation term belongs to.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: termId
+          in: path
+          required: true
+          description: The unique identifier of the translation term to delete.
+          schema:
+            type: string
+            example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+      responses:
+        "200":
+          description: The project translation term was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectTerm"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/labels":
+    get:
+      summary: Get project labels
+      description: Retrieve a list of all labels associated with a specific project.
+      operationId: getProjectLabels
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project to retrieve labels for.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: A list of project labels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Create a new project label
+      description: Create a new label for a specific project.
+      operationId: createProjectLabel
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project to create a label for.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the label to create.
+                  example: "UI"
+                  maxLength: 255
+                description:
+                  type: string
+                  description: A description for the label to help users understand its purpose.
+                  example: "Labels related to user interface translations"
+                  maxLength: 255
+                color:
+                  type: string
+                  description: A color code for the label (e.g., hex code like #FF5733).
+                  example: "#FF5733"
+                icon:
+                  type: string
+                  description: An icon name for the label (using https://lucide.dev/icons/).
+                  example: "Monitor"
+      responses:
+        "201":
+          description: The created project label
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/labels/{labelId}":
+    get:
+      summary: Get project label details
+      description: Retrieve detailed information about a specific project label by its ID.
+      operationId: getProjectLabelById
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project this label belongs to.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: labelId
+          in: path
+          required: true
+          description: The unique identifier of the label to retrieve.
+          schema:
+            type: string
+            example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+      responses:
+        "200":
+          description: The details of the project label
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update project label details
+      description: Update the details of a specific project label by its ID.
+      operationId: updateProjectLabelById
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project this label belongs to.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: labelId
+          in: path
+          required: true
+          description: The unique identifier of the label to update.
+          schema:
+            type: string
+            example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The new name of the label.
+                  example: "Updated Label Name"
+                  maxLength: 255
+                description:
+                  type: string
+                  description: A new description for the label to help users understand its purpose.
+                  example: "This is an updated description for the label."
+                  maxLength: 255
+                color:
+                  type: string
+                  description: A new color code for the label (e.g., hex code like #FF5733).
+                  example: "#FF5733"
+                icon:
+                  type: string
+                  description: A new icon name for the label (using https://lucide.dev/icons/).
+                  example: "Monitor"
+      responses:
+        "200":
+          description: The updated project label details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a project label
+      description: Delete a specific project label by its ID.
+      operationId: deleteProjectLabelById
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The unique identifier of the project this label belongs to.
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: labelId
+          in: path
+          required: true
+          description: The unique identifier of the label to delete.
+          schema:
+            type: string
+            example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+      responses:
+        "200":
+          description: The project label was successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
         "404":
           $ref: "#/components/responses/NotFoundError"
         "500":

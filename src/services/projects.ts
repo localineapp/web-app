@@ -88,3 +88,49 @@ export async function getOne({
         },
       })
 }
+
+export async function update({
+  project,
+  name,
+  description,
+  planId,
+}: {
+  project: FullProject
+  name?: string
+  description?: string
+  planId?: string
+}): Promise<FullProject> {
+  const normalizedName = name?.trim()
+  if (name && !normalizedName) {
+    throw new Error("A label name is required.")
+  }
+
+  if (normalizedName && normalizedName.length > 255) {
+    throw new Error("A label name must be 255 characters or less.")
+  }
+
+  const normalizedDescription = description?.trim() || null
+  if (
+    description &&
+    normalizedDescription &&
+    normalizedDescription.length > 500
+  ) {
+    throw new Error("A label description must be 500 characters or less.")
+  }
+
+  if (project.planId === planId) {
+    throw new Error("The new plan must be different from the current plan.")
+  }
+
+  return await prisma.project.update({
+    ...fullProjectArgs,
+    where: {
+      id: project.id,
+    },
+    data: {
+      name: normalizedName,
+      description: normalizedDescription,
+      planId,
+    },
+  })
+}

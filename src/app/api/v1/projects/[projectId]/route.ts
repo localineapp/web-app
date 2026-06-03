@@ -5,7 +5,7 @@ import { NextRequest } from "next/server"
  * GET /api/v1/projects/[projectId] - Get project details
  * @deprecated Use v2 instead
  */
-export const GET = validateRequest(async (_, __, { user, project }) => {
+export const GET = validateRequest(null, async (_, __, { user, project }) => {
   const owner = project?.members.find((member) => member.roleId === project.id)
 
   return Response.json(

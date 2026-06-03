@@ -1,4 +1,4 @@
-import { createHeaders, validateRequest } from "@/lib/api"
+import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
 import { toJsonSafe } from "@/lib/utils"
 import { getMany } from "@/services/projects"
 import z from "zod"
@@ -10,7 +10,7 @@ const QuerySchema = z.object({
 /**
  * GET /api/v2/projects - List user's projects
  */
-export const GET = validateRequest(async (request, _, { user }) => {
+export const GET = validateRequest(null, async (request, _, { user }) => {
   const searchParams = new URL(request.url).searchParams
   const { includeAll } = QuerySchema.parse(
     Object.fromEntries(searchParams.entries())
@@ -26,55 +26,6 @@ export const GET = validateRequest(async (request, _, { user }) => {
       }),
     })
   } catch (error) {
-    if (error instanceof Error) {
-      const code =
-        error.cause && typeof error.cause === "object" && "code" in error.cause
-          ? error.cause.code
-          : "INTERNAL_SERVER_ERROR"
-      const status =
-        error.cause &&
-        typeof error.cause === "object" &&
-        "status" in error.cause
-          ? error.cause.status
-          : 500
-      const message = error.message || "An unknown error occurred."
-
-      return Response.json(
-        {
-          error: {
-            code,
-            message,
-            status,
-          },
-        },
-        {
-          // @ts-expect-error - status can be any number, but the ResponseInit type expects a specific set of numbers.
-          status,
-          headers: createHeaders({
-            options: {
-              version: "v2",
-            },
-          }),
-        }
-      )
-    } else {
-      return Response.json(
-        {
-          error: {
-            code: "INTERNAL_SERVER_ERROR",
-            message: "An unexpected error occurred. Please try again later.",
-            status: 500,
-          },
-        },
-        {
-          status: 500,
-          headers: createHeaders({
-            options: {
-              version: "v2",
-            },
-          }),
-        }
-      )
-    }
+    return handleApiError(error, { version: "v2" })
   }
 })
