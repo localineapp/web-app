@@ -1,7 +1,7 @@
-import { ApiReference } from '@scalar/nextjs-api-reference'
+import { ApiReference } from "@scalar/nextjs-api-reference"
 
 const config: Parameters<typeof ApiReference>[0] = {
-  url: '/api/v1/openapi.yml',
+  url: "/api/v1/openapi.yml",
   telemetry: false,
 }
 

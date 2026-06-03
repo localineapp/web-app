@@ -1,7 +1,7 @@
 "use client"
 
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function ApiPage() {
   return (
@@ -13,11 +13,9 @@ export default function ApiPage() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 min-w-40">
+      <div className="flex min-w-40 flex-col gap-3">
         <Button asChild size="lg">
-          <Link href="/api/v2">
-            API v2
-          </Link>
+          <Link href="/api/v2">API v2</Link>
         </Button>
 
         <Button asChild variant="destructive" size="lg" className="h-auto py-2">
@@ -26,7 +24,7 @@ export default function ApiPage() {
             className="flex flex-col items-center leading-none"
           >
             <span>API v1</span>
-            <span className="mt-0.5 text-[10px] font-mono text-muted-foreground">
+            <span className="mt-0.5 font-mono text-[10px] text-muted-foreground">
               deprecated
             </span>
           </Link>
