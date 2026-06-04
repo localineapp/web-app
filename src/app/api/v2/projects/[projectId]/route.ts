@@ -29,35 +29,18 @@ export const PATCH = validateRequest<{ projectId: string }>(
   },
   async (request, _, { project }) => {
     const body = await request.json()
-    const { name, description } = z
-      .object({
-        name: z.string().max(255).optional(),
-        description: z.string().max(255).optional(),
-      })
-      .parse(body)
-
-    if (!name && !description) {
-      return Response.json(
-        {
-          error: {
-            code: "NO_FIELDS_TO_UPDATE",
-            message:
-              "At least one of 'name' or 'description' must be provided.",
-            status: 400,
-          },
-        },
-        {
-          status: 400,
-          headers: createHeaders({
-            options: {
-              version: "v2",
-            },
-          }),
-        }
-      )
-    }
 
     try {
+      const { name, description } = z
+        .object({
+          name: z.string().max(255).optional(),
+          description: z.string().max(255).optional(),
+        })
+        .refine((data) => Object.keys(data).length > 0, {
+          message: "At least one field must be provided for update",
+        })
+        .parse(body)
+
       const updatedProject = await update({
         project: project!,
         name,

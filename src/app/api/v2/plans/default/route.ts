@@ -32,13 +32,14 @@ export const PATCH = validateRequest(
   },
   async (request, __) => {
     const body = await request.json()
-    const { planId } = z
-      .object({
-        planId: z.string(),
-      })
-      .parse(body)
 
     try {
+      const { planId } = z
+        .object({
+          planId: z.string(),
+        })
+        .parse(body)
+
       const updatedPlan = await PlansService.updateDefaultPlan(planId)
       return Response.json(toJsonSafe(updatedPlan), {
         headers: createHeaders({

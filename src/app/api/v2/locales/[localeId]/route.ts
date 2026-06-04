@@ -52,18 +52,22 @@ export const PATCH = validateRequest<{ localeId: string }>(
   },
   async (request, { localeId }) => {
     const body = await request.json()
-    const { displayName, language, region, code, flag, enabled } = z
-      .object({
-        displayName: z.string().max(255).optional(),
-        language: z.string().max(255).optional(),
-        region: z.string().max(255).optional(),
-        code: z.string().max(255).optional(),
-        flag: z.string().max(255).optional(),
-        enabled: z.boolean().optional(),
-      })
-      .parse(body)
 
     try {
+      const { displayName, language, region, code, flag, enabled } = z
+        .object({
+          displayName: z.string().max(255).optional(),
+          language: z.string().max(255).optional(),
+          region: z.string().max(255).optional(),
+          code: z.string().max(255).optional(),
+          flag: z.string().max(255).optional(),
+          enabled: z.boolean().optional(),
+        })
+        .refine((data) => Object.keys(data).length > 0, {
+          message: "At least one field must be provided for update",
+        })
+        .parse(body)
+
       const updatedLocale = await LocalesService.updateLocale(localeId, {
         displayName,
         language,

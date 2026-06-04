@@ -29,18 +29,19 @@ export const POST = validateRequest(
   },
   async (request, __) => {
     const body = await request.json()
-    const { displayName, language, region, code, flag, enabled } = z
-      .object({
-        displayName: z.string().max(255),
-        language: z.string().max(255),
-        region: z.string().max(255).optional(),
-        code: z.string().max(255),
-        flag: z.string().max(255).optional(),
-        enabled: z.boolean().optional(),
-      })
-      .parse(body)
 
     try {
+      const { displayName, language, region, code, flag, enabled } = z
+        .object({
+          displayName: z.string().max(255),
+          language: z.string().max(255),
+          region: z.string().max(255).optional(),
+          code: z.string().max(255),
+          flag: z.string().max(255).optional(),
+          enabled: z.boolean().optional(),
+        })
+        .parse(body)
+
       const newLocale = await LocalesService.createLocale({
         displayName,
         language,
@@ -51,6 +52,7 @@ export const POST = validateRequest(
       })
 
       return Response.json(toJsonSafe(newLocale), {
+        status: 201,
         headers: createHeaders({
           options: {
             version: "v2",

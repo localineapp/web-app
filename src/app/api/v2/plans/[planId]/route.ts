@@ -56,25 +56,29 @@ export const PATCH = validateRequest<{ planId: string }>(
   },
   async (request, { planId }) => {
     const body = await request.json()
-    const {
-      displayName,
-      description,
-      localesLimit,
-      termsLimit,
-      labelsLimit,
-      membersLimit,
-    } = z
-      .object({
-        displayName: z.string().max(255).optional(),
-        description: z.string().max(255).optional(),
-        localesLimit: z.number().int().positive().nullable().optional(),
-        termsLimit: z.number().int().positive().nullable().optional(),
-        labelsLimit: z.number().int().positive().nullable().optional(),
-        membersLimit: z.number().int().positive().nullable().optional(),
-      })
-      .parse(body)
 
     try {
+      const {
+        displayName,
+        description,
+        localesLimit,
+        termsLimit,
+        labelsLimit,
+        membersLimit,
+      } = z
+        .object({
+          displayName: z.string().max(255).optional(),
+          description: z.string().max(255).optional(),
+          localesLimit: z.number().int().positive().nullable().optional(),
+          termsLimit: z.number().int().positive().nullable().optional(),
+          labelsLimit: z.number().int().positive().nullable().optional(),
+          membersLimit: z.number().int().positive().nullable().optional(),
+        })
+        .refine((data) => Object.keys(data).length > 0, {
+          message: "At least one field must be provided for update",
+        })
+        .parse(body)
+
       const updatedPlan = await PlansService.updatePlan(planId, {
         displayName,
         description,

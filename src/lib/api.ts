@@ -9,6 +9,7 @@ import {
   hasPermission,
   ProjectPermissionValue,
 } from "@/lib/project-permissions"
+import z, { ZodError } from "zod"
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export function validateRequest<T = {}>(
@@ -269,7 +270,26 @@ export function handleApiError(
   error: unknown,
   options: { version: string }
 ): Response {
-  if (error instanceof Error) {
+  if (error instanceof ZodError) {
+    return Response.json(
+      {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "An error occurred while validating the request data",
+          status: 400,
+        },
+        details: z.treeifyError(error),
+      },
+      {
+        status: 400,
+        headers: createHeaders({
+          options: {
+            version: options.version,
+          },
+        }),
+      }
+    )
+  } else if (error instanceof Error) {
     const code =
       error.cause && typeof error.cause === "object" && "code" in error.cause
         ? error.cause.code

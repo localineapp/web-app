@@ -1,16 +1,16 @@
 import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { toJsonSafe } from "@/lib/utils"
-import { createLabel } from "@/services/project-labels"
+import { addLocale } from "@/services/project-locales"
 import z from "zod"
 
 /**
- * GET /api/v2/projects/[projectId]/labels - Get project labels
+ * GET /api/v2/projects/[projectId]/locales - Get project locales
  */
 export const GET = validateRequest<{ projectId: string }>(
   {},
   async (_, __, { project }) => {
-    return Response.json(toJsonSafe(project?.labels), {
+    return Response.json(toJsonSafe(project?.locales), {
       headers: createHeaders({
         options: {
           version: "v2",
@@ -21,34 +21,28 @@ export const GET = validateRequest<{ projectId: string }>(
 )
 
 /**
- * POST /api/v2/projects/[projectId]/labels - Create a new label for the project
+ * POST /api/v2/projects/[projectId]/locales - Add a new locale to the project
  */
 export const POST = validateRequest<{ projectId: string }>(
   {
-    permission: ProjectPermission.MANAGE_LABELS,
+    permission: ProjectPermission.MANAGE_LOCALES,
   },
   async (request, _, { project }) => {
     const body = await request.json()
 
     try {
-      const { name, description, color, icon } = z
+      const { localeId } = z
         .object({
-          name: z.string().max(255),
-          description: z.string().max(255).optional(),
-          color: z.string().max(7).optional(),
-          icon: z.string().max(255).optional(),
+          localeId: z.string().max(255),
         })
         .parse(body)
 
-      const newLabel = await createLabel({
+      const newLocale = await addLocale({
         project: project!,
-        name,
-        description,
-        color,
-        icon,
+        localeId,
       })
 
-      return Response.json(toJsonSafe(newLabel), {
+      return Response.json(toJsonSafe(newLocale), {
         status: 201,
         headers: createHeaders({
           options: {

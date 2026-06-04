@@ -1,4 +1,4 @@
-import { handleApiError, validateRequest } from "@/lib/api"
+import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { toJsonSafe } from "@/lib/utils"
 import { createTerm } from "@/services/project-terms"
@@ -11,9 +11,11 @@ export const GET = validateRequest<{ projectId: string }>(
   {},
   async (_, __, { project }) => {
     return Response.json(toJsonSafe(project?.terms), {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: createHeaders({
+        options: {
+          version: "v2",
+        },
+      }),
     })
   }
 )
@@ -27,15 +29,16 @@ export const POST = validateRequest<{ projectId: string }>(
   },
   async (request, _, { project }) => {
     const body = await request.json()
-    const { key, context, locked } = z
-      .object({
-        key: z.string().max(255),
-        context: z.string().max(255).optional(),
-        locked: z.boolean().optional(),
-      })
-      .parse(body)
 
     try {
+      const { key, context, locked } = z
+        .object({
+          key: z.string().max(255),
+          context: z.string().max(255).optional(),
+          locked: z.boolean().optional(),
+        })
+        .parse(body)
+
       const newTerm = await createTerm({
         project: project!,
         key,
@@ -44,9 +47,12 @@ export const POST = validateRequest<{ projectId: string }>(
       })
 
       return Response.json(toJsonSafe(newTerm), {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        status: 201,
+        headers: createHeaders({
+          options: {
+            version: "v2",
+          },
+        }),
       })
     } catch (error) {
       return handleApiError(error, { version: "v2" })

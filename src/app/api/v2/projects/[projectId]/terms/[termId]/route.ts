@@ -51,14 +51,6 @@ export const PATCH = validateRequest<{ projectId: string; termId: string }>(
   },
   async (request, { termId }, { project }) => {
     const body = await request.json()
-    const { key, context, locked } = z
-      .object({
-        key: z.string().max(255).optional(),
-        context: z.string().max(500).nullable().optional(),
-        locked: z.boolean().optional(),
-      })
-      .parse(body)
-
     const term = project?.terms.find((t) => t.id === termId)
 
     if (!term) {
@@ -81,28 +73,18 @@ export const PATCH = validateRequest<{ projectId: string; termId: string }>(
       )
     }
 
-    if (key !== undefined && context !== undefined && locked !== undefined) {
-      return Response.json(
-        {
-          error: {
-            code: "NO_FIELDS_TO_UPDATE",
-            message:
-              "At least one of 'key', 'context', or 'locked' must be provided.",
-            status: 400,
-          },
-        },
-        {
-          status: 400,
-          headers: createHeaders({
-            options: {
-              version: "v2",
-            },
-          }),
-        }
-      )
-    }
-
     try {
+      const { key, context, locked } = z
+        .object({
+          key: z.string().max(255).optional(),
+          context: z.string().max(500).nullable().optional(),
+          locked: z.boolean().optional(),
+        })
+        .refine((data) => Object.keys(data).length > 0, {
+          message: "At least one field must be provided for update",
+        })
+        .parse(body)
+
       const updatedTerm = await updateTerm({
         project: project!,
         termId,

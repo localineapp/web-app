@@ -36,25 +36,26 @@ export const POST = validateRequest(
   },
   async (request, __) => {
     const body = await request.json()
-    const {
-      displayName,
-      description,
-      localesLimit,
-      termsLimit,
-      labelsLimit,
-      membersLimit,
-    } = z
-      .object({
-        displayName: z.string().max(255),
-        description: z.string().max(255).optional(),
-        localesLimit: z.number().int().positive().optional(),
-        termsLimit: z.number().int().positive().optional(),
-        labelsLimit: z.number().int().positive().optional(),
-        membersLimit: z.number().int().positive().optional(),
-      })
-      .parse(body)
 
     try {
+      const {
+        displayName,
+        description,
+        localesLimit,
+        termsLimit,
+        labelsLimit,
+        membersLimit,
+      } = z
+        .object({
+          displayName: z.string().max(255),
+          description: z.string().max(255).optional(),
+          localesLimit: z.number().int().positive().optional(),
+          termsLimit: z.number().int().positive().optional(),
+          labelsLimit: z.number().int().positive().optional(),
+          membersLimit: z.number().int().positive().optional(),
+        })
+        .parse(body)
+
       const newPlan = await PlansService.createPlan({
         displayName,
         description,
@@ -65,6 +66,7 @@ export const POST = validateRequest(
       })
 
       return Response.json(toJsonSafe(newPlan), {
+        status: 201,
         headers: createHeaders({
           options: {
             version: "v2",

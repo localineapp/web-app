@@ -1,23 +1,26 @@
 import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { toJsonSafe } from "@/lib/utils"
-import { deleteLabel, updateLabel } from "@/services/project-labels"
+import {
+  deleteMemberRole,
+  updateMemberRole,
+} from "@/services/project-member-roles"
 import z from "zod"
 
 /**
- * GET /api/v2/projects/[projectId]/labels/[labelId] - Get a specific label's details
+ * GET /api/v2/projects/[projectId]/member-roles/[roleId] - Get a specific member role's details
  */
-export const GET = validateRequest<{ projectId: string; labelId: string }>(
+export const GET = validateRequest<{ projectId: string; roleId: string }>(
   {},
-  async (_, { labelId }, { project }) => {
-    const label = project?.labels.find((label) => label.id === labelId)
+  async (_, { roleId }, { project }) => {
+    const role = project?.memberRoles.find((role) => role.id === roleId)
 
-    if (!label) {
+    if (!role) {
       return Response.json(
         {
           error: {
-            code: "LABEL_NOT_FOUND",
-            message: `No label with the ID "${labelId}" found in this project.`,
+            code: "ROLE_NOT_FOUND",
+            message: `No member role with the ID "${roleId}" found in this project.`,
             status: 404,
           },
         },
@@ -32,7 +35,7 @@ export const GET = validateRequest<{ projectId: string; labelId: string }>(
       )
     }
 
-    return Response.json(toJsonSafe(label), {
+    return Response.json(toJsonSafe(role), {
       headers: createHeaders({
         options: {
           version: "v2",
@@ -43,22 +46,22 @@ export const GET = validateRequest<{ projectId: string; labelId: string }>(
 )
 
 /**
- * PATCH /api/v2/projects/[projectId]/labels/[labelId] - Update a specific label's details
+ * PATCH /api/v2/projects/[projectId]/member-roles/[roleId] - Update a specific member role's details
  */
-export const PATCH = validateRequest<{ projectId: string; labelId: string }>(
+export const PATCH = validateRequest<{ projectId: string; roleId: string }>(
   {
-    permission: ProjectPermission.MANAGE_LABELS,
+    permission: ProjectPermission.MANAGE_ROLES,
   },
-  async (request, { labelId }, { project }) => {
+  async (request, { roleId }, { project }) => {
     const body = await request.json()
-    const label = project?.labels.find((label) => label.id === labelId)
+    const role = project?.memberRoles.find((role) => role.id === roleId)
 
-    if (!label) {
+    if (!role) {
       return Response.json(
         {
           error: {
-            code: "LABEL_NOT_FOUND",
-            message: `No label with the ID "${labelId}" found in this project.`,
+            code: "ROLE_NOT_FOUND",
+            message: `No member role with the ID "${roleId}" found in this project.`,
             status: 404,
           },
         },
@@ -74,28 +77,28 @@ export const PATCH = validateRequest<{ projectId: string; labelId: string }>(
     }
 
     try {
-      const { name, description, color, icon } = z
+      const { name, color, icon, permissions } = z
         .object({
           name: z.string().max(255).optional(),
-          description: z.string().max(255).optional(),
           color: z.string().max(7).optional(),
           icon: z.string().max(255).optional(),
+          permissions: z.bigint().optional(),
         })
         .refine((data) => Object.keys(data).length > 0, {
           message: "At least one field must be provided for update",
         })
         .parse(body)
 
-      const updatedLabel = await updateLabel({
+      const updatedRole = await updateMemberRole({
         project: project!,
-        labelId,
+        roleId,
         name,
-        description,
         color,
         icon,
+        permissions,
       })
 
-      return Response.json(toJsonSafe(updatedLabel), {
+      return Response.json(toJsonSafe(updatedRole), {
         headers: createHeaders({
           options: {
             version: "v2",
@@ -109,21 +112,21 @@ export const PATCH = validateRequest<{ projectId: string; labelId: string }>(
 )
 
 /**
- * DELETE /api/v2/projects/[projectId]/labels/[labelId] - Delete a specific label
+ * DELETE /api/v2/projects/[projectId]/member-roles/[roleId] - Delete a specific member role
  */
-export const DELETE = validateRequest<{ projectId: string; labelId: string }>(
+export const DELETE = validateRequest<{ projectId: string; roleId: string }>(
   {
-    permission: ProjectPermission.MANAGE_LABELS,
+    permission: ProjectPermission.MANAGE_ROLES,
   },
-  async (_, { labelId }, { project }) => {
-    const label = project?.labels.find((label) => label.id === labelId)
+  async (_, { roleId }, { project }) => {
+    const role = project?.memberRoles.find((role) => role.id === roleId)
 
-    if (!label) {
+    if (!role) {
       return Response.json(
         {
           error: {
-            code: "LABEL_NOT_FOUND",
-            message: `No label with the ID "${labelId}" found in this project.`,
+            code: "ROLE_NOT_FOUND",
+            message: `No member role with the ID "${roleId}" found in this project.`,
             status: 404,
           },
         },
@@ -139,12 +142,12 @@ export const DELETE = validateRequest<{ projectId: string; labelId: string }>(
     }
 
     try {
-      const deletedLabel = await deleteLabel({
+      const deletedRole = await deleteMemberRole({
         project: project!,
-        labelId,
+        roleId,
       })
 
-      return Response.json(toJsonSafe(deletedLabel), {
+      return Response.json(toJsonSafe(deletedRole), {
         headers: createHeaders({
           options: {
             version: "v2",

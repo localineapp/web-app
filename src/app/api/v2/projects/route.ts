@@ -10,13 +10,14 @@ const QuerySchema = z.object({
 /**
  * GET /api/v2/projects - List user's projects
  */
-export const GET = validateRequest(null, async (request, _, { user }) => {
+export const GET = validateRequest({}, async (request, _, { user }) => {
   const searchParams = new URL(request.url).searchParams
-  const { includeAll } = QuerySchema.parse(
-    Object.fromEntries(searchParams.entries())
-  )
 
   try {
+    const { includeAll } = QuerySchema.parse(
+      Object.fromEntries(searchParams.entries())
+    )
+
     const projects = await getMany({ user, includeAll })
     return Response.json(toJsonSafe(projects), {
       headers: createHeaders({
