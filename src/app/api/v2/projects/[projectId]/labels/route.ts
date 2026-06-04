@@ -8,7 +8,7 @@ import z from "zod"
  * GET /api/v2/projects/[projectId]/labels - Get project labels
  */
 export const GET = validateRequest<{ projectId: string }>(
-  null,
+  {},
   async (_, __, { project }) => {
     return Response.json(toJsonSafe(project?.labels), {
       headers: createHeaders({
@@ -24,7 +24,9 @@ export const GET = validateRequest<{ projectId: string }>(
  * POST /api/v2/projects/[projectId]/labels - Create a new label for the project
  */
 export const POST = validateRequest<{ projectId: string }>(
-  ProjectPermission.MANAGE_LABELS,
+  {
+    permission: ProjectPermission.MANAGE_LABELS,
+  },
   async (request, _, { project }) => {
     const body = await request.json()
     const { name, description, color, icon } = z

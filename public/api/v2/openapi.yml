@@ -21,11 +21,13 @@ components:
           type: string
           description: Name of the project
           example: "My Project"
+          maxLength: 255
           x-order: 2
         description:
           type: string
           description: Description of the project
           example: "This is a sample project for localization."
+          maxLength: 500
           nullable: true
           x-order: 3
         planId:
@@ -106,11 +108,13 @@ components:
           type: string
           description: Key of the translation term
           example: "welcome.message"
+          maxLength: 255
           x-order: 3
         context:
           type: string
           description: Context or description for the translation term to help translators understand its usage
           example: "A welcome message shown on the homepage"
+          maxLength: 500
           nullable: true
           x-order: 4
         locked:
@@ -201,11 +205,13 @@ components:
           type: string
           description: Name of the label
           example: "UI"
+          maxLength: 255
           x-order: 3
         description:
           type: string
           description: Description of the label to help users understand its purpose
           example: "Labels related to user interface translations"
+          maxLength: 500
           nullable: true
           x-order: 4
         color:
@@ -299,6 +305,7 @@ components:
           type: string
           description: Name of the role (e.g., Admin, Editor, Read-only)
           example: "Editor"
+          maxLength: 255
           x-order: 3
         color:
           type: string
@@ -405,22 +412,26 @@ components:
           type: string
           description: Display name of the locale
           example: "English (United States)"
+          maxLength: 255
           x-order: 2
         language:
           type: string
           description: Language that the locale represents
           example: "English"
+          maxLength: 255
           x-order: 3
         region:
           type: string
           description: Region that the locale represents
           example: "United States"
+          maxLength: 255
           nullable: true
           x-order: 4
         code:
           type: string
           description: Locale code of the locale, typically in the format of language_REGION (e.g., en_US)
           example: "en_US"
+          maxLength: 255
           x-order: 5
         flag:
           type: string
@@ -469,11 +480,13 @@ components:
           type: string
           description: Display name of the plan
           example: "Basic"
+          maxLength: 255
           x-order: 2
         description:
           type: string
           description: Description of the plan
           example: "A basic plan with limited features."
+          maxLength: 500
           nullable: true
           x-order: 3
         localesLimit:
@@ -719,10 +732,14 @@ paths:
                   type: string
                   description: The new name of the project
                   example: "Updated Project Name"
+                  maxLength: 255
+                  nullable: true
                 description:
                   type: string
                   description: The new description of the project
                   example: "This is an updated description for the project."
+                  maxLength: 500
+                  nullable: true
       responses:
         "200":
           description: The updated project details
@@ -811,7 +828,8 @@ paths:
                   type: string
                   description: A context or description for the translation term to help translators understand its usage.
                   example: "A welcome message shown on the homepage"
-                  maxLength: 255
+                  maxLength: 500
+                  nullable: true
                 locked:
                   type: boolean
                   description: |
@@ -917,10 +935,14 @@ paths:
                   type: string
                   description: The new key of the translation term (e.g., "welcome.message").
                   example: "welcome.message"
+                  maxLength: 255
+                  nullable: true
                 context:
                   type: string
                   description: A new context or description for the translation term to help translators understand its usage.
                   example: "A welcome message shown on the homepage"
+                  maxLength: 500
+                  nullable: true
                 locked:
                   type: boolean
                   description: |
@@ -1042,7 +1064,8 @@ paths:
                   type: string
                   description: A description for the label to help users understand its purpose.
                   example: "Labels related to user interface translations"
-                  maxLength: 255
+                  maxLength: 500
+                  nullable: true
                 color:
                   type: string
                   description: A color code for the label (e.g., hex code like #FF5733).
@@ -1138,19 +1161,23 @@ paths:
                   description: The new name of the label.
                   example: "Updated Label Name"
                   maxLength: 255
+                  nullable: true
                 description:
                   type: string
                   description: A new description for the label to help users understand its purpose.
                   example: "This is an updated description for the label."
-                  maxLength: 255
+                  maxLength: 500
+                  nullable: true
                 color:
                   type: string
                   description: A new color code for the label (e.g., hex code like #FF5733).
                   example: "#FF5733"
+                  nullable: true
                 icon:
                   type: string
                   description: A new icon name for the label (using https://lucide.dev/icons/).
                   example: "Monitor"
+                  nullable: true
       responses:
         "200":
           description: The updated project label details
@@ -1196,6 +1223,220 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/plans":
+    get:
+      summary: Get a list of all plans
+      description: Retrieve a list of all plans available in the Localine system.
+      operationId: getPlans
+      tags:
+        - Plans
+      responses:
+        "200":
+          description: A list of all plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Create a new plan
+      description: Create a new plan in the Localine system.
+      operationId: createPlan
+      tags:
+        - Plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: The display name of the plan.
+                  example: "Unlimited"
+                  maxLength: 255
+                description:
+                  type: string
+                  description: A description for the plan to help users understand its features and limitations.
+                  example: "A plan with unlimited features and limits."
+                  maxLength: 500
+                  nullable: true
+                localesLimit:
+                  type: integer
+                  description: |
+                    The number of locales allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of locales.
+                  nullable: true
+                termsLimit:
+                  type: integer
+                  description: |
+                    The number of translation terms allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of translation terms.
+                  nullable: true
+                labelsLimit:
+                  type: integer
+                  description: |
+                    The number of labels allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of labels.
+                  nullable: true
+                membersLimit:
+                  type: integer
+                  description: |
+                    The number of team members allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of team members.
+                  nullable: true
+      responses:
+        "201":
+          description: The created plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/plans/{planId}":
+    get:
+      summary: Get plan details
+      description: Retrieve detailed information about a specific plan by its ID.
+      operationId: getPlanById
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: The unique identifier of the plan to retrieve.
+          schema:
+            type: string
+            example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      responses:
+        "200":
+          description: The details of the plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update plan details
+      description: Update the details of a specific plan by its ID.
+      operationId: updatePlanById
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: The unique identifier of the plan to update.
+          schema:
+            type: string
+            example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: The new display name of the plan.
+                  example: "Updated Plan Name"
+                  maxLength: 255
+                  nullable: true
+                description:
+                  type: string
+                  description: A new description for the plan to help users understand its features and limitations.
+                  example: "This is an updated description for the plan."
+                  maxLength: 500
+                  nullable: true
+                localesLimit:
+                  type: integer
+                  description: |
+                    The new number of locales allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of locales.
+                  example: 10
+                  nullable: true
+                termsLimit:
+                  type: integer
+                  description: |
+                    The new number of translation terms allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of translation terms.
+                  example: 100
+                  nullable: true
+                labelsLimit:
+                  type: integer
+                  description: |
+                    The new number of labels allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of labels.
+                  example: 5
+                  nullable: true
+                membersLimit:
+                  type: integer
+                  description: |
+                    The new number of team members allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of team members.
+                  example: 10
+                  nullable: true
+      responses:
+        "200":
+          description: The updated plan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a plan
+      description: Delete a specific plan by its ID.
+      operationId: deletePlanById
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: The unique identifier of the plan to delete.
+          schema:
+            type: string
+            example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      responses:
+        "204":
+          description: The plan was deleted successfully
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":

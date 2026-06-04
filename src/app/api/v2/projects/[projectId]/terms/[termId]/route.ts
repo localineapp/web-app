@@ -8,7 +8,7 @@ import z from "zod"
  * GET /api/v2/projects/[projectId]/terms/[termId] - Get a specific project term's details
  */
 export const GET = validateRequest<{ projectId: string; termId: string }>(
-  null,
+  {},
   async (_, { termId }, { project }) => {
     const term = project?.terms.find((term) => term.id === termId)
 
@@ -46,7 +46,9 @@ export const GET = validateRequest<{ projectId: string; termId: string }>(
  * PATCH /api/v2/projects/[projectId]/terms/[termId] - Update a specific project term's details
  */
 export const PATCH = validateRequest<{ projectId: string; termId: string }>(
-  ProjectPermission.UPDATE_TERMS,
+  {
+    permission: ProjectPermission.UPDATE_TERMS,
+  },
   async (request, { termId }, { project }) => {
     const body = await request.json()
     const { key, context, locked } = z
@@ -126,7 +128,9 @@ export const PATCH = validateRequest<{ projectId: string; termId: string }>(
  * DELETE /api/v2/projects/[projectId]/terms/[termId] - Delete a specific project term
  */
 export const DELETE = validateRequest<{ projectId: string; termId: string }>(
-  ProjectPermission.DELETE_TERMS,
+  {
+    permission: ProjectPermission.DELETE_TERMS,
+  },
   async (_, { termId }, { project }) => {
     const term = project?.terms.find((t) => t.id === termId)
 

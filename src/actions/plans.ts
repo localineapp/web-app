@@ -6,6 +6,7 @@ import { headers } from "next/headers"
 import { forbidden, notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { generateId } from "better-auth"
+import { create, getMany, update } from "@/services/plans"
 
 export async function getPlans(): Promise<Plan[]> {
   const session = await auth.api.getSession({
@@ -16,11 +17,7 @@ export async function getPlans(): Promise<Plan[]> {
     return unauthorized()
   }
 
-  return await prisma.plan.findMany({
-    orderBy: {
-      createdAt: "asc",
-    },
-  })
+  return await getMany()
 }
 
 export async function getDefaultPlan(): Promise<Plan | null> {
@@ -67,16 +64,13 @@ export async function createPlan({
     return forbidden()
   }
 
-  return await prisma.plan.create({
-    data: {
-      id: generateId(),
-      displayName,
-      description,
-      localesLimit,
-      termsLimit,
-      labelsLimit,
-      membersLimit,
-    },
+  return await create({
+    displayName,
+    description,
+    localesLimit,
+    termsLimit,
+    labelsLimit,
+    membersLimit,
   })
 }
 
@@ -147,16 +141,13 @@ export async function updatePlan(
     return forbidden()
   }
 
-  return await prisma.plan.update({
-    where: { id },
-    data: {
-      displayName,
-      description,
-      localesLimit,
-      termsLimit,
-      labelsLimit,
-      membersLimit,
-    },
+  return await update(id, {
+    displayName,
+    description,
+    localesLimit,
+    termsLimit,
+    labelsLimit,
+    membersLimit,
   })
 }
 

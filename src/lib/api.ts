@@ -12,7 +12,19 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export function validateRequest<T = {}>(
-  permission: ProjectPermissionValue | null,
+  {
+    permission,
+    adminPermission,
+  }: {
+    permission?: ProjectPermissionValue
+    adminPermission?: Parameters<
+      typeof auth.api.userHasPermission
+    >[0] extends undefined
+      ? never
+      : NonNullable<
+          Parameters<typeof auth.api.userHasPermission>[0]
+        >["body"]["permissions"]
+  },
   handler: (
     request: NextRequest,
     params: T,
@@ -181,6 +193,34 @@ export function validateRequest<T = {}>(
             }
           )
         }
+      }
+    } else if (adminPermission) {
+      const hasAdminPermission = await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: adminPermission,
+        },
+      })
+
+      if (!hasAdminPermission.success) {
+        return Response.json(
+          {
+            error: {
+              code: "FORBIDDEN",
+              message: "You don't have permission to access this resource",
+              status: 403,
+            },
+          },
+          {
+            status: 403,
+            headers: createHeaders({
+              options: {
+                version: apiVersion,
+              },
+            }),
+          }
+        )
       }
     }
 

@@ -8,7 +8,7 @@ import z from "zod"
  * GET /api/v2/projects/[projectId]/terms - Get project terms
  */
 export const GET = validateRequest<{ projectId: string }>(
-  null,
+  {},
   async (_, __, { project }) => {
     return Response.json(toJsonSafe(project?.terms), {
       headers: {
@@ -22,7 +22,9 @@ export const GET = validateRequest<{ projectId: string }>(
  * POST /api/v2/projects/[projectId]/terms - Create a new term for the project
  */
 export const POST = validateRequest<{ projectId: string }>(
-  ProjectPermission.CREATE_TERMS,
+  {
+    permission: ProjectPermission.CREATE_TERMS,
+  },
   async (request, _, { project }) => {
     const body = await request.json()
     const { key, context, locked } = z

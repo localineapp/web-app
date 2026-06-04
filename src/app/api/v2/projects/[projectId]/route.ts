@@ -8,7 +8,7 @@ import z from "zod"
  * GET /api/v2/projects/[projectId] - Get project details
  */
 export const GET = validateRequest<{ projectId: string }>(
-  null,
+  {},
   async (_, __, { project }) => {
     return Response.json(toJsonSafe(project), {
       headers: createHeaders({
@@ -24,7 +24,9 @@ export const GET = validateRequest<{ projectId: string }>(
  * PATCH /api/v2/projects/[projectId] - Update project details
  */
 export const PATCH = validateRequest<{ projectId: string }>(
-  ProjectPermission.MANAGE_PROJECT,
+  {
+    permission: ProjectPermission.MANAGE_PROJECT,
+  },
   async (request, _, { project }) => {
     const body = await request.json()
     const { name, description } = z

@@ -8,7 +8,7 @@ import z from "zod"
  * GET /api/v2/projects/[projectId]/labels/[labelId] - Get a specific label's details
  */
 export const GET = validateRequest<{ projectId: string; labelId: string }>(
-  null,
+  {},
   async (_, { labelId }, { project }) => {
     const label = project?.labels.find((label) => label.id === labelId)
 
@@ -46,7 +46,9 @@ export const GET = validateRequest<{ projectId: string; labelId: string }>(
  * PATCH /api/v2/projects/[projectId]/labels/[labelId] - Update a specific label's details
  */
 export const PATCH = validateRequest<{ projectId: string; labelId: string }>(
-  ProjectPermission.MANAGE_LABELS,
+  {
+    permission: ProjectPermission.MANAGE_LABELS,
+  },
   async (request, { labelId }, { project }) => {
     const body = await request.json()
     const { name, description, color, icon } = z
@@ -129,8 +131,13 @@ export const PATCH = validateRequest<{ projectId: string; labelId: string }>(
   }
 )
 
+/**
+ * DELETE /api/v2/projects/[projectId]/labels/[labelId] - Delete a specific label
+ */
 export const DELETE = validateRequest<{ projectId: string; labelId: string }>(
-  ProjectPermission.MANAGE_LABELS,
+  {
+    permission: ProjectPermission.MANAGE_LABELS,
+  },
   async (_, { labelId }, { project }) => {
     const label = project?.labels.find((label) => label.id === labelId)
 
