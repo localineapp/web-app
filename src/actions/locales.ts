@@ -7,6 +7,7 @@ import { headers } from "next/headers"
 import { forbidden, notFound, unauthorized } from "next/navigation"
 import { generateId } from "better-auth"
 import { chunkArray } from "@/lib/utils"
+import { LocalesService } from "@/services/locales"
 
 export async function getLocales({
   includeDisabled,
@@ -21,14 +22,23 @@ export async function getLocales({
     return unauthorized()
   }
 
-  return prisma.locale.findMany({
-    where: {
-      enabled: includeDisabled ? undefined : true,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  })
+  if (
+    includeDisabled &&
+    !(await auth.api.userHasPermission({
+      headers: await headers(),
+      body: {
+        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+        role: session.user.role ?? "user",
+        permissions: {
+          locales: ["read:disabled"],
+        },
+      },
+    }))
+  ) {
+    includeDisabled = false
+  }
+
+  return await LocalesService.getLocales(includeDisabled)
 }
 
 export async function createLocale({
@@ -59,20 +69,13 @@ export async function createLocale({
     return forbidden()
   }
 
-  if ((await prisma.locale.count({ where: { code } })) > 0) {
-    throw new Error(`Locale with code ${code} already exists.`)
-  }
-
-  return await prisma.locale.create({
-    data: {
-      id: generateId(),
-      displayName,
-      language,
-      region,
-      code,
-      flag,
-      enabled,
-    },
+  return await LocalesService.createLocale({
+    displayName,
+    language,
+    region,
+    code,
+    flag,
+    enabled,
   })
 }
 
@@ -150,7 +153,7 @@ export async function importLocales(
 }
 
 export async function updateLocale(
-  id: string,
+  localeId: string,
   {
     displayName,
     language,
@@ -180,13 +183,17 @@ export async function updateLocale(
     return forbidden()
   }
 
-  return await prisma.locale.update({
-    where: { id },
-    data: { displayName, language, region, code, flag, enabled },
+  return await LocalesService.updateLocale(localeId, {
+    displayName,
+    language,
+    region,
+    code,
+    flag,
+    enabled,
   })
 }
 
-export async function deleteLocale(id: string): Promise<Locale> {
+export async function deleteLocale(localeId: string): Promise<Locale> {
   const hasPermission = await auth.api.userHasPermission({
     headers: await headers(),
     body: {
@@ -200,11 +207,5 @@ export async function deleteLocale(id: string): Promise<Locale> {
     return forbidden()
   }
 
-  if ((await prisma.locale.count({ where: { id } })) === 0) {
-    return notFound()
-  }
-
-  return await prisma.locale.delete({
-    where: { id },
-  })
+  return await LocalesService.deleteLocale(localeId)
 }

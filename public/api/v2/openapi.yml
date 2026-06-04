@@ -635,6 +635,20 @@ components:
                   code: PROJECT_NOT_FOUND
                   message: Project not found or you don't have access to it
                   status: 404
+            localeNotFound:
+              summary: Locale not found
+              value:
+                error:
+                  code: LOCALE_NOT_FOUND
+                  message: Locale with the ID "{localeId}" does not exist
+                  status: 404
+            planNotFound:
+              summary: Plan not found
+              value:
+                error:
+                  code: PLAN_NOT_FOUND
+                  message: No plan with the ID "{planId}" exists
+                  status: 404
     InternalServerError:
       description: Internal server error
       content:
@@ -1231,6 +1245,195 @@ paths:
           $ref: "#/components/responses/NotFoundError"
         "500":
           $ref: "#/components/responses/InternalServerError"
+  "/locales":
+    get:
+      summary: Get a list of all locales
+      description: Retrieve a list of all locales available in the Localine system.
+      operationId: getLocales
+      tags:
+        - Locales
+      responses:
+        "200":
+          description: A list of all locales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Locale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Create a new locale
+      description: Create a new locale in the Localine system.
+      operationId: createLocale
+      tags:
+        - Locales
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: The display name of the locale.
+                  example: "English (United States)"
+                  maxLength: 255
+                language:
+                  type: string
+                  description: The language of the locale (e.g., "English", "French").
+                  example: "English"
+                  maxLength: 255
+                region:
+                  type: string
+                  description: The region of the locale (e.g., "United States", "France").
+                  example: "United States"
+                  maxLength: 255
+                  nullable: true
+                code:
+                  type: string
+                  description: The locale code (e.g., "en_US", "fr_FR").
+                  example: "en_US"
+                  maxLength: 255
+                flag:
+                  type: string
+                  description: The flag emoji for the locale (using https://npmjs.com/package/country-flag-icons).
+                  example: "US"
+                  maxLength: 255
+                  nullable: true
+                enabled:
+                  type: boolean
+                  description: |
+                    Indicates whether the locale is enabled for use in projects.
+                    - true = the locale is enabled and can be added to projects
+                    - false = the locale is disabled and cannot be added to projects
+                  default: true
+      responses:
+        "201":
+          description: The created locale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locale"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/locales/{localeId}":
+    get:
+      summary: Get locale details
+      description: Retrieve detailed information about a specific locale by its ID.
+      operationId: getLocaleById
+      tags:
+        - Locales
+      parameters:
+        - name: localeId
+          in: path
+          required: true
+          description: The unique identifier of the locale to retrieve.
+          schema:
+            type: string
+            example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      responses:
+        "200":
+          description: The details of the locale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update locale details
+      description: Update the details of a specific locale by its ID.
+      operationId: updateLocaleById
+      tags:
+        - Locales
+      parameters:
+        - name: localeId
+          in: path
+          required: true
+          description: The unique identifier of the locale to update.
+          schema:
+            type: string
+            example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: The new display name of the locale.
+                  example: "Updated Locale Name"
+                  maxLength: 255
+                  nullable: true
+                language:
+                  type: string
+                  description: The new language of the locale (e.g., "English", "French").
+                  example: "English"
+                  maxLength: 255
+                  nullable: true
+                region:
+                  type: string
+                  description: The new region of the locale (e.g., "United States", "France").
+                  example: "United States"
+                  maxLength: 255
+                  nullable: true
+                code:
+                  type: string
+                  description: The new locale code (e.g., "en_US", "fr_FR").
+                  example: "en_US"
+                  maxLength: 255
+                  nullable: true
+                flag:
+                  type: string
+                  description: The new flag emoji for the locale (using https://npmjs.com/package/country-flag-icons).
+                  example: "US"
+                  maxLength: 255
+                  nullable: true
+                enabled:
+                  type: boolean
+                  description: |
+                    Indicates whether the locale is enabled for use in projects.
+                    - true = the locale is enabled and can be added to projects
+                    - false = the locale is disabled and cannot be added to projects
+                  default: true
+      responses:
+        "200":
+          description: The updated locale details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locale"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
   "/plans":
     get:
       summary: Get a list of all plans
@@ -1249,6 +1452,8 @@ paths:
                   $ref: "#/components/schemas/Plan"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
         "500":
           $ref: "#/components/responses/InternalServerError"
     post:
@@ -1338,6 +1543,8 @@ paths:
                 $ref: "#/components/schemas/Plan"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
         "404":
           $ref: "#/components/responses/NotFoundError"
         "500":
@@ -1437,6 +1644,60 @@ paths:
       responses:
         "204":
           description: The plan was deleted successfully
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/plans/default":
+    get:
+      summary: Get the default plan
+      description: Retrieve the default plan that is assigned to new projects by default.
+      operationId: getDefaultPlan
+      tags:
+        - Plans
+      responses:
+        "200":
+          description: The default plan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: Update the default plan
+      description: Update the details of the default plan that is assigned to new projects by default.
+      operationId: updateDefaultPlan
+      tags:
+        - Plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                planId:
+                  type: string
+                  description: The unique identifier of the plan to set as the new default plan.
+                  example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      responses:
+        "200":
+          description: The updated default plan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
         "401":
           $ref: "#/components/responses/UnauthorizedError"
         "403":

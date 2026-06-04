@@ -1,14 +1,46 @@
-import { validateRequest } from "@/lib/api"
+import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
+import { toJsonSafe } from "@/lib/utils"
+import { PlansService } from "@/services/plans"
 import z from "zod"
 
 /**
  * GET /api/v2/plans/[planId] - Get a specific plan's details
  */
 export const GET = validateRequest<{ planId: string }>(
-  {},
+  {
+    adminPermission: {
+      plans: ["read"],
+    },
+  },
   async (_, { planId }) => {
-    return Response.json({
-      msg: "Not implemented yet",
+    const plan = await PlansService.getPlan(planId)
+
+    if (!plan) {
+      return Response.json(
+        {
+          error: {
+            code: "PLAN_NOT_FOUND",
+            message: `No plan with the ID "${planId}" found.`,
+            status: 404,
+          },
+        },
+        {
+          status: 404,
+          headers: createHeaders({
+            options: {
+              version: "v2",
+            },
+          }),
+        }
+      )
+    }
+
+    return Response.json(toJsonSafe(plan), {
+      headers: createHeaders({
+        options: {
+          version: "v2",
+        },
+      }),
     })
   }
 )
@@ -42,9 +74,46 @@ export const PATCH = validateRequest<{ planId: string }>(
       })
       .parse(body)
 
-    return Response.json({
-      msg: "Not implemented yet",
-    })
+    try {
+      const updatedPlan = await PlansService.updatePlan(planId, {
+        displayName,
+        description,
+        localesLimit,
+        termsLimit,
+        labelsLimit,
+        membersLimit,
+      })
+
+      if (!updatedPlan) {
+        return Response.json(
+          {
+            error: {
+              code: "PLAN_NOT_FOUND",
+              message: `No plan with the ID "${planId}" found.`,
+              status: 404,
+            },
+          },
+          {
+            status: 404,
+            headers: createHeaders({
+              options: {
+                version: "v2",
+              },
+            }),
+          }
+        )
+      }
+
+      return Response.json(toJsonSafe(updatedPlan), {
+        headers: createHeaders({
+          options: {
+            version: "v2",
+          },
+        }),
+      })
+    } catch (error) {
+      return handleApiError(error, { version: "v2" })
+    }
   }
 )
 
@@ -58,8 +127,38 @@ export const DELETE = validateRequest<{ planId: string }>(
     },
   },
   async (_, { planId }) => {
-    return Response.json({
-      msg: "Not implemented yet",
-    })
+    try {
+      const deletedPlan = await PlansService.deletePlan(planId)
+
+      if (!deletedPlan) {
+        return Response.json(
+          {
+            error: {
+              code: "PLAN_NOT_FOUND",
+              message: `No plan with the ID "${planId}" found.`,
+              status: 404,
+            },
+          },
+          {
+            status: 404,
+            headers: createHeaders({
+              options: {
+                version: "v2",
+              },
+            }),
+          }
+        )
+      }
+
+      return Response.json(toJsonSafe(deletedPlan), {
+        headers: createHeaders({
+          options: {
+            version: "v2",
+          },
+        }),
+      })
+    } catch (error) {
+      return handleApiError(error, { version: "v2" })
+    }
   }
 )

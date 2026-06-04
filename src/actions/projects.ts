@@ -262,7 +262,7 @@ export async function updateProjectPlan({
       // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
       role: user?.role ?? "user",
       permissions: {
-        projects: ["update-plan"],
+        projects: ["update:plan"],
       },
     },
   })

@@ -21,7 +21,7 @@ export default async function AdminProjectsPage() {
       headers: await headers(),
       body: {
         permissions: {
-          projects: ["update-plan"],
+          projects: ["update:plan"],
         },
       },
     })

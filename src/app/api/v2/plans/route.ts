@@ -1,26 +1,29 @@
-import { createHeaders, validateRequest } from "@/lib/api"
-import { prisma } from "@/lib/prisma"
+import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
 import { toJsonSafe } from "@/lib/utils"
+import { PlansService } from "@/services/plans"
 import z from "zod"
 
 /**
  * GET /api/v2/plans - Get all plans
  */
-export const GET = validateRequest({}, async (_, __) => {
-  const plans = await prisma.plan.findMany({
-    orderBy: {
-      createdAt: "asc",
+export const GET = validateRequest(
+  {
+    adminPermission: {
+      plans: ["read"],
     },
-  })
+  },
+  async (_, __) => {
+    const plans = await PlansService.getPlans()
 
-  return Response.json(toJsonSafe(plans), {
-    headers: createHeaders({
-      options: {
-        version: "v2",
-      },
-    }),
-  })
-})
+    return Response.json(toJsonSafe(plans), {
+      headers: createHeaders({
+        options: {
+          version: "v2",
+        },
+      }),
+    })
+  }
+)
 
 /**
  * POST /api/v2/plans - Create a new plan
@@ -51,8 +54,25 @@ export const POST = validateRequest(
       })
       .parse(body)
 
-    return Response.json({
-      msg: "Not implemented yet",
-    })
+    try {
+      const newPlan = await PlansService.createPlan({
+        displayName,
+        description,
+        localesLimit,
+        termsLimit,
+        labelsLimit,
+        membersLimit,
+      })
+
+      return Response.json(toJsonSafe(newPlan), {
+        headers: createHeaders({
+          options: {
+            version: "v2",
+          },
+        }),
+      })
+    } catch (error) {
+      return handleApiError(error, { version: "v2" })
+    }
   }
 )
