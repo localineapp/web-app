@@ -47,6 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Tooltip,
   TooltipContent,
@@ -273,10 +274,12 @@ function EditTermSheet({
 
   const [key, setKey] = useState("")
   const [context, setContext] = useState<string | null>(null)
+  const [locked, setLocked] = useState(false)
 
   function openEditor(currentTerm: ProjectTerm) {
     setKey(currentTerm.key)
     setContext(currentTerm.context ?? null)
+    setLocked(currentTerm.locked)
     setEditingTerm(currentTerm)
   }
 
@@ -284,6 +287,7 @@ function EditTermSheet({
     setEditingTerm(null)
     setKey("")
     setContext(null)
+    setLocked(false)
   }
 
   async function handleUpdateTerm(event: SubmitEvent<HTMLFormElement>) {
@@ -297,6 +301,7 @@ function EditTermSheet({
       termId: editingTerm.id,
       key: key.trim(),
       context: context?.trim() || null,
+      locked,
     })
       .then((updatedTerm) => {
         toast.success(`Updated term ${updatedTerm.key}.`)
@@ -382,6 +387,34 @@ function EditTermSheet({
                   disabled={loading}
                   onChange={({ target: { value } }) => setContext(value)}
                 />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="termLocked">Locked</Label>
+                <ToggleGroup
+                  type="single"
+                  className="grid w-full grid-cols-2 border-2"
+                  value={locked ? "true" : "false"}
+                  disabled={loading}
+                  onValueChange={(value) => {
+                    if (value === "true" || value === "false") {
+                      setLocked(value === "true")
+                    }
+                  }}
+                >
+                  <ToggleGroupItem
+                    value="true"
+                    className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
+                  >
+                    Yes
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value="false"
+                    className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
+                  >
+                    No
+                  </ToggleGroupItem>
+                </ToggleGroup>
               </div>
             </div>
           </ScrollArea>
