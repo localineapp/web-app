@@ -73,7 +73,7 @@ export async function updateProjectMember({
   roleId?: string
   locales?: ProjectLocale[]
 }): Promise<ProjectMember> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.UPDATE_MEMBERS,
   })
@@ -95,7 +95,7 @@ export async function updateProjectMemberRole({
   memberId: string
   roleId: string
 }): Promise<ProjectMember> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.UPDATE_MEMBERS,
   })
@@ -137,7 +137,7 @@ export async function updateProjectMemberLocales({
   memberId: string
   locales?: ProjectLocale[]
 }): Promise<ProjectMember> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.UPDATE_MEMBERS,
   })
@@ -170,7 +170,7 @@ export async function removeProjectMember({
   projectId: string
   memberId: string
 }): Promise<ProjectMemberWithUserAndRole> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.REMOVE_MEMBERS,
   })

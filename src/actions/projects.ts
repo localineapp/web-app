@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { Project } from "@prisma/client"
+import { Project, ProjectMember } from "@prisma/client"
 import { headers } from "next/headers"
 import { forbidden, notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
@@ -12,7 +12,11 @@ import {
   hasPermission,
   ProjectPermission,
 } from "@/lib/project-permissions"
-import { FullProject, fullProjectArgs } from "@/types/project"
+import {
+  FullProject,
+  fullProjectArgs,
+  ProjectMemberWithLocales,
+} from "@/types/project"
 import { findProject } from "@/lib/project"
 import { getMany, getOne, update } from "@/services/projects"
 
@@ -32,7 +36,10 @@ export async function canManageProjectFeature({
     : NonNullable<
         Parameters<typeof auth.api.userHasPermission>[0]
       >["body"]["permissions"]
-}): Promise<FullProject> {
+}): Promise<{
+  project: FullProject
+  member: ProjectMemberWithLocales | undefined
+}> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -67,7 +74,10 @@ export async function canManageProjectFeature({
     return forbidden()
   }
 
-  return project
+  return {
+    project,
+    member,
+  }
 }
 
 export async function getProjects({
@@ -229,7 +239,7 @@ export async function updateProject({
   name?: string
   description?: string
 }): Promise<Project | null> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_PROJECT,
   })

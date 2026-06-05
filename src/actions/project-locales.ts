@@ -12,7 +12,7 @@ export async function addProjectLocale({
   projectId: string
   localeId: string
 }): Promise<ProjectLocale> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_LOCALES,
   })
@@ -30,7 +30,7 @@ export async function removeProjectLocale({
   projectId: string
   projectLocaleId: string
 }): Promise<ProjectLocale> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_LOCALES,
   })

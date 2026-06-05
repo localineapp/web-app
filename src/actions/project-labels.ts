@@ -22,7 +22,7 @@ export async function createProjectLabel({
   color?: string | null
   icon?: string | null
 }): Promise<ProjectLabel> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_LABELS,
   })
@@ -51,7 +51,7 @@ export async function updateProjectLabel({
   color?: string | null
   icon?: string | null
 }): Promise<ProjectLabel> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_LABELS,
   })
@@ -73,7 +73,7 @@ export async function deleteProjectLabel({
   projectId: string
   labelId: string
 }): Promise<ProjectLabel> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_LABELS,
   })

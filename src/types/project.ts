@@ -4,6 +4,7 @@ import {
   Project,
   ProjectInvitation,
   ProjectLocale,
+  ProjectMember,
   ProjectMemberRole,
 } from "@prisma/client"
 
@@ -101,6 +102,10 @@ export type ProjectMemberWithUserAndRole = Prisma.ProjectMemberGetPayload<{
 }>
 
 export type ProjectLocaleWithLocale = ProjectLocale & { locale: Locale }
+
+export type ProjectMemberWithLocales = ProjectMember & {
+  locales: ProjectLocaleWithLocale[]
+}
 
 export type ProjectInvitationWithProject = ProjectInvitation & {
   project: Project

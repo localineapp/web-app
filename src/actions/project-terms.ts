@@ -16,7 +16,7 @@ export async function createProjectTerm({
   context?: string | null
   locked?: boolean
 }) {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.CREATE_TERMS,
   })
@@ -44,7 +44,7 @@ export async function updateProjectTerm({
   locked?: boolean
   labels?: ProjectLabel[]
 }) {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.UPDATE_TERMS,
   })
@@ -66,7 +66,7 @@ export async function deleteProjectTerm({
   projectId: string
   termId: string
 }) {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.DELETE_TERMS,
   })

@@ -22,7 +22,7 @@ export async function createProjectMemberRole({
   icon?: string | null
   permissions?: bigint | null
 }): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_ROLES,
   })
@@ -51,7 +51,7 @@ export async function updateProjectMemberRole({
   icon?: string | null
   permissions?: bigint | null
 }): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_ROLES,
   })
@@ -73,7 +73,7 @@ export async function deleteProjectMemberRole({
   projectId: string
   roleId: string
 }): Promise<ProjectMemberRole> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.MANAGE_ROLES,
   })

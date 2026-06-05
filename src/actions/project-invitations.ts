@@ -64,7 +64,7 @@ export async function createProjectInvitation({
   email: string
   roleId: string
 }): Promise<ProjectInvitation> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.INVITE_MEMBERS,
   })
@@ -87,7 +87,7 @@ export async function updateProjectInvitation({
   roleId?: string
   expiresAt?: Date
 }): Promise<ProjectInvitation> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.INVITE_MEMBERS,
   })
@@ -107,7 +107,7 @@ export async function revokeProjectInvitation({
   projectId: string
   invitationId: string
 }): Promise<ProjectInvitation> {
-  const project = await canManageProjectFeature({
+  const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.INVITE_MEMBERS,
   })
