@@ -1,4 +1,6 @@
 import { getProject } from "@/actions/projects"
+import NoLocalesEmpty from "@/components/dashboard/projects/project/translations/NoLocalesEmpty"
+import TranslationsCard from "@/components/dashboard/projects/project/translations/TranslationsCard"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
@@ -30,7 +32,11 @@ export default async function ProjectTranslationsPage({
       </div>
 
       <div>
-        <p>Not implemented yet.</p>
+        {project.locales.length === 0 ? (
+          <NoLocalesEmpty />
+        ) : (
+          <TranslationsCard project={project} locale={project.locales[0]} />
+        )}
       </div>
     </div>
   )
