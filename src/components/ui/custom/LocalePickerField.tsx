@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { getFlag, getFlagCodeForLocale } from "@/lib/project-utils"
+import { getFlag } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { Locale } from "@prisma/client"
 import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
@@ -34,8 +34,7 @@ export default function LocalePickerField({
 
   const selectedLocalePreview = value
     ? (() => {
-        const flagCode = value.flag || getFlagCodeForLocale(value)
-        const Flag = flagCode ? getFlag(flagCode) : undefined
+        const Flag = value.flag ? getFlag(value.flag) : undefined
 
         return (
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
@@ -181,8 +180,7 @@ export default function LocalePickerField({
               {filteredLocales.length > 0 ? (
                 filteredLocales.map((locale) => {
                   const selected = value?.id === locale.id
-                  const flagCode = locale.flag || getFlagCodeForLocale(locale)
-                  const Flag = flagCode ? getFlag(flagCode) : undefined
+                  const Flag = locale.flag ? getFlag(locale.flag) : undefined
 
                   return (
                     <button
