@@ -36,12 +36,9 @@ export default function DashboardCards({
           }
         )
 
-        if (!res.ok) {
-          return
-        }
+        if (!res.ok) return
 
         const data = await res.json()
-
         let tag = data.tag_name || data.name || null
 
         if (tag?.startsWith("v")) {

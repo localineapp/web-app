@@ -20,8 +20,6 @@ export default async function DashboardPage() {
     headers: await headers(),
   })
 
-  const emailVerificationRequired = await isEmailVerificationRequired()
-
   const user = session?.user
   const canViewUpdateNotification = (
     await auth.api.userHasPermission({
@@ -35,13 +33,14 @@ export default async function DashboardPage() {
     })
   ).success
 
+  const emailVerificationRequired = await isEmailVerificationRequired()
+  const version = await getVersion()
+
   const startYear = 2026
   const currentYear = new Date().getFullYear()
 
   const dateRange =
     startYear === currentYear ? `${currentYear}` : `${startYear}-${currentYear}`
-
-  const version = await getVersion()
 
   return (
     <div className="flex h-full flex-col">
