@@ -11,7 +11,8 @@ export async function getAppName(): Promise<string> {
 }
 
 export async function getVersion(): Promise<string> {
-  return require("@/../package.json").version
+  const packageJson = await import("@/../package.json")
+  return packageJson.default.version
 }
 
 export async function areSignUpsDisabled(): Promise<boolean> {

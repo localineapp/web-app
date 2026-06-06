@@ -6,7 +6,7 @@ import {
 } from "better-auth/plugins/admin/access"
 
 export const statement = {
-  dashboard: ["admin"],
+  dashboard: ["admin", "updates"],
   locales: ["read:disabled", "create", "update", "delete"],
   plans: ["read", "create", "update", "delete"],
   projects: ["read", "update", "update:plan", "delete"],
@@ -16,7 +16,7 @@ export const statement = {
 export const ac = createAccessControl(statement)
 
 export const admin = ac.newRole({
-  dashboard: ["admin"],
+  dashboard: ["admin", "updates"],
   locales: ["read:disabled", "create", "update", "delete"],
   plans: ["read", "create", "update", "delete"],
   projects: ["read", "update", "update:plan", "delete"],

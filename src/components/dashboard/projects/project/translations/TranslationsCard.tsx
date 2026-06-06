@@ -7,11 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  FullProject,
-  ProjectLocaleWithLocale,
-  ProjectMemberWithLocales,
-} from "@/types/project"
+import { FullProject, ProjectLocaleWithLocale } from "@/types/project"
 import ReferencePopover from "./ReferencePopover"
 import { useEffect, useRef, useState } from "react"
 import {
