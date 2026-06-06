@@ -54,7 +54,7 @@ export const projectSettingsNavigationItems: NavigationItem[] = [
   {
     name: "General",
     icon: SlidersHorizontalIcon,
-    href: "/projects/[projectId]/settings",
+    href: "/projects/[projectId]/settings/",
   },
   {
     name: "Member Roles",

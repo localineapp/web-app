@@ -188,19 +188,27 @@ export default function ProjectsTable({
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="inline-flex items-center px-2 py-1 text-sm"
-                      >
-                        <ExternalLinkIcon size={16} />
-                      </Link>
-                      <ChangePlanDialog
-                        project={project}
-                        plans={plans}
-                        canUpdatePlan={canUpdatePlan}
-                        loading={loading}
-                        setLoading={setLoading}
-                      />
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="inline-flex items-center p-1 text-sm"
+                        >
+                          <Link
+                            href={`/projects/${project.id}`}
+                            className="flex items-center"
+                          >
+                            <ExternalLinkIcon size={16} />
+                          </Link>
+                        </Button>
+                        <ChangePlanDialog
+                          project={project}
+                          plans={plans}
+                          canUpdatePlan={canUpdatePlan}
+                          loading={loading}
+                          setLoading={setLoading}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 )

@@ -87,15 +87,11 @@ export default async function ProjectTranslationsPage({
       </div>
 
       <div>
-        {project.locales.length === 0 ? (
-          <NoLocalesEmpty />
-        ) : (
-          <TranslationsCard
-            project={project}
-            locale={locale}
-            canTranslate={canTranslate}
-          />
-        )}
+        <TranslationsCard
+          project={project}
+          locale={locale}
+          canTranslate={canTranslate}
+        />
       </div>
     </div>
   )
