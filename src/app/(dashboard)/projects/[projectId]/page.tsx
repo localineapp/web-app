@@ -24,12 +24,6 @@ export default async function ProjectPage({
     headers: await headers(),
   })
 
-  const showFirstSteps =
-    project.locales.length === 0 ||
-    project.terms.length === 0 ||
-    project.terms.every((term) => term.translations.length === 0) ||
-    project.members.length < 2
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -62,28 +56,19 @@ export default async function ProjectPage({
           <Separator className="w-full" />
         </div>
 
-        {showFirstSteps ? (
-          <div className="col-span-full grid grid-cols-2 gap-4">
-            <div>
-              <h2 className="mb-2 text-lg font-medium">First Steps</h2>
+        <div className="col-span-full grid grid-cols-2 gap-4">
+          <div>
+            <h2 className="mb-2 text-lg font-medium">First Steps</h2>
 
-              <FirstStepsCards project={project} />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <h2 className="mb-2 text-lg font-medium">Your Membership</h2>
-
-              <MemberInfoCards session={session} project={project} />
-            </div>
+            <FirstStepsCards project={project} />
           </div>
-        ) : (
-          <div className="col-span-full flex flex-col gap-2">
-            <h2 className="text-lg font-medium">Your Membership</h2>
+
+          <div className="flex flex-col gap-2">
+            <h2 className="mb-2 text-lg font-medium">Your Membership</h2>
 
             <MemberInfoCards session={session} project={project} />
           </div>
-        )}
-        {/** TODO: check layout in true and false cases of showFirstSteps */}
+        </div>
       </div>
     </div>
   )

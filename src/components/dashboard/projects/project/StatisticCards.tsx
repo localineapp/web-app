@@ -15,11 +15,13 @@ export default function StatisticCards({ project }: { project: FullProject }) {
   const members = project?.members
   const plan = project?.plan
 
-  const totalTranslations =
-    terms?.reduce((acc, term) => acc + term.translations.length, 0) ?? 0
+  const localeCount = locales?.length ?? 0
+  const totalTranslations = (terms?.length ?? 0) * localeCount
   const translatedCount =
     terms?.reduce(
-      (acc, term) => acc + term.translations.filter((t) => t.value).length,
+      (acc, term) =>
+        acc +
+        term.translations.filter((translation) => translation.value).length,
       0
     ) ?? 0
   const progress =

@@ -6,6 +6,8 @@ import {
   ProjectLocale,
   ProjectMember,
   ProjectMemberRole,
+  ProjectTerm,
+  ProjectTranslation,
 } from "@prisma/client"
 
 export const fullProjectArgs = Prisma.validator<Prisma.ProjectDefaultArgs>()({
@@ -96,6 +98,10 @@ export const projectMemberArgs =
 export type FullProject = Prisma.ProjectGetPayload<{
   include: typeof fullProjectArgs.include
 }>
+
+export type ProjectTranslationWithTerm = ProjectTranslation & {
+  term: ProjectTerm
+}
 
 export type ProjectMemberWithUserAndRole = Prisma.ProjectMemberGetPayload<{
   include: typeof projectMemberArgs.include

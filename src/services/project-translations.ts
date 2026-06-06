@@ -1,7 +1,7 @@
-import { FullProject } from "@/types/project"
-import { ProjectLocale, ProjectTerm, ProjectTranslation } from "@prisma/client"
+import { ProjectTranslation } from "@prisma/client"
 import { generateId } from "better-auth"
 import { prisma } from "@/lib/prisma"
+import { ProjectTranslationWithTerm } from "@/types/project"
 
 export async function upsertTranslation({
   termId,
@@ -10,30 +10,47 @@ export async function upsertTranslation({
 }: {
   termId: string
   localeId: string
-  value: string
-}): Promise<ProjectTranslation> {
-  const normalizedValue = value.trim() || null
-  if (normalizedValue && normalizedValue.length > 500) {
-    throw new Error("A translation value must be 500 characters or less.")
+  value: string | null
+}): Promise<ProjectTranslationWithTerm> {
+  const normalizedValue = value?.trim() || null
+  if (value && normalizedValue && normalizedValue.length > 2000) {
+    throw new Error("A translation value must be 2000 characters or less.")
   }
 
-  return await prisma.projectTranslation.upsert({
-    where: {
-      termId_localeId: {
-        termId: termId,
-        localeId: localeId,
+  if (value == null) {
+    return await prisma.projectTranslation.delete({
+      where: {
+        termId_localeId: {
+          termId,
+          localeId,
+        },
       },
-    },
-    create: {
-      id: generateId(),
-      termId: termId,
-      localeId: localeId,
-      value,
-    },
-    update: {
-      value,
-    },
-  })
+      include: {
+        term: true,
+      },
+    })
+  } else {
+    return await prisma.projectTranslation.upsert({
+      where: {
+        termId_localeId: {
+          termId,
+          localeId,
+        },
+      },
+      create: {
+        id: generateId(),
+        termId,
+        localeId,
+        value,
+      },
+      update: {
+        value,
+      },
+      include: {
+        term: true,
+      },
+    })
+  }
 }
 
 export async function getTranslation(
@@ -44,24 +61,4 @@ export async function getTranslation(
       id: translationId,
     },
   })
-}
-
-export async function deleteTranslation({
-  translationId,
-}: {
-  translationId: string
-}) {
-  const translation = prisma.projectTranslation.delete({
-    where: {
-      id: translationId,
-    },
-  })
-
-  if (!translation) {
-    throw new Error(
-      `No translation with the ID "${translationId}" found in this project.`
-    )
-  }
-
-  return translation
 }
