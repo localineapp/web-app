@@ -7,15 +7,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { FullProject, ProjectLocaleWithLocale } from "@/types/project"
+import {
+  FullProject,
+  ProjectLocaleWithLocale,
+  ProjectMemberWithLocales,
+} from "@/types/project"
 import ReferencePopover from "./ReferencePopover"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { InfoIcon, SaveIcon, SearchIcon } from "lucide-react"
+import {
+  HistoryIcon,
+  InfoIcon,
+  MousePointerClickIcon,
+  SaveIcon,
+  SearchIcon,
+} from "lucide-react"
 import TablePagination from "@/components/dashboard/TablePagination"
 import { ProjectLocale, ProjectTerm } from "@prisma/client"
 import {
@@ -32,13 +42,16 @@ import { cn } from "@/lib/utils"
 import { upsertProjectTranslation } from "@/actions/project-translations"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { Separator } from "@/components/ui/separator"
 
 export default function TranslationsCard({
   project,
   locale,
+  canTranslate,
 }: {
   project: FullProject
   locale: ProjectLocaleWithLocale
+  canTranslate: boolean
 }) {
   const [referenceLocale, setReferenceLocale] =
     useState<ProjectLocaleWithLocale | null>(null)
@@ -77,6 +90,7 @@ export default function TranslationsCard({
           terms={project.terms}
           locale={locale}
           referenceLocale={referenceLocale}
+          canTranslate={canTranslate}
         />
       </CardContent>
     </Card>
@@ -89,12 +103,16 @@ function TranslationsCardContent({
   terms,
   locale,
   referenceLocale,
+  canTranslate,
 }: {
   terms: FullProject["terms"]
   locale: ProjectLocale
   referenceLocale: ProjectLocaleWithLocale | null
+  canTranslate: boolean
 }) {
   const router = useRouter()
+
+  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -218,12 +236,18 @@ function TranslationsCardContent({
                 const hasUnsavedChanges = currentValue !== originalValue
 
                 return (
-                  <TableRow key={term.id}>
+                  <TableRow
+                    key={term.id}
+                    ref={(el) => {
+                      rowRefs.current[term.id] = el
+                    }}
+                  >
                     <TableCell className="max-w-32">{term.key}</TableCell>
 
                     <TableCell className="w-full max-w-0">
                       <Textarea
                         value={currentValue}
+                        readOnly={!canTranslate}
                         className={cn(
                           "max-h-48 min-h-15 w-full resize-none overflow-y-auto border-0 bg-transparent p-1 text-xl placeholder:text-lg",
                           hasUnsavedChanges
@@ -234,6 +258,8 @@ function TranslationsCardContent({
                         disabled={loading}
                         placeholder="Enter translation..."
                         onFocus={() => {
+                          if (!canTranslate) return
+
                           setCurrentTerm(term)
                           setCurrentTranslations((prev) => {
                             if (term.id in prev) return prev
@@ -242,6 +268,27 @@ function TranslationsCardContent({
                               ...prev,
                               [term.id]: originalValue,
                             }
+                          })
+                        }}
+                        onBlur={(e) => {
+                          const nextFocused = e.relatedTarget as Node | null
+                          if (
+                            nextFocused &&
+                            rowRefs.current[term.id]?.contains(nextFocused)
+                          )
+                            return
+
+                          setCurrentTerm((prev) =>
+                            prev?.id === term.id ? null : prev
+                          )
+
+                          setCurrentTranslations((prev) => {
+                            if (!hasUnsavedChanges) {
+                              const { [term.id]: _, ...rest } = prev
+                              return rest
+                            }
+
+                            return prev
                           })
                         }}
                         onChange={({ target: { value } }) =>
@@ -257,7 +304,31 @@ function TranslationsCardContent({
                           {term.translations.some(
                             (t) => t.localeId === referenceLocale.id
                           ) ? (
-                            <></>
+                            <>
+                              <Separator className="my-2" />
+
+                              <div className="mt-2 flex items-center gap-2">
+                                <MousePointerClickIcon className="h-4 w-4 text-green-600 dark:text-green-500" />
+                                <p className="text-xs text-green-600 italic dark:text-green-500">
+                                  Found reference translation in{" "}
+                                  {referenceLocale.locale.displayName}
+                                </p>
+                              </div>
+
+                              <Card data-reference-card className="mt-2 border">
+                                <CardContent>
+                                  <Textarea
+                                    value={
+                                      term.translations.find(
+                                        (t) => t.localeId === referenceLocale.id
+                                      )?.value ?? ""
+                                    }
+                                    readOnly
+                                    className="max-h-48 min-h-15 w-full resize-none overflow-y-auto border-0 bg-transparent p-1 text-xl"
+                                  />
+                                </CardContent>
+                              </Card>
+                            </>
                           ) : (
                             <div className="mt-2 flex items-center gap-2">
                               <InfoIcon className="h-4 w-4 text-amber-600 dark:text-amber-500" />
@@ -271,15 +342,32 @@ function TranslationsCardContent({
                     </TableCell>
 
                     <TableCell className="w-0">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="disabled:invisible"
-                        disabled={!hasUnsavedChanges || loading}
-                        onClick={() => saveTranslation(term.id)}
-                      >
-                        <SaveIcon />
-                      </Button>
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="disabled:invisible"
+                          disabled={!hasUnsavedChanges || loading}
+                          onClick={() => saveTranslation(term.id)}
+                        >
+                          <SaveIcon />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="disabled:invisible"
+                          disabled={!hasUnsavedChanges || loading}
+                          onClick={() => {
+                            setCurrentTerm(term)
+                            setCurrentTranslations((prev) => ({
+                              ...prev,
+                              [term.id]: originalValue,
+                            }))
+                          }}
+                        >
+                          <HistoryIcon />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )

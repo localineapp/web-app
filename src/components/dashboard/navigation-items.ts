@@ -26,7 +26,7 @@ type NavigationItem = {
 
 export const navigationItems: NavigationItem[] = [
   { name: "Dashboard", icon: HomeIcon, href: "/" },
-  { name: "Projects", icon: FolderOpenIcon, href: "/projects" },
+  { name: "Projects", icon: FolderOpenIcon, href: "/projects/" },
 ]
 
 export const accountNavigationItems: NavigationItem[] = [
@@ -38,7 +38,7 @@ export const accountNavigationItems: NavigationItem[] = [
 ]
 
 export const projectNavigationItems: NavigationItem[] = [
-  { name: "Overview", icon: HomeIcon, href: "/projects/[projectId]" },
+  { name: "Overview", icon: HomeIcon, href: "/projects/[projectId]/" },
   {
     name: "Translations",
     icon: FileTextIcon,

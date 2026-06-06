@@ -9,7 +9,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { AlertTriangleIcon, HomeIcon } from "lucide-react"
+import { AlertTriangleIcon, CalendarClockIcon, HomeIcon } from "lucide-react"
 import Link from "next/link"
 
 export function InvitationNotFound() {
@@ -44,7 +44,7 @@ export function InvitationExpired() {
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <AlertTriangleIcon />
+          <CalendarClockIcon />
         </EmptyMedia>
 
         <EmptyTitle className="text-4xl">Invitation Expired</EmptyTitle>

@@ -108,7 +108,12 @@ export default function AppSidebar({
   const isActive = (href: string) => {
     if (!pathname) return false
     if (href === "/") return pathname === "/"
-    return pathname === href || pathname.endsWith(href + "/")
+    return (
+      pathname === href ||
+      (href.endsWith("/")
+        ? pathname.endsWith(href.slice(0, -1))
+        : pathname.startsWith(href + "/"))
+    )
   }
 
   const isExpanded = state === "expanded"
