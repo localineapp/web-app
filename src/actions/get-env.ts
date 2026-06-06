@@ -10,6 +10,10 @@ export async function getAppName(): Promise<string> {
   return process.env.APP_NAME || "Localine"
 }
 
+export async function getVersion(): Promise<string> {
+  return require("@/../package.json").version
+}
+
 export async function areSignUpsDisabled(): Promise<boolean> {
   const signUpsDisabled = process.env.DISABLE_SIGNUP === "true"
   return signUpsDisabled
