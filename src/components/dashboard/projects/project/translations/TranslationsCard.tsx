@@ -158,8 +158,9 @@ function TranslationsCardContent({
     return () => {
       window.removeEventListener("keydown", handleKeyDown, {
         capture: true,
-      } as any)
+      })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTerm, currentTranslations])
 
   async function saveTranslation(termId: string) {

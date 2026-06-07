@@ -19,6 +19,7 @@ export default function DataExportCard({
 }: {
   session: ReturnType<typeof useSession>["data"]
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const user = session?.user
 
   const [loading, setLoading] = useState(false)

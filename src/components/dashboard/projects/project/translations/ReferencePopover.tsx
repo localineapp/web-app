@@ -52,7 +52,7 @@ export default function ReferencePopover({
           region.includes(normalizedSearchQuery)
         )
       })
-  }, [projectLocales, searchQuery])
+  }, [projectLocales, searchQuery, currentLocale])
 
   function clearSelection() {
     setOpen(false)
@@ -89,7 +89,7 @@ export default function ReferencePopover({
                     <>
                       <span className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
                         {referenceLocale.locale.flag ? (
-                          // @ts-ignore - getFlag can return undefined, but in this case we know it won't because we check for referenceLocale.locale.flag
+                          // @ts-expect-error - getFlag can return undefined, but in this case we know it won't because we check for referenceLocale.locale.flag
                           createElement(getFlag(referenceLocale.locale.flag), {
                             className: "h-4 w-4",
                             "aria-hidden": true,

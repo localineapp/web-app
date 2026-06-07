@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { Project, ProjectMember } from "@prisma/client"
+import { Project } from "@prisma/client"
 import { headers } from "next/headers"
 import { forbidden, notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"

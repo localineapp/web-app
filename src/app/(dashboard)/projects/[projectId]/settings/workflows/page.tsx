@@ -23,6 +23,7 @@ export default async function ProjectWorkflowSettingsPage({
   const user = session?.user
   const member = project.members.find((m) => m.userId === user?.id)
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const canManageWorkflows =
     hasPermission(
       member?.role.permissions ?? 0n,

@@ -10,11 +10,7 @@ import {
 } from "@/components/ui/card"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { getFlag } from "@/lib/project-utils"
-import {
-  FullProject,
-  ProjectLocaleWithLocale,
-  ProjectMemberWithLocales,
-} from "@/types/project"
+import { FullProject, ProjectLocaleWithLocale } from "@/types/project"
 import { AlertTriangleIcon } from "lucide-react"
 import Link from "next/link"
 
@@ -86,7 +82,7 @@ export default function LocalesCards({
               <CardContent>
                 <p className="text-sm text-amber-600 dark:text-amber-300">
                   <AlertTriangleIcon className="mr-1 inline h-4 w-4" />
-                  You don't have permission to translate for this locale.
+                  You don&rsquo;t have permission to translate for this locale.
                 </p>
               </CardContent>
             )}

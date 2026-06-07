@@ -1,5 +1,4 @@
 import { getProject } from "@/actions/projects"
-import NoLocalesEmpty from "@/components/dashboard/projects/project/translations/NoLocalesEmpty"
 import TranslationsCard from "@/components/dashboard/projects/project/translations/TranslationsCard"
 import { Button } from "@/components/ui/button"
 import {
