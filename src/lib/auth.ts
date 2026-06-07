@@ -1,134 +1,118 @@
-/**
- * Authentication utilities
- * Handles password hashing, JWT token generation, and session management
- */
+import { APIError, betterAuth } from "better-auth"
+import {
+  admin as adminPlugin,
+  lastLoginMethod,
+  openAPI,
+} from "better-auth/plugins"
+import { apiKey } from "@better-auth/api-key"
+import { prismaAdapter } from "better-auth/adapters/prisma"
+import { prisma } from "@/lib/prisma"
+import { ac, admin, user } from "@/lib/permission"
 
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+const signUpDisabled = process.env.DISABLE_SIGNUP === "true"
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-jwt-key-change-in-production-min-32-chars';
-
-// Warn if JWT_SECRET is not set properly
-if (!JWT_SECRET || JWT_SECRET === 'your-secret-jwt-key-change-in-production-min-32-chars') {
-  console.warn('⚠️  WARNING: JWT_SECRET not set. Using default secret. Set JWT_SECRET environment variable for production!');
-}
-
-const SALT_ROUNDS = 10;
-const TOKEN_COOKIE_NAME = 'auth_token';
-const TOKEN_EXPIRY = '7d'; // 7 days
-
-/**
- * Check if signups are enabled
- * Defaults to true if not set
- */
-export function areSignupsEnabled(): boolean {
-  const signupsEnabled = process.env.SIGNUPS_ENABLED;
-  // Default to true if not set, or if set to anything other than 'false'
-  return signupsEnabled !== 'false';
-}
-
-export interface JWTPayload {
-  userId: string;
-  email: string;
-  iat?: number;
-  exp?: number;
-}
-
-/**
- * Hash a password
- */
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, SALT_ROUNDS);
-}
-
-/**
- * Verify a password against a hash
- */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
-}
-
-/**
- * Generate a JWT token
- */
-export function generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
-}
-
-/**
- * Verify and decode a JWT token
- */
-export function verifyToken(token: string): JWTPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Set authentication cookie
- */
-export async function setAuthCookie(token: string): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(TOKEN_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: '/',
-  });
-}
-
-/**
- * Get authentication token from cookie
- */
-export async function getAuthToken(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get(TOKEN_COOKIE_NAME);
-  return cookie?.value || null;
-}
-
-/**
- * Remove authentication cookie
- */
-export async function removeAuthCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(TOKEN_COOKIE_NAME);
-}
-
-/**
- * Get current user from token
- */
-export async function getCurrentUser(): Promise<JWTPayload | null> {
-  const token = await getAuthToken();
-  if (!token) return null;
-  return verifyToken(token);
-}
-
-/**
- * Generate a random API key
- */
-export function generateApiKey(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let key = 'tk_'; // prefix for translations key
-  for (let i = 0; i < 48; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return key;
-}
-
-/**
- * Hash an API key for storage
- */
-export async function hashApiKey(apiKey: string): Promise<string> {
-  return bcrypt.hash(apiKey, SALT_ROUNDS);
-}
-
-/**
- * Verify an API key against a hash
- */
-export async function verifyApiKey(apiKey: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(apiKey, hash);
-}
+export const auth = betterAuth({
+  appName: process.env.APP_NAME || "Localine",
+  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  database: prismaAdapter(prisma, { provider: "mysql" }),
+  emailVerification: {
+    autoSignInAfterVerification: true,
+  },
+  emailAndPassword: {
+    enabled: true,
+    disableSignUp: signUpDisabled,
+    requireEmailVerification: false, // TODO: should be true if email service is configured
+    autoSignIn: true,
+    revokeSessionsOnPasswordReset: true,
+  },
+  socialProviders: {
+    discord: {
+      enabled:
+        !!process.env.DISCORD_CLIENT_ID! &&
+        !!process.env.DISCORD_CLIENT_SECRET!,
+      clientId: process.env.DISCORD_CLIENT_ID!,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+    },
+    github: {
+      enabled:
+        !!process.env.GITHUB_CLIENT_ID! && !!process.env.GITHUB_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
+    google: {
+      enabled:
+        !!process.env.GOOGLE_CLIENT_ID! && !!process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  plugins: [
+    adminPlugin({
+      ac,
+      roles: {
+        admin,
+        user,
+      },
+    }),
+    lastLoginMethod({
+      storeInDatabase: true,
+    }),
+    apiKey({
+      startingCharactersConfig: {
+        shouldStore: false,
+      },
+      defaultPrefix: "lapp_",
+      requireName: true,
+      enableMetadata: true,
+      rateLimit: {
+        timeWindow: 1000 * 60, // 1 minute
+        maxRequests: 30, // 30 requests per minute
+      },
+    }),
+    openAPI({
+      disableDefaultReference: process.env.NODE_ENV === "production",
+    }),
+  ],
+  user: {
+    additionalFields: {
+      lastLoginMethod: {
+        type: "string",
+        required: false,
+      },
+      projectsLimit: {
+        type: "number",
+        defaultValue: 5,
+      },
+    },
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: true, // TODO: should be false if email service is configured
+    },
+    deleteUser: {
+      enabled: true,
+    },
+  },
+  account: {
+    updateAccountOnSignIn: true,
+    accountLinking: {
+      disableImplicitLinking: true,
+    },
+    encryptOAuthTokens: true,
+  },
+  advanced: {
+    cookiePrefix: "localine",
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (_, ctx) => {
+          if (signUpDisabled && ctx?.path != "/admin/create-user") {
+            throw new APIError("BAD_REQUEST", {
+              message: "signup disabled",
+            })
+          }
+        },
+      },
+    },
+  },
+})

@@ -1,0 +1,1 @@
+These files have been automatically generated using the shadcn cli tool. They are not meant to be edited directly.

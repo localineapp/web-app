@@ -1,194 +1,23 @@
+import { NextRequest } from "next/server"
+
 /**
- * Locales API endpoints
- * GET /api/v1/projects/:projectId/translations - List all locales
- * POST /api/v1/projects/:projectId/translations - Add new locale (admins only)
+ * GET /api/v1/projects/[projectId]/translations - List project's locales
+ * @deprecated Use v2 instead
  */
-
-import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
-import { authenticateRequest, isAuthorized, checkProjectAccess } from '@/lib/middleware';
-import { prisma } from '@/lib/db';
-import { isValidLocaleCode, getLocaleByCode } from '@/lib/locales';
-
-interface AddLocaleRequest {
-  code: string;
-}
-
-// GET /api/v1/projects/:projectId/translations - List locales
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
-  try {
-    const auth = await authenticateRequest(request);
-    
-    if (!auth) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const { projectId } = await params;
-
-    if (auth.isApiKey) {
-      if (auth.projectId !== projectId) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    } else {
-      const access = await checkProjectAccess(auth.userId!, projectId);
-      
-      if (!access.hasAccess) {
-        return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-      }
-    }
-
-    const locales = await prisma.locale.findMany({
-      where: { projectId },
-      select: {
-        id: true,
-        code: true,
-        language: true,
-        region: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'asc' },
-    });
-
-    const transformedLocales = locales.map((locale) => ({
-      id: locale.id,
-      locale: {
-        code: locale.code,
-        language: locale.language,
-        region: locale.region,
-      },
-      date: locale.createdAt,
-    }));
-
-    return NextResponse.json({ data: transformedLocales });
-  } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  const { projectId } = await params
 }
 
-// POST /api/v1/projects/:projectId/translations - Add locale (admins only)
+/**
+ * POST /api/v1/projects/[projectId]/translations - Add a new locale to the project
+ * @deprecated Use v2 instead
+ */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
 ) {
-  try {
-    const auth = await authenticateRequest(request);
-    
-    if (!auth) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    if (!isAuthorized('POST', auth.apiKeyRole)) {
-      return NextResponse.json(
-        { error: 'Forbidden - insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
-    const { projectId } = await params;
-    const body: AddLocaleRequest = await request.json();
-
-    if (auth.isApiKey) {
-      if (auth.projectId !== projectId) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    } else {
-      const access = await checkProjectAccess(auth.userId!, projectId);
-      
-      if (!access.hasAccess) {
-        return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-      }
-
-      if (access.memberRole === 'editor') {
-        return NextResponse.json(
-          { error: 'Editors cannot add locales' },
-          { status: 403 }
-        );
-      }
-    }
-
-    if (!body.code || body.code.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Locale code is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!isValidLocaleCode(body.code)) {
-      return NextResponse.json(
-        { error: 'Invalid locale code. Please use a supported locale code (e.g., en_US, de_DE, fr_FR)' },
-        { status: 400 }
-      );
-    }
-
-    const localeDefinition = getLocaleByCode(body.code);
-    if (!localeDefinition) {
-      return NextResponse.json(
-        { error: 'Locale definition not found' },
-        { status: 400 }
-      );
-    }
-
-    const existingLocale = await prisma.locale.findFirst({
-      where: {
-        projectId,
-        code: body.code,
-      },
-      select: { id: true },
-    });
-
-    if (existingLocale) {
-      return NextResponse.json(
-        { error: 'Locale already exists' },
-        { status: 409 }
-      );
-    }
-
-    const localeId = uuidv4();
-    const locale = await prisma.locale.create({
-      data: {
-        id: localeId,
-        projectId,
-        code: body.code,
-        language: localeDefinition.language,
-        region: localeDefinition.region,
-      },
-      select: {
-        id: true,
-        code: true,
-        language: true,
-        region: true,
-        createdAt: true,
-      },
-    });
-
-    return NextResponse.json({
-      data: {
-        id: locale.id,
-        locale: {
-          code: locale.code,
-          language: locale.language,
-          region: locale.region,
-        },
-        date: locale.createdAt,
-      },
-    }, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  const { projectId } = await params
 }
-

@@ -1,0 +1,158 @@
+openapi: "3.0.3"
+info:
+  title: Localine API
+  description: Localine is an open translation management platform that helps teams to collaborate on localization.
+  version: "1.0.0"
+servers:
+  - url: /api/v1
+    description: The base URL for the API endpoints (v1 - deprecated, use v2 for the latest version)
+components:
+  schemas:
+    Project:
+      type: object
+      description: A project in the Localine system.
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the project.
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        name:
+          type: string
+          description: Name of the project.
+          example: "My Project"
+        description:
+          type: string
+          description: A brief description of the project.
+          example: "This is a sample project for localization."
+          nullable: true
+        ownerId:
+          type: string
+          description: Unique identifier of the user who owns the project.
+          example: "u1s2e3r4i5d6n7o8p9q0r1s2t3u4v5w6"
+        memberRole:
+          type: string
+          description: The role id of the authenticated user in this project. (null if the user is the owner)
+          nullable: true
+        createdAt:
+          type: string
+          description: Timestamp when the project was created.
+          example: "2026-01-01T12:00:00Z"
+        updatedAt:
+          type: string
+          description: Timestamp when the project was last updated.
+          example: "2026-01-02T12:00:00Z"
+      required:
+        - id
+        - name
+    ApiError:
+      type: object
+      description: Standard error response.
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code.
+              example: INVALID_API_KEY
+            message:
+              type: string
+              description: Human-readable error message.
+              example: The provided API key is invalid
+            status:
+              type: integer
+              description: HTTP status code.
+              example: 401
+          required:
+            - code
+            - message
+            - status
+      required:
+        - error
+  responses:
+    UnauthorizedError:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            missingAuthorization:
+              summary: Missing Authorization header
+              value:
+                error:
+                  code: MISSING_AUTHORIZATION
+                  message: Authorization header is required
+                  status: 401
+            invalidAuthorization:
+              summary: Invalid Authorization header format
+              value:
+                error:
+                  code: INVALID_AUTHORIZATION
+                  message: Authorization header must start with 'Bearer '
+                  status: 401
+            invalidApiKey:
+              summary: Invalid API key
+              value:
+                error:
+                  code: INVALID_API_KEY
+                  message: The provided API key is invalid
+                  status: 401
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            projectNotFound:
+              summary: Project not found
+              value:
+                error:
+                  code: PROJECT_NOT_FOUND
+                  message: Project not found or you don't have access to it
+                  status: 404
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            genericError:
+              summary: Generic internal server error
+              value:
+                error:
+                  code: INTERNAL_SERVER_ERROR
+                  message: An unexpected error occurred. Please try again later.
+                  status: 500
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+security:
+  - BearerAuth: []
+paths:
+  "/projects":
+    get:
+      summary: Get a list of projects
+      description: Retrieve a list of all projects associated with the authenticated user's API key.
+      operationId: getProjects
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: A list of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"

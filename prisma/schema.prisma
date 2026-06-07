@@ -1,6 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,145 +11,293 @@ datasource db {
   provider = "mysql"
 }
 
-// Users table
 model User {
-  id           String   @id @db.VarChar(36)
-  email        String   @unique @db.VarChar(255)
-  passwordHash String   @map("password_hash") @db.VarChar(255)
-  name         String   @db.VarChar(255)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  id              String    @id
+  name            String    @db.Text
+  email           String
+  emailVerified   Boolean   @default(false)
+  image           String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  role            String?   @db.Text
+  banned          Boolean?  @default(false)
+  banReason       String?   @db.Text
+  banExpires      DateTime?
+  lastLoginMethod String?   @db.Text
+  projectsLimit   Int       @default(5)
+  sessions        Session[]
+  accounts        Account[]
 
-  projects           Project[]
-  projectMemberships ProjectMember[]
+  projectMembers     ProjectMember[]
+  projectInvitations ProjectInvitation[]
 
-  @@index([email], map: "idx_email")
-  @@map("users")
+  @@unique([email])
+  @@map("user")
 }
 
-// Projects table
-model Project {
-  id          String   @id @db.VarChar(36)
-  name        String   @db.VarChar(255)
-  description String?  @db.Text
-  ownerId     String   @map("owner_id") @db.VarChar(36)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?  @db.Text
+  userAgent      String?  @db.Text
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?  @db.Text
 
-  owner   User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  apiKeys ApiKey[]
-  locales Locale[]
-  labels  Label[]
-  terms   Term[]
-  members ProjectMember[]
-
-  @@index([ownerId], map: "idx_owner")
-  @@map("projects")
+  @@unique([token])
+  @@index([userId(length: 191)])
+  @@map("session")
 }
 
-// API Keys table
-model ApiKey {
-  id        String    @id @db.VarChar(36)
-  projectId String    @map("project_id") @db.VarChar(36)
-  name      String    @db.VarChar(255)
-  keyHash   String    @unique @map("key_hash") @db.VarChar(255)
-  role      String    @default("read-only") @db.VarChar(20)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
-  revokedAt DateTime? @map("revoked_at") @db.Timestamp(0)
+model Account {
+  id                    String    @id
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@index([keyHash], map: "idx_key_hash")
-  @@index([projectId], map: "idx_project")
-  @@map("api_keys")
+  @@index([userId(length: 191)])
+  @@map("account")
 }
 
-// Locales table
+model Verification {
+  id         String   @id
+  identifier String   @db.Text
+  value      String   @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier(length: 191)])
+  @@map("verification")
+}
+
+model Apikey {
+  id                  String    @id
+  configId            String    @db.Text
+  name                String?   @db.Text
+  start               String?   @db.Text
+  referenceId         String    @db.Text
+  prefix              String?   @db.Text
+  key                 String    @db.Text
+  refillInterval      Int?
+  refillAmount        Int?
+  lastRefillAt        DateTime?
+  enabled             Boolean?  @default(true)
+  rateLimitEnabled    Boolean?  @default(true)
+  rateLimitTimeWindow Int?      @default(86400000)
+  rateLimitMax        Int?      @default(10)
+  requestCount        Int?      @default(0)
+  remaining           Int?
+  lastRequest         DateTime?
+  expiresAt           DateTime?
+  createdAt           DateTime
+  updatedAt           DateTime
+  permissions         String?   @db.Text
+  metadata            String?   @db.Text
+
+  @@index([configId(length: 191)])
+  @@index([referenceId(length: 191)])
+  @@index([key(length: 191)])
+  @@map("apikey")
+}
+
 model Locale {
-  id        String   @id @db.VarChar(36)
-  projectId String   @map("project_id") @db.VarChar(36)
-  code      String   @db.VarChar(10)
-  language  String?  @db.VarChar(100)
-  region    String?  @db.VarChar(100)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  id          String   @id
+  displayName String
+  language    String   @db.Text
+  region      String?  @db.Text
+  code        String   @unique
+  flag        String?  @db.Text
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  translations Translation[]
+  projectLocales ProjectLocale[]
 
-  @@unique([projectId, code], map: "unique_project_locale")
-  @@index([projectId], map: "idx_project")
-  @@map("locales")
+  @@map("locale")
 }
 
-// Labels table
-model Label {
-  id        String   @id @db.VarChar(36)
-  projectId String   @map("project_id") @db.VarChar(36)
-  name      String   @db.VarChar(255)
-  color     String   @default("#808080") @db.VarChar(7)
-  value     String?  @db.VarChar(500)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+model Plan {
+  id           String   @id
+  displayName  String   @unique
+  description  String?  @db.Text
+  localesLimit Int?     @db.Int
+  termsLimit   Int?     @db.Int
+  labelsLimit  Int?     @db.Int
+  membersLimit Int?     @db.Int
+  default      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  projects Project[]
+
+  @@map("plan")
+}
+
+model Project {
+  id          String   @id
+  name        String   @db.Text
+  description String?  @db.Text
+  planId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  terms       ProjectTerm[]
+  locales     ProjectLocale[]
+  labels      ProjectLabel[]
+  members     ProjectMember[]
+  memberRoles ProjectMemberRole[]
+  invitations ProjectInvitation[]
+
+  @@map("project")
+}
+
+model ProjectLocale {
+  id        String   @id
+  projectId String
+  localeId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  terms   Term[]  @relation("TermLabels")
+  locale  Locale  @relation(fields: [localeId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, name], map: "unique_project_label")
-  @@index([projectId], map: "idx_project")
-  @@map("labels")
+  translations ProjectTranslation[]
+  members      ProjectMember[]
+
+  @@unique([projectId, localeId])
+  @@index([projectId(length: 191)])
+  @@index([localeId(length: 191)])
+  @@map("project_locale")
 }
 
-// Terms table
-model Term {
-  id        String   @id @db.VarChar(36)
-  projectId String   @map("project_id") @db.VarChar(36)
-  value     String   @db.VarChar(500)
+model ProjectTerm {
+  id        String   @id
+  projectId String
+  key       String
   context   String?  @db.Text
-  isLocked  Boolean  @default(false) @map("is_locked")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
-
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  translations Translation[]
-  labels       Label[]       @relation("TermLabels")
-
-  @@index([projectId], map: "idx_project")
-  @@index([value], map: "idx_value")
-  @@map("terms")
-}
-
-// Translations table
-model Translation {
-  id        String   @id @db.VarChar(36)
-  termId    String   @map("term_id") @db.VarChar(36)
-  localeId  String   @map("locale_id") @db.VarChar(36)
-  value     String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
-
-  term   Term   @relation(fields: [termId], references: [id], onDelete: Cascade)
-  locale Locale @relation(fields: [localeId], references: [id], onDelete: Cascade)
-
-  @@unique([termId, localeId], map: "unique_term_locale")
-  @@index([termId], map: "idx_term")
-  @@index([localeId], map: "idx_locale")
-  @@map("translations")
-}
-
-// Project Members table - for team collaboration
-model ProjectMember {
-  id              String   @id @db.VarChar(36)
-  projectId       String   @map("project_id") @db.VarChar(36)
-  userId          String   @map("user_id") @db.VarChar(36)
-  role            String   @db.VarChar(20) // 'editor' or 'admin'
-  assignedLocales String?  @map("assigned_locales") @db.Text // JSON array of locale codes for editors
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  locked    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, userId], map: "unique_project_user")
-  @@index([projectId], map: "idx_project_member")
-  @@index([userId], map: "idx_user_member")
-  @@map("project_members")
+  translations ProjectTranslation[]
+  labels       ProjectLabel[]
+
+  @@unique([projectId, key])
+  @@index([projectId(length: 191)])
+  @@map("project_term")
+}
+
+model ProjectTranslation {
+  id        String   @id
+  termId    String
+  localeId  String
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  term   ProjectTerm   @relation(fields: [termId], references: [id], onDelete: Cascade)
+  locale ProjectLocale @relation(fields: [localeId], references: [id], onDelete: Cascade)
+
+  @@unique([termId, localeId])
+  @@index([termId(length: 191)])
+  @@index([localeId(length: 191)])
+  @@map("project_translation")
+}
+
+model ProjectLabel {
+  id          String   @id
+  projectId   String
+  name        String
+  description String?  @db.Text
+  color       String?
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  terms ProjectTerm[]
+
+  @@unique([projectId, name])
+  @@index([projectId(length: 191)])
+  @@map("project_label")
+}
+
+model ProjectMember {
+  id        String   @id
+  projectId String
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role    ProjectMemberRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  locales ProjectLocale[]
+
+  @@unique([projectId, userId])
+  @@index([projectId(length: 191)])
+  @@index([userId(length: 191)])
+  @@index([roleId(length: 191)])
+  @@map("project_member")
+}
+
+model ProjectMemberRole {
+  id          String   @id
+  projectId   String
+  name        String
+  color       String?
+  icon        String?
+  permissions BigInt   @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  members     ProjectMember[]
+  invitations ProjectInvitation[]
+
+  @@unique([projectId, name])
+  @@index([projectId(length: 191)])
+  @@map("project_member_role")
+}
+
+model ProjectInvitation {
+  id        String   @id
+  projectId String
+  email     String
+  token     String   @unique
+  roleId    String
+  expiresAt DateTime @default(dbgenerated("DATE_ADD(NOW(), INTERVAL 7 DAY)"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role    ProjectMemberRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  user    User              @relation(fields: [email], references: [email], onDelete: Cascade)
+
+  @@index([projectId(length: 191)])
+  @@index([roleId(length: 191)])
+  @@index([email(length: 191)])
+  @@map("project_invitation")
 }

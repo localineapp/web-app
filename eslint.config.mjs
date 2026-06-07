@@ -11,9 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "src/components/ui/**",
     "next-env.d.ts",
-    // Ignore swagger-ui bundled files:
-    "public/swagger-ui/**",
   ]),
 ]);
 

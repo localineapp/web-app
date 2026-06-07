@@ -1,266 +1,91 @@
-"use client";
+import { getProject } from "@/actions/projects"
+import DeleteProjectCard from "@/components/dashboard/projects/project/settings/DeleteProjectCard"
+import ProjectDetailsCard from "@/components/dashboard/projects/project/settings/ProjectDetailsCard"
+import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { ArrowLeftIcon } from "lucide-react"
+import { headers } from "next/headers"
+import Link from "next/link"
 
-import * as React from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Loader2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
-import { useProjectPermissions } from "@/hooks/use-project-permissions";
-import { Project } from "@/lib/types";
+export default async function ProjectGeneralSettingsPage({
+  params,
+}: {
+  params: Promise<{ projectId: string }>
+}) {
+  const { projectId } = await params
+  const project = await getProject(projectId)
 
-export default function ProjectSettingsPage() {
-  const params = useParams();
-  const router = useRouter();
-  const projectId = params.projectId as string;
+  if (!project) return <></>
 
-  const [project, setProject] = React.useState<Project | null>(null);
-  const [isLoadingProject, setIsLoadingProject] = React.useState(true);
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
 
-  const [projectName, setProjectName] = React.useState("");
-  const [projectDescription, setProjectDescription] = React.useState("");
-  
-  // Check permissions
-  const permissions = useProjectPermissions(projectId);
-  
-  // Redirect non-admins away from this page
-  React.useEffect(() => {
-    if (!permissions.isLoading && !permissions.canManageProject) {
-      router.push(`/projects/${projectId}`);
-    }
-  }, [permissions.isLoading, permissions.canManageProject, router, projectId]);
+  const user = session?.user
+  const member = project.members.find((m) => m.userId === user?.id)
 
-  // Fetch project data
-  React.useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const response = await fetch(`/api/v1/projects/${projectId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setProject(data.data);
-          setProjectName(data.data.name);
-          setProjectDescription(data.data.description || "");
-        }
-      } catch {
-      } finally {
-        setIsLoadingProject(false);
-      }
-    };
-
-    fetchProject();
-  }, [projectId]);
-
-  const handleSaveProject = async () => {
-    setIsSaving(true);
-    try {
-      const response = await fetch(`/api/v1/projects/${projectId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
+  const canManageSettings =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_PROJECT
+    ) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
         },
-        body: JSON.stringify({
-          name: projectName,
-          description: projectDescription || null,
-        }),
-      });
+      })
+    ).success
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update project');
-      }
-
-      const data = await response.json();
-      setProject(data.data);
-      toast.success("Your project settings have been updated successfully.");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update project";
-      toast.error(message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDeleteProject = async () => {
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`/api/v1/projects/${projectId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete project');
-      }
-
-      toast.success("The project has been deleted successfully.");
-      
-      // Close dialog and navigate
-      setDeleteDialogOpen(false);
-      router.push('/projects');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to delete project";
-      toast.error(message);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  if (isLoadingProject || permissions.isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-  
-  // Don't render content for non-admins
-  if (!permissions.canManageProject) {
-    return null;
-  }
+  const canDeleteProject =
+    member?.roleId === project.id ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["delete"],
+          },
+        },
+      })
+    ).success
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href={`/projects/${projectId}`}>
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
+    <div className="flex flex-col gap-4">
+      <div className="flex w-full items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/projects">
+            <ArrowLeftIcon />
+          </Link>
+        </Button>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Project Settings</h1>
-          <p className="text-muted-foreground">{project?.name}</p>
+          <h1 className="text-3xl font-bold">{project?.name}</h1>
+          <p className="text-muted-foreground">
+            General settings for your project.
+          </p>
         </div>
       </div>
 
-      {/* General Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle>General</CardTitle>
-          <CardDescription>
-            Update your project&apos;s basic information
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="project-name">Project Name</Label>
-            <Input
-              id="project-name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="My Project"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="project-description">Description</Label>
-            <Input
-              id="project-description"
-              value={projectDescription}
-              onChange={(e) => setProjectDescription(e.target.value)}
-              placeholder="A brief description of your project"
-            />
-          </div>
-          <Button variant="outline" onClick={handleSaveProject} disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Danger Zone */}
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>
-            Irreversible and destructive actions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Delete Project</Label>
-              <p className="text-sm text-muted-foreground">
-                Permanently delete this project and all its translations
-              </p>
-            </div>
-            <AlertDialog 
-              open={deleteDialogOpen} 
-              onOpenChange={(open) => {
-                if (open) {
-                  setDeleteDialogOpen(true);
-                } else if (!isDeleting) {
-                  setDeleteDialogOpen(false);
-                }
-              }}
-            >
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={!permissions.isOwner}>Delete Project</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the project
-                    &quot;{project?.name}&quot; and remove all translations, terms, and API keys.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDeleteProject();
-                    }}
-                    disabled={isDeleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {isDeleting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      "Delete Project"
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">
+        <div className="w-full min-w-0 xl:flex-1">
+          <ProjectDetailsCard
+            project={project}
+            canManageSettings={canManageSettings}
+          />
+        </div>
+        <div className="w-full min-w-0 xl:flex-1">
+          <DeleteProjectCard
+            project={project}
+            canDeleteProject={canDeleteProject}
+          />
+        </div>
+      </div>
     </div>
-  );
+  )
 }
