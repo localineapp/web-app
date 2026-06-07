@@ -1,96 +1,52 @@
-import {
-  Globe,
-  Languages,
-  Users,
-  Settings,
-  LogOut,
-  Plus,
-  Search,
-  ChevronDown,
-  ChevronRight,
-  Check,
-  X,
-  Edit2,
-  Trash2,
-  Copy,
-  Download,
-  Upload,
-  FileText,
-  Key,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Moon,
-  Sun,
-  Menu,
-  MoreVertical,
-  ArrowLeft,
-  Home,
-  FolderOpen,
-  Tag,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Info,
-  Loader2,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import React from "react"
 
-export type Icon = LucideIcon;
-
-export const Icons = {
-  globe: Globe,
-  languages: Languages,
-  users: Users,
-  settings: Settings,
-  logout: LogOut,
-  plus: Plus,
-  search: Search,
-  chevronDown: ChevronDown,
-  chevronRight: ChevronRight,
-  check: Check,
-  close: X,
-  edit: Edit2,
-  delete: Trash2,
-  copy: Copy,
-  download: Download,
-  upload: Upload,
-  file: FileText,
-  key: Key,
-  mail: Mail,
-  lock: Lock,
-  eye: Eye,
-  eyeOff: EyeOff,
-  moon: Moon,
-  sun: Sun,
-  menu: Menu,
-  moreVertical: MoreVertical,
-  arrowLeft: ArrowLeft,
-  home: Home,
-  folder: FolderOpen,
-  tag: Tag,
-  clock: Clock,
-  checkCircle: CheckCircle2,
-  alertCircle: AlertCircle,
-  info: Info,
-  spinner: Loader2,
-  zap: Zap,
-  logo: ({ className }: { className?: string }) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M2 12h20" />
-      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+export function GitHubIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
     </svg>
-  ),
-};
+  )
+}
+
+export function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden {...props}>
+      <path
+        d="M21.6 12.227c0-.72-.064-1.412-.183-2.077H12v3.934h5.426c-.234 1.254-.948 2.318-2.023 3.035v2.524h3.266c1.913-1.76 3.011-4.356 3.011-7.416z"
+        fill="#4285F4"
+      />
+      <path
+        d="M12 22c2.7 0 4.966-.9 6.622-2.444l-3.266-2.524c-.905.61-2.065.972-3.356.972-2.585 0-4.774-1.746-5.558-4.093H2.97v2.57C4.606 19.98 8.06 22 12 22z"
+        fill="#34A853"
+      />
+      <path
+        d="M6.442 13.905A7.198 7.198 0 0 1 6 12c0-.664.11-1.306.31-1.905V7.525H2.97A10.003 10.003 0 0 0 2 12c0 1.603.376 3.118 1.033 4.475l3.409-2.57z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M12 6.5c1.466 0 2.792.504 3.836 1.498l2.865-2.865C16.96 3.544 14.697 2.5 12 2.5 8.06 2.5 4.606 4.52 2.97 7.525l3.34 2.57C7.226 8.246 9.415 6.5 12 6.5z"
+        fill="#EA4335"
+      />
+    </svg>
+  )
+}
+
+export function DiscordIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 -28.5 256 256"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMidYMid"
+      {...props}
+    >
+      <g>
+        <path
+          d="M216.856 16.597A208.502 208.502 0 0 0 164.042 0c-2.275 4.113-4.933 9.645-6.766 14.046-19.692-2.961-39.203-2.961-58.533 0-1.832-4.4-4.55-9.933-6.846-14.046a207.809 207.809 0 0 0-52.855 16.638C5.618 67.147-3.443 116.4 1.087 164.956c22.169 16.555 43.653 26.612 64.775 33.193A161.094 161.094 0 0 0 79.735 175.3a136.413 136.413 0 0 1-21.846-10.632 108.636 108.636 0 0 0 5.356-4.237c42.122 19.702 87.89 19.702 129.51 0a131.66 131.66 0 0 0 5.355 4.237 136.07 136.07 0 0 1-21.886 10.653c4.006 8.02 8.638 15.67 13.873 22.848 21.142-6.58 42.646-16.637 64.815-33.213 5.316-56.288-9.08-105.09-38.056-148.36ZM85.474 135.095c-12.645 0-23.015-11.805-23.015-26.18s10.149-26.2 23.015-26.2c12.867 0 23.236 11.804 23.015 26.2.02 14.375-10.148 26.18-23.015 26.18Zm85.051 0c-12.645 0-23.014-11.805-23.014-26.18s10.148-26.2 23.014-26.2c12.867 0 23.236 11.804 23.015 26.2 0 14.375-10.148 26.18-23.015 26.18Z"
+          fill="#5865F2"
+          fillRule="nonzero"
+        />
+      </g>
+    </svg>
+  )
+}

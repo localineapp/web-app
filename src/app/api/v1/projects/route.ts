@@ -1,117 +1,55 @@
+import { createHeaders, validateRequest } from "@/lib/api"
+import { getMany } from "@/services/projects"
+
 /**
- * Projects API endpoints
  * GET /api/v1/projects - List user's projects
- * POST /api/v1/projects - Create a new project
+ * @deprecated Use v2 instead
  */
+export const GET = validateRequest({}, async (_, __, { user }) => {
+  const projects = await getMany({ user })
 
-import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
-import { getCurrentUser } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+  return Response.json(
+    {
+      data: projects.map((project) => {
+        const member = project.members.find(
+          (member) => member.userId === user.id
+        )
+        const owner = project.members.find(
+          (member) => member.roleId === project.id
+        )
+        const isOwner = owner?.userId === user.id
 
-interface CreateProjectRequest {
-  name: string;
-  description?: string;
-}
-
-// GET /api/v1/projects - List user's projects (owned and team member)
-export async function GET() {
-  try {
-    const currentUser = await getCurrentUser();
-    
-    if (!currentUser) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
-    }
-
-    const ownedProjects = await prisma.project.findMany({
-      where: { ownerId: currentUser.userId },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        ownerId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    const memberProjects = await prisma.projectMember.findMany({
-      where: { userId: currentUser.userId },
-      select: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            ownerId: true,
-            createdAt: true,
-            updatedAt: true,
-          },
+        return {
+          id: project.id,
+          name: project.name,
+          description: project.description,
+          ownerId: owner?.userId || null,
+          memberRole: isOwner ? null : member?.roleId || null,
+          createdAt: project.createdAt,
+          updatedAt: project.updatedAt,
+        }
+      }),
+    },
+    {
+      status: 200,
+      headers: createHeaders({
+        options: {
+          version: "v1",
         },
-        role: true,
-      },
-    });
-
-    const allProjects = [
-      ...ownedProjects.map(p => ({ ...p, memberRole: null })),
-      ...memberProjects.map(m => ({ ...m.project, memberRole: m.role })),
-    ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-    return NextResponse.json({ data: allProjects });
-  } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
-
-// POST /api/v1/projects - Create a new project
-export async function POST(request: NextRequest) {
-  try {
-    const currentUser = await getCurrentUser();
-    
-    if (!currentUser) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
+      }),
     }
+  )
+})
 
-    const body: CreateProjectRequest = await request.json();
-    const { name, description } = body;
-
-    if (!name || name.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Project name is required' },
-        { status: 400 }
-      );
+/**
+ * POST /api/v1/projects - Create a new project
+ * @deprecated Project creation can't be done through the API anymore.
+ */
+export async function POST() {
+  return new Response(
+    "Project creation can't be done through the API anymore.",
+    {
+      status: 400,
     }
-
-    const projectId = uuidv4();
-    const project = await prisma.project.create({
-      data: {
-        id: projectId,
-        name,
-        description: description || null,
-        ownerId: currentUser.userId,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        ownerId: true,
-      },
-    });
-
-    return NextResponse.json({ data: project }, { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  )
 }

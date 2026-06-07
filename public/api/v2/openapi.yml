@@ -1,0 +1,2099 @@
+openapi: "3.0.3"
+info:
+  title: Localine API
+  description: "Localine is an open translation management platform that helps teams to collaborate on localization."
+  version: "2.0.0"
+servers:
+  - url: /api/v2
+    description: "The base URL for the API endpoints (v2)."
+components:
+  schemas:
+    Project:
+      type: object
+      description: "Represents a project within the Localine platform."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 1
+        name:
+          type: string
+          description: "The display name of the project."
+          example: "My Project"
+          maxLength: 255
+          x-order: 2
+        description:
+          type: string
+          description: "A human-readable description of the project."
+          example: "This is a sample project for localization."
+          maxLength: 500
+          nullable: true
+          x-order: 3
+        planId:
+          type: string
+          description: "The unique identifier of the subscription plan associated with the project."
+          example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+          x-order: 4
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 5
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 6
+      required:
+        - id
+        - name
+        - planId
+        - createdAt
+        - updatedAt
+    ProjectLocale:
+      type: object
+      description: "Represents a locale that is assigned to a project."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project locale."
+          example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+          x-order: 1
+        projectId:
+          type: string
+          description: "The unique identifier of the project this locale belongs to."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        localeId:
+          type: string
+          description: "The unique identifier of the locale (references the Locale schema)."
+          example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+          x-order: 3
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project locale was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 4
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project locale was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 5
+      required:
+        - id
+        - projectId
+        - localeId
+        - createdAt
+        - updatedAt
+    ProjectTerm:
+      type: object
+      description: "Represents a translation key defined within a project."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project term."
+          example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 1
+        projectId:
+          type: string
+          description: "The unique identifier of the project this term belongs to."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        key:
+          type: string
+          description: "Key of the translation term."
+          example: "welcome.message"
+          maxLength: 255
+          x-order: 3
+        context:
+          type: string
+          description: "Context or description for the translation term to help translators understand its usage."
+          example: "A welcome message shown on the homepage"
+          maxLength: 500
+          nullable: true
+          x-order: 4
+        locked:
+          type: boolean
+          description: |
+            Indicates whether the translation term is locked from editing
+            - true = the term is locked and cannot be edited by translators
+            - false = the term is unlocked and can be edited by translators
+          default: false
+          x-order: 5
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project term was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 6
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project term was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 7
+      required:
+        - id
+        - projectId
+        - key
+        - locked
+        - createdAt
+        - updatedAt
+    ProjectTranslation:
+      type: object
+      description: "Represents a localized translation value for a project term."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project translation."
+          example: "tr1a2n3s4l5a6t7i8o9n0p1q2r3s4t5u6"
+          x-order: 1
+        termId:
+          type: string
+          description: "The unique identifier of the project term this translation belongs to."
+          example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 2
+        localeId:
+          type: string
+          description: "The unique identifier of the locale this translation belongs to."
+          example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+          x-order: 3
+        value:
+          type: string
+          description: "The translated text for the term in the specified locale."
+          example: "Welcome to our website!"
+          x-order: 4
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project translation was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 5
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project translation was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 6
+      required:
+        - id
+        - termId
+        - localeId
+        - value
+        - createdAt
+        - updatedAt
+    ProjectLabel:
+      type: object
+      description: "Represents a label that can be assigned within a project."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project label."
+          example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+          x-order: 1
+        projectId:
+          type: string
+          description: "The unique identifier of the project this label belongs to."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        name:
+          type: string
+          description: "The display name of the label."
+          example: "UI"
+          maxLength: 255
+          x-order: 3
+        description:
+          type: string
+          description: "A human-readable description of the label to help users understand its purpose."
+          example: "Labels related to user interface translations"
+          maxLength: 500
+          nullable: true
+          x-order: 4
+        color:
+          type: string
+          description: "Color code for the label (e.g., hex code like #FF5733)."
+          example: "#FF5733"
+          nullable: true
+          x-order: 5
+        icon:
+          type: string
+          description: "Icon name for the label (using https://lucide.dev/icons/)."
+          example: "Monitor"
+          nullable: true
+          x-order: 6
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project label was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 7
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project label was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 8
+      required:
+        - id
+        - projectId
+        - name
+        - createdAt
+        - updatedAt
+    ProjectMember:
+      type: object
+      description: "Represents a user who is a member of a project."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project member."
+          example: "m1e2m3b4e5r6i7d8n9o0p1q2r3s4t5u6"
+          x-order: 1
+        projectId:
+          type: string
+          description: "The unique identifier of the project this member belongs to."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        userId:
+          type: string
+          description: "The unique identifier of the user who is a member of the project."
+          example: "u1s2e3r4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 3
+        roleId:
+          type: string
+          description: "The unique identifier of the role assigned to the member within the project."
+          example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 4
+        createdAt:
+          type: string
+          format: date-time
+          description: "Timestamp when the project member was added."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 5
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project member's information was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 6
+      required:
+        - id
+        - projectId
+        - userId
+        - roleId
+        - createdAt
+        - updatedAt
+    ProjectMemberRole:
+      type: object
+      description: "Represents a role that defines permissions within a project."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project member role."
+          example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 1
+        projectId:
+          type: string
+          description: "The unique identifier of the project this role belongs to."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        name:
+          type: string
+          description: "The display name of the role (e.g., Admin, Editor, Read-only)."
+          example: "Editor"
+          maxLength: 255
+          x-order: 3
+        color:
+          type: string
+          description: "Color code for the role (e.g., hex code like #FF5733)."
+          example: "#FF5733"
+          nullable: true
+          x-order: 4
+        icon:
+          type: string
+          description: "Icon name for the role (using https://lucide.dev/icons/)."
+          example: "Pencil"
+          nullable: true
+          x-order: 5
+        permissions:
+          type: integer
+          format: int64
+          description: "Bitmask representing the permissions associated with the role."
+          x-order: 6
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project member role was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 7
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project member role was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 8
+      required:
+        - id
+        - projectId
+        - name
+        - permissions
+        - createdAt
+        - updatedAt
+    ProjectInvitation:
+      type: object
+      description: "Represents an invitation to join a project with a specific role."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the project invitation."
+          example: "i1n2v3i4t5a6t7i8o9n0p1q2r3s4t5u6"
+          x-order: 1
+        projectId:
+          type: string
+          description: "The unique identifier of the project this invitation belongs to."
+          example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+          x-order: 2
+        email:
+          type: string
+          description: "Email address of the invited user."
+          example: "user@example.com"
+          x-order: 3
+        token:
+          type: string
+          description: "Unique token for accepting the invitation."
+          example: "invitationtoken1234567890"
+          x-order: 4
+        roleId:
+          type: string
+          description: "The unique identifier of the role assigned to the invited user within the project."
+          example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+          x-order: 4
+        expiresAt:
+          type: string
+          format: date-time
+          description: "Timestamp when the invitation expires."
+          example: "2026-01-10T12:00:00Z"
+          x-order: 5
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project invitation was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 6
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the project invitation was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 7
+      required:
+        - id
+        - projectId
+        - email
+        - token
+        - roleId
+        - expiresAt
+        - createdAt
+        - updatedAt
+    Locale:
+      type: object
+      description: "The basic structure of a locale in the Localine system."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the locale."
+          example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+          x-order: 1
+        displayName:
+          type: string
+          description: "Display name of the locale."
+          example: "English (United States)"
+          maxLength: 255
+          x-order: 2
+        language:
+          type: string
+          description: "Language that the locale represents."
+          example: "English"
+          maxLength: 255
+          x-order: 3
+        region:
+          type: string
+          description: "Region that the locale represents."
+          example: "United States"
+          maxLength: 255
+          nullable: true
+          x-order: 4
+        code:
+          type: string
+          description: "Locale code of the locale, typically in the format of language_REGION (e.g., en_US)."
+          example: "en_US"
+          maxLength: 255
+          x-order: 5
+        flag:
+          type: string
+          description: "Flag emoji representing the locale (using https://npmjs.com/package/country-flag-icons)."
+          example: "US"
+          nullable: true
+          x-order: 6
+        enabled:
+          type: boolean
+          description: |
+            Indicates whether this locale can be added to projects by users
+            - true = the locale is enabled and can be added to projects
+            - false = the locale is disabled and can't be added to projects
+          default: true
+          x-order: 7
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the locale was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 8
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the locale was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 9
+      required:
+        - id
+        - displayName
+        - language
+        - code
+        - enabled
+        - createdAt
+        - updatedAt
+    Plan:
+      type: object
+      description: "The basic structure of a subscription plan in the Localine system."
+      properties:
+        id:
+          type: string
+          description: "The unique identifier of the plan."
+          example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+          x-order: 1
+        displayName:
+          type: string
+          description: "Display name of the plan."
+          example: "Basic"
+          maxLength: 255
+          x-order: 2
+        description:
+          type: string
+          description: "A human-readable description of the plan."
+          example: "A basic plan with limited features."
+          maxLength: 500
+          nullable: true
+          x-order: 3
+        localesLimit:
+          type: integer
+          description: "Number of locales allowed in projects under this plan."
+          example: 5
+          nullable: true
+          x-order: 4
+        termsLimit:
+          type: integer
+          description: "Number of translation terms allowed in projects under this plan."
+          example: 500
+          nullable: true
+          x-order: 5
+        labelsLimit:
+          type: integer
+          description: "Number of labels allowed in projects under this plan."
+          example: 20
+          nullable: true
+          x-order: 6
+        membersLimit:
+          type: integer
+          description: "Number of team members allowed in projects under this plan."
+          example: 5
+          nullable: true
+          x-order: 7
+        default:
+          type: boolean
+          description: |
+            Indicates whether this plan is the default plan that new projects are assigned to when created
+            - true = this plan is the default plan and new projects are assigned to it when created
+            - false = this plan is not the default plan and must be explicitly assigned to projects
+
+            Only one plan can be set as the default plan at a time. Setting a plan as the default will automatically unset any other plan that is currently set as the default.
+          default: false
+          x-order: 8
+        createdAt:
+          type: string
+          format: date-time
+          description: "The date and time when the plan was created."
+          example: "2026-01-01T12:00:00Z"
+          x-order: 9
+        updatedAt:
+          type: string
+          format: date-time
+          description: "The date and time when the plan was last updated."
+          example: "2026-01-02T12:00:00Z"
+          x-order: 10
+      required:
+        - id
+        - displayName
+        - default
+        - createdAt
+        - updatedAt
+    ApiError:
+      type: object
+      description: "Standard error response."
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: "Machine-readable error code."
+              example: INVALID_API_KEY
+            message:
+              type: string
+              description: "Human-readable error message."
+              example: The provided API key is invalid
+            status:
+              type: integer
+              description: "HTTP status code."
+              example: 401
+          required:
+            - code
+            - message
+            - status
+      required:
+        - error
+  responses:
+    BadRequestError:
+      description: Invalid request parameters.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            generalValidationError:
+              summary: General validation error
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: An error occurred while validating the request data
+                  status: 400
+                details:
+                  errors:
+                    - At least one field must be provided for update
+            fieldValidationError:
+              summary: Field-specific validation error
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: An error occurred while validating the request data
+                  status: 400
+                details:
+                  errors: []
+                  properties:
+                    name:
+                      errors:
+                        - Too big: expected string to have <=255 characters
+    UnauthorizedError:
+      description: "Authentication failed."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            missingAuthorization:
+              summary: "Missing Authorization header."
+              value:
+                error:
+                  code: MISSING_AUTHORIZATION
+                  message: Authorization header is required
+                  status: 401
+            invalidAuthorization:
+              summary: "Invalid Authorization header format."
+              value:
+                error:
+                  code: INVALID_AUTHORIZATION
+                  message: Authorization header must start with 'Bearer '
+                  status: 401
+            invalidApiKey:
+              summary: "Invalid API key."
+              value:
+                error:
+                  code: INVALID_API_KEY
+                  message: The provided API key is invalid
+                  status: 401
+    ForbiddenError:
+      description: "Access forbidden."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            forbiddenAccess:
+              summary: "Insufficient permissions."
+              value:
+                error:
+                  code: FORBIDDEN
+                  message: You don't have permission to access this resource
+                  status: 403
+    NotFoundError:
+      description: "Resource not found."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            projectNotFound:
+              summary: "Project not found."
+              value:
+                error:
+                  code: PROJECT_NOT_FOUND
+                  message: Project not found or you don't have access to it
+                  status: 404
+            localeNotFound:
+              summary: "Locale not found."
+              value:
+                error:
+                  code: LOCALE_NOT_FOUND
+                  message: Locale with the ID "{localeId}" does not exist
+                  status: 404
+            planNotFound:
+              summary: "Plan not found."
+              value:
+                error:
+                  code: PLAN_NOT_FOUND
+                  message: No plan with the ID "{planId}" exists
+                  status: 404
+    InternalServerError:
+      description: "Internal server error."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+          examples:
+            genericError:
+              summary: "Generic internal server error."
+              value:
+                error:
+                  code: INTERNAL_SERVER_ERROR
+                  message: An unexpected error occurred. Please try again later.
+                  status: 500
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+security:
+  - BearerAuth: []
+paths:
+  "/projects":
+    get:
+      summary: "Get a list of projects."
+      description: "Retrieve a list of all projects associated with the authenticated user's API key."
+      operationId: getProjects
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: "A list of projects."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}":
+    get:
+      summary: "Get project details."
+      description: "Retrieve detailed information about a specific project by its ID."
+      operationId: getProjectById
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to retrieve."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: "The details of the project."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update project details."
+      description: "Update the details of a specific project by its ID."
+      operationId: updateProjectById
+      tags:
+        - Projects
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to update."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "The new name of the project."
+                  example: "Updated Project Name"
+                  maxLength: 255
+                  nullable: true
+                description:
+                  type: string
+                  description: "The new description of the project."
+                  example: "This is an updated description for the project."
+                  maxLength: 500
+                  nullable: true
+      responses:
+        "200":
+          description: "The updated project details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/terms":
+    get:
+      summary: "Get project translation terms."
+      description: "Retrieve a list of all translation terms associated with a specific project."
+      operationId: getProjectTerms
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to retrieve translation terms for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: "A list of project translation terms."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/ProjectTerm"
+                    - type: object
+                      properties:
+                        translations:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/ProjectTranslation"
+                        labels:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: "Create a new project translation term."
+      description: "Create a new translation term for a specific project."
+      operationId: createProjectTerm
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to create a translation term for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: 'The key of the translation term to create (e.g., "welcome.message").'
+                  example: "welcome.message"
+                  maxLength: 255
+                context:
+                  type: string
+                  description: "A context or description for the translation term to help translators understand its usage."
+                  example: "A welcome message shown on the homepage"
+                  maxLength: 500
+                  nullable: true
+                locked:
+                  type: boolean
+                  description: |
+                    Indicates whether the translation term should be locked from editing.
+                    - true = the term is locked and cannot be edited by translators
+                    - false = the term is unlocked and can be edited by translators
+                  default: false
+                  example: false
+      responses:
+        "201":
+          description: "The created project translation term."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectTerm"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/terms/{termId}":
+    get:
+      summary: "Get project translation term details."
+      description: "Retrieve detailed information about a specific project translation term by its ID."
+      operationId: getProjectTermById
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this translation term belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: termId
+          in: path
+          required: true
+          description: "The unique identifier of the translation term to retrieve."
+          schema:
+            type: string
+            example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+      responses:
+        "200":
+          description: "The details of the project translation term."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectTerm"
+                  - type: object
+                    properties:
+                      translations:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProjectTranslation"
+                      labels:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update project translation term details."
+      description: "Update the details of a specific project translation term by its ID."
+      operationId: updateProjectTermById
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this translation term belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: termId
+          in: path
+          required: true
+          description: "The unique identifier of the translation term to update."
+          schema:
+            type: string
+            example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: 'The new key of the translation term (e.g., "welcome.message").'
+                  example: "welcome.message"
+                  maxLength: 255
+                  nullable: true
+                context:
+                  type: string
+                  description: "A new context or description for the translation term to help translators understand its usage."
+                  example: "A welcome message shown on the homepage"
+                  maxLength: 500
+                  nullable: true
+                locked:
+                  type: boolean
+                  description: |
+                    Indicates whether the translation term should be locked from editing.
+                    - true = the term is locked and cannot be edited by translators
+                    - false = the term is unlocked and can be edited by translators
+                  default: false
+                  example: false
+      responses:
+        "200":
+          description: "The updated project translation term details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectTerm"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: "Delete a project translation term."
+      description: "Delete a specific project translation term by its ID."
+      operationId: deleteProjectTermById
+      tags:
+        - Project Terms
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this translation term belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: termId
+          in: path
+          required: true
+          description: "The unique identifier of the translation term to delete."
+          schema:
+            type: string
+            example: "t1e2r3m4i5d6n7o8p9q0r1s2t3u4v5w6"
+      responses:
+        "200":
+          description: "The project translation term was successfully deleted."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectTerm"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/locales":
+    get:
+      summary: "Get project locales."
+      description: "Retrieve a list of all locales associated with a specific project."
+      operationId: getProjectLocales
+      tags:
+        - Project Locales
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to retrieve locales for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: "A list of project locales."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectLocale"
+                  - type: object
+                    properties:
+                      locale:
+                        $ref: "#/components/schemas/Locale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: "Add a locale to a project."
+      description: "Add an existing locale to a specific project."
+      operationId: addProjectLocale
+      tags:
+        - Project Locales
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to add a locale to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                localeId:
+                  type: string
+                  description: "The unique identifier of the locale to add to the project."
+                  example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      responses:
+        "201":
+          description: "The locale was successfully added to the project."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLocale"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+  "/projects/{projectId}/locales/{localeId}":
+    get:
+      summary: "Get project locale details."
+      description: "Retrieve detailed information about a specific project locale by its ID."
+      operationId: getProjectLocaleById
+      tags:
+        - Project Locales
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this locale belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: localeId
+          in: path
+          required: true
+          description: "The unique identifier of the project locale to retrieve."
+          schema:
+            type: string
+            example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      responses:
+        "200":
+          description: "The details of the project locale."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ProjectLocale"
+                  - type: object
+                    properties:
+                      locale:
+                        $ref: "#/components/schemas/Locale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: "Remove a locale from a project."
+      description: "Remove a specific locale from a project by its ID."
+      operationId: removeProjectLocaleById
+      tags:
+        - Project Locales
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this locale belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: localeId
+          in: path
+          required: true
+          description: "The unique identifier of the project locale to remove from the project."
+          schema:
+            type: string
+            example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      responses:
+        "200":
+          description: "The project locale was successfully removed from the project."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLocale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/labels":
+    get:
+      summary: "Get project labels."
+      description: "Retrieve a list of all labels associated with a specific project."
+      operationId: getProjectLabels
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to retrieve labels for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: "A list of project labels."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: "Create a new project label."
+      description: "Create a new label for a specific project."
+      operationId: createProjectLabel
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to create a label for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "The name of the label to create."
+                  example: "UI"
+                  maxLength: 255
+                description:
+                  type: string
+                  description: "A description for the label to help users understand its purpose."
+                  example: "Labels related to user interface translations"
+                  maxLength: 500
+                  nullable: true
+                color:
+                  type: string
+                  description: "A color code for the label (e.g., hex code like #FF5733)."
+                  example: "#FF5733"
+                icon:
+                  type: string
+                  description: "An icon name for the label (using https://lucide.dev/icons/)."
+                  example: "Monitor"
+      responses:
+        "201":
+          description: "The created project label."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/labels/{labelId}":
+    get:
+      summary: "Get project label details."
+      description: "Retrieve detailed information about a specific project label by its ID."
+      operationId: getProjectLabelById
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this label belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: labelId
+          in: path
+          required: true
+          description: "The unique identifier of the label to retrieve."
+          schema:
+            type: string
+            example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+      responses:
+        "200":
+          description: "The details of the project label."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update project label details."
+      description: "Update the details of a specific project label by its ID."
+      operationId: updateProjectLabelById
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this label belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: labelId
+          in: path
+          required: true
+          description: "The unique identifier of the label to update."
+          schema:
+            type: string
+            example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "The new name of the label."
+                  example: "Updated Label Name"
+                  maxLength: 255
+                  nullable: true
+                description:
+                  type: string
+                  description: "A new description for the label to help users understand its purpose."
+                  example: "This is an updated description for the label."
+                  maxLength: 500
+                  nullable: true
+                color:
+                  type: string
+                  description: "A new color code for the label (e.g., hex code like #FF5733)."
+                  example: "#FF5733"
+                  nullable: true
+                icon:
+                  type: string
+                  description: "A new icon name for the label (using https://lucide.dev/icons/)."
+                  example: "Monitor"
+                  nullable: true
+      responses:
+        "200":
+          description: "The updated project label details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: "Delete a project label."
+      description: "Delete a specific project label by its ID."
+      operationId: deleteProjectLabelById
+      tags:
+        - Project Labels
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this label belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: labelId
+          in: path
+          required: true
+          description: "The unique identifier of the label to delete."
+          schema:
+            type: string
+            example: "l1a2b3e4l5i6d7n8o9p0q1r2s3t4u5v6"
+      responses:
+        "200":
+          description: "The project label was successfully deleted."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLabel"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/member-roles":
+    get:
+      summary: "Get project member roles."
+      description: "Retrieve a list of all member roles associated with a specific project."
+      operationId: getProjectMemberRoles
+      tags:
+        - Project Member Roles
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to retrieve member roles for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      responses:
+        "200":
+          description: "A list of project member roles."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectMemberRole"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: "Create a new project member role."
+      description: "Create a new member role for a specific project."
+      operationId: createProjectMemberRole
+      tags:
+        - Project Member Roles
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project to create a member role for."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "The name of the member role to create."
+                  example: "Translator"
+                  maxLength: 255
+                color:
+                  type: string
+                  description: "A color code for the member role (e.g., hex code like #FF5733)."
+                  example: "#FF5733"
+                  nullable: true
+                icon:
+                  type: string
+                  description: "An icon name for the member role (using https://lucide.dev/icons/)."
+                  example: "User"
+                  nullable: true
+      responses:
+        "201":
+          description: "The created project member role."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberRole"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/member-roles/{roleId}":
+    get:
+      summary: "Get project member role details."
+      description: "Retrieve detailed information about a specific project member role by its ID."
+      operationId: getProjectMemberRoleById
+      tags:
+        - Project Member Roles
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this member role belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: roleId
+          in: path
+          required: true
+          description: "The unique identifier of the member role to retrieve."
+          schema:
+            type: string
+            example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+      responses:
+        "200":
+          description: "The details of the project member role."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberRole"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update project member role details."
+      description: "Update the details of a specific project member role by its ID."
+      operationId: updateProjectMemberRoleById
+      tags:
+        - Project Member Roles
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this member role belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: roleId
+          in: path
+          required: true
+          description: "The unique identifier of the member role to update."
+          schema:
+            type: string
+            example: "r1o2l3e4i5d6n7o8p90r1s2t3u4v5w6"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "The new name of the member role."
+                  example: "Updated Member Role Name"
+                  maxLength: 255
+                  nullable: true
+                color:
+                  type: string
+                  description: "A new color code for the member role (e.g., hex code like #FF5733)."
+                  example: "#FF5733"
+                  nullable: true
+                icon:
+                  type: string
+                  description: "A new icon name for the member role (using https://lucide.dev/icons/)."
+                  example: "User"
+                  nullable: true
+                permissions:
+                  type: integer
+                  format: int64
+                  description: "A bitmask representing the permissions for the member role."
+                  nullable: true
+      responses:
+        "200":
+          description: "The updated project member role details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberRole"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: "Delete a project member role."
+      description: "Delete a specific project member role by its ID."
+      operationId: deleteProjectMemberRoleById
+      tags:
+        - Project Member Roles
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project this member role belongs to."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: roleId
+          in: path
+          required: true
+          description: "The unique identifier of the member role to delete."
+          schema:
+            type: string
+            example: "r1o2l3e4i5d6n7o8p9q0r1s2t3u4v5w6"
+      responses:
+        "200":
+          description: "The project member role was successfully deleted."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberRole"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/locales":
+    get:
+      summary: "Get a list of all locales."
+      description: "Retrieve a list of all locales available in the Localine system."
+      operationId: getLocales
+      tags:
+        - Locales
+      responses:
+        "200":
+          description: "A list of all locales."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Locale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: "Create a new locale."
+      description: "Create a new locale in the Localine system."
+      operationId: createLocale
+      tags:
+        - Locales
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: "The display name of the locale."
+                  example: "English (United States)"
+                  maxLength: 255
+                language:
+                  type: string
+                  description: 'The language of the locale (e.g., "English", "French").'
+                  example: "English"
+                  maxLength: 255
+                region:
+                  type: string
+                  description: 'The region of the locale (e.g., "United States", "France").'
+                  example: "United States"
+                  maxLength: 255
+                  nullable: true
+                code:
+                  type: string
+                  description: 'The locale code (e.g., "en_US", "fr_FR").'
+                  example: "en_US"
+                  maxLength: 255
+                flag:
+                  type: string
+                  description: "The flag emoji for the locale (using https://npmjs.com/package/country-flag-icons)."
+                  example: "US"
+                  maxLength: 255
+                  nullable: true
+                enabled:
+                  type: boolean
+                  description: |
+                    Indicates whether the locale is enabled for use in projects.
+                    - true = the locale is enabled and can be added to projects
+                    - false = the locale is disabled and cannot be added to projects
+                  default: true
+      responses:
+        "201":
+          description: "The created locale."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locale"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/locales/{localeId}":
+    get:
+      summary: "Get locale details."
+      description: "Retrieve detailed information about a specific locale by its ID."
+      operationId: getLocaleById
+      tags:
+        - Locales
+      parameters:
+        - name: localeId
+          in: path
+          required: true
+          description: "The unique identifier of the locale to retrieve."
+          schema:
+            type: string
+            example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      responses:
+        "200":
+          description: "The details of the locale."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locale"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update locale details."
+      description: "Update the details of a specific locale by its ID."
+      operationId: updateLocaleById
+      tags:
+        - Locales
+      parameters:
+        - name: localeId
+          in: path
+          required: true
+          description: "The unique identifier of the locale to update."
+          schema:
+            type: string
+            example: "mB1tDefM0RzV10ShkrLjVxdLdD5iwMG4"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: "The new display name of the locale."
+                  example: "Updated Locale Name"
+                  maxLength: 255
+                  nullable: true
+                language:
+                  type: string
+                  description: 'The new language of the locale (e.g., "English", "French").'
+                  example: "English"
+                  maxLength: 255
+                  nullable: true
+                region:
+                  type: string
+                  description: 'The new region of the locale (e.g., "United States", "France").'
+                  example: "United States"
+                  maxLength: 255
+                  nullable: true
+                code:
+                  type: string
+                  description: 'The new locale code (e.g., "en_US", "fr_FR").'
+                  example: "en_US"
+                  maxLength: 255
+                  nullable: true
+                flag:
+                  type: string
+                  description: "The new flag emoji for the locale (using https://npmjs.com/package/country-flag-icons)."
+                  example: "US"
+                  maxLength: 255
+                  nullable: true
+                enabled:
+                  type: boolean
+                  description: |
+                    Indicates whether the locale is enabled for use in projects.
+                    - true = the locale is enabled and can be added to projects
+                    - false = the locale is disabled and cannot be added to projects
+                  default: true
+      responses:
+        "200":
+          description: "The updated locale details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Locale"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/plans":
+    get:
+      summary: "Get a list of all plans."
+      description: "Retrieve a list of all plans available in the Localine system."
+      operationId: getPlans
+      tags:
+        - Plans
+      responses:
+        "200":
+          description: "A list of all plans."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: "Create a new plan."
+      description: "Create a new plan in the Localine system."
+      operationId: createPlan
+      tags:
+        - Plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: "The display name of the plan."
+                  example: "Unlimited"
+                  maxLength: 255
+                description:
+                  type: string
+                  description: "A description for the plan to help users understand its features and limitations."
+                  example: "A plan with unlimited features and limits."
+                  maxLength: 500
+                  nullable: true
+                localesLimit:
+                  type: integer
+                  description: |
+                    The number of locales allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of locales.
+                  nullable: true
+                termsLimit:
+                  type: integer
+                  description: |
+                    The number of translation terms allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of translation terms.
+                  nullable: true
+                labelsLimit:
+                  type: integer
+                  description: |
+                    The number of labels allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of labels.
+                  nullable: true
+                membersLimit:
+                  type: integer
+                  description: |
+                    The number of team members allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of team members.
+                  nullable: true
+      responses:
+        "201":
+          description: "The created plan."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/plans/{planId}":
+    get:
+      summary: "Get plan details."
+      description: "Retrieve detailed information about a specific plan by its ID."
+      operationId: getPlanById
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: "The unique identifier of the plan to retrieve."
+          schema:
+            type: string
+            example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      responses:
+        "200":
+          description: "The details of the plan."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update plan details."
+      description: "Update the details of a specific plan by its ID."
+      operationId: updatePlanById
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: "The unique identifier of the plan to update."
+          schema:
+            type: string
+            example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: "The new display name of the plan."
+                  example: "Updated Plan Name"
+                  maxLength: 255
+                  nullable: true
+                description:
+                  type: string
+                  description: "A new description for the plan to help users understand its features and limitations."
+                  example: "This is an updated description for the plan."
+                  maxLength: 500
+                  nullable: true
+                localesLimit:
+                  type: integer
+                  description: |
+                    The new number of locales allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of locales.
+                  example: 10
+                  nullable: true
+                termsLimit:
+                  type: integer
+                  description: |
+                    The new number of translation terms allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of translation terms.
+                  example: 100
+                  nullable: true
+                labelsLimit:
+                  type: integer
+                  description: |
+                    The new number of labels allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of labels.
+                  example: 5
+                  nullable: true
+                membersLimit:
+                  type: integer
+                  description: |
+                    The new number of team members allowed in projects under this plan.
+                    A null value indicates that there is no limit on the number of team members.
+                  example: 10
+                  nullable: true
+      responses:
+        "200":
+          description: "The updated plan details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: "Delete a plan."
+      description: "Delete a specific plan by its ID."
+      operationId: deletePlanById
+      tags:
+        - Plans
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          description: "The unique identifier of the plan to delete."
+          schema:
+            type: string
+            example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      responses:
+        "204":
+          description: "The plan was deleted successfully."
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  "/plans/default":
+    get:
+      summary: "Get the default plan."
+      description: "Retrieve the default plan that is assigned to new projects by default."
+      operationId: getDefaultPlan
+      tags:
+        - Plans
+      responses:
+        "200":
+          description: "The default plan details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    patch:
+      summary: "Update the default plan."
+      description: "Update the details of the default plan that is assigned to new projects by default."
+      operationId: updateDefaultPlan
+      tags:
+        - Plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                planId:
+                  type: string
+                  description: "The unique identifier of the plan to set as the new default plan."
+                  example: "9O3gjJoOol9DP5zi0kAlqIijCKpF4qbp"
+      responses:
+        "200":
+          description: "The updated default plan details."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
