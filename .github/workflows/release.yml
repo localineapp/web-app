@@ -31,14 +31,13 @@ jobs:
       - name: Create release archive
         run: |
           rm -rf .next .vscode node_modules README.md
-          tar \
-            --exclude=localineapp.tar.gz \
-            -czf localineapp.tar.gz .
+          mkdir release
+          tar -czf release/localineapp.tar.gz .
 
       - name: Create checksum
         run: |
-          SUM=`sha256sum localineapp.tar.gz`
-          echo $SUM > checksum.txt
+          SUM=`sha256sum release/localineapp.tar.gz`
+          echo $SUM > release/checksum.txt
 
       - name: Create release
         id: create_release
@@ -49,5 +48,5 @@ jobs:
           draft: true
           prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
           files: |
-            localineapp.tar.gz
-            checksum.txt
+            release/localineapp.tar.gz
+            release/checksum.txt
