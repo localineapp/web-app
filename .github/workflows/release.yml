@@ -32,12 +32,14 @@ jobs:
         run: |
           rm -rf .next .vscode node_modules README.md
           mkdir release
-          tar -czf release/localineapp.tar.gz .
+          tar \
+            --exclude=release \
+            -czf release/localineapp.tar.gz \
+            .
 
       - name: Create checksum
         run: |
-          SUM=`sha256sum release/localineapp.tar.gz`
-          echo $SUM > release/checksum.txt
+          sha256sum release/localineapp.tar.gz > release/checksum.txt
 
       - name: Create release
         id: create_release
