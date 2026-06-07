@@ -5,7 +5,7 @@ import { getMany } from "@/services/projects"
  * GET /api/v1/projects - List user's projects
  * @deprecated Use v2 instead
  */
-export const GET = validateRequest(null, async (_, __, { user }) => {
+export const GET = validateRequest({}, async (_, __, { user }) => {
   const projects = await getMany({ user })
 
   return Response.json(
