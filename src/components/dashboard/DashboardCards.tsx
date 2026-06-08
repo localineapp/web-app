@@ -14,12 +14,17 @@ import Link from "next/link"
 import { GitHubIcon } from "@/components/icons"
 import { AlertTriangleIcon, FileTextIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import semver from "semver"
+
+function formatVersion(version: string) {
+  return version.replace(/^v/, "")
+}
 
 export default function DashboardCards({
-  version,
+  currentVersion,
   canViewUpdateNotification,
 }: {
-  version: string
+  currentVersion: string
   canViewUpdateNotification: boolean
 }) {
   const [latestRelease, setLatestRelease] = useState<string | null>(null)
@@ -28,7 +33,7 @@ export default function DashboardCards({
     const fetchLatestRelease = async () => {
       try {
         const res = await fetch(
-          "https://api.github.com/repos/localineapp/web-app/releases/latest",
+          "https://api.github.com/repos/localineapp/web-app/releases",
           {
             headers: {
               Accept: "application/vnd.github.v3+json",
@@ -38,59 +43,62 @@ export default function DashboardCards({
 
         if (!res.ok) return
 
-        const data = await res.json()
-        let tag = data.tag_name || data.name || null
+        const isPrerelease =
+          semver.prerelease(formatVersion(currentVersion)) !== null
+        const releases = await res.json()
 
-        if (tag?.startsWith("v")) {
-          tag = tag.slice(1)
-        }
+        const latest = releases.find(
+          (release: { prerelease: boolean; tag_name: string }) =>
+            (isPrerelease || !release.prerelease) &&
+            semver.gt(
+              formatVersion(release.tag_name),
+              formatVersion(currentVersion)
+            )
+        )
 
-        setLatestRelease(tag)
+        setLatestRelease(latest ? latest.tag_name : null)
       } catch {
         setLatestRelease(null)
       }
     }
 
-    fetchLatestRelease()
-  }, [])
+    if (canViewUpdateNotification) {
+      fetchLatestRelease()
+    }
+  }, [currentVersion])
+
+  const hasUpdate =
+    canViewUpdateNotification &&
+    latestRelease !== null &&
+    semver.gt(formatVersion(latestRelease), formatVersion(currentVersion))
 
   return (
     <>
-      {canViewUpdateNotification &&
-        latestRelease &&
-        latestRelease !== version && (
-          <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
-            <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+      {hasUpdate && (
+        <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
+          <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
 
-            <AlertTitle>Update available</AlertTitle>
+          <AlertTitle>Update available</AlertTitle>
 
-            <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-              A newer release is available:{" "}
-              <span className="font-medium">{latestRelease}</span> - you are
-              running <span className="font-medium">{version}</span>. Please
-              check the{" "}
-              <a
-                className="underline underline-offset-4"
-                href="https://github.com/localineapp/web-app/releases/latest"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                release page
-              </a>{" "}
-              to update.
-            </AlertDescription>
-          </Alert>
-        )}
+          <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+            A newer release is available:{" "}
+            <span className="font-medium">{latestRelease}</span> - you are
+            running <span className="font-medium">{currentVersion}</span>.
+            Please check the{" "}
+            <a
+              className="underline underline-offset-4"
+              href="https://github.com/localineapp/web-app/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              release page
+            </a>{" "}
+            to update.
+          </AlertDescription>
+        </Alert>
+      )}
 
-      <Card
-        className={
-          canViewUpdateNotification &&
-          latestRelease &&
-          latestRelease !== version
-            ? "border-red-500/40 bg-red-500/5"
-            : ""
-        }
-      >
+      <Card className={hasUpdate ? "border-red-500/40 bg-red-500/5" : ""}>
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -101,33 +109,31 @@ export default function DashboardCards({
               </CardDescription>
             </div>
 
-            {canViewUpdateNotification &&
-              latestRelease &&
-              latestRelease !== version && (
-                <Button asChild size="sm">
-                  <Link
-                    href="https://github.com/localineapp/web-app/releases/latest"
-                    target="_blank"
-                    prefetch={false}
-                  >
-                    Update
-                  </Link>
-                </Button>
-              )}
+            {hasUpdate && (
+              <Button asChild size="sm">
+                <Link
+                  href={`https://github.com/localineapp/web-app/releases/tag/${latestRelease}`}
+                  target="_blank"
+                  prefetch={false}
+                >
+                  Update
+                </Link>
+              </Button>
+            )}
           </div>
         </CardHeader>
 
         <CardContent>
           <div className="flex flex-col items-center justify-center py-4">
-            <div className="text-4xl font-bold tracking-tight">{version}</div>
+            <div className="text-4xl font-bold tracking-tight">
+              {currentVersion}
+            </div>
 
-            {canViewUpdateNotification &&
-              latestRelease &&
-              latestRelease !== version && (
-                <div className="mt-2 text-sm font-medium text-red-600 dark:text-red-400">
-                  New version available: {latestRelease}
-                </div>
-              )}
+            {hasUpdate && (
+              <div className="mt-2 text-sm font-medium text-red-600 dark:text-red-400">
+                New version available: {latestRelease}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
