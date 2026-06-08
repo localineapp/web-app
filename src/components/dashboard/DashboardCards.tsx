@@ -65,7 +65,7 @@ export default function DashboardCards({
     if (canViewUpdateNotification) {
       fetchLatestRelease()
     }
-  }, [currentVersion])
+  }, [currentVersion, canViewUpdateNotification])
 
   const hasUpdate =
     canViewUpdateNotification &&
