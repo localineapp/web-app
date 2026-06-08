@@ -37,6 +37,16 @@ import {
   projectNavigationItems,
   projectSettingsNavigationItems,
 } from "@/components/dashboard/navigation-items"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 const isActive = (pathname: string, href: string) => {
   if (!pathname) return false
@@ -76,21 +86,29 @@ export default function AppSidebar({ appName }: { appName: string }) {
           <SidebarMenu>
             {navigationItems.map(({ name, icon: Icon, href }) => (
               <SidebarMenuItem key={name}>
-                <SidebarMenuButton
-                  asChild
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start gap-4 py-4 text-base font-medium",
-                    isActive(pathname, href)
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-accent hover:text-accent-foreground"
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarMenuButton
+                      asChild
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-4 py-4 text-base font-medium",
+                        isActive(pathname, href)
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <Link href={href} passHref>
+                        <Icon className="h-4 w-4" />
+                        {name}
+                      </Link>
+                    </SidebarMenuButton>
+                  </TooltipTrigger>
+
+                  {!isExpanded && (
+                    <TooltipContent side="right">{name}</TooltipContent>
                   )}
-                >
-                  <Link href={href} passHref>
-                    <Icon className="h-4 w-4" />
-                    {name}
-                  </Link>
-                </SidebarMenuButton>
+                </Tooltip>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -132,23 +150,33 @@ function InvitationsMenu({ isExpanded }: { isExpanded: boolean }) {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                size="sm"
-                className={cn(
-                  "w-full justify-start gap-4 py-4 text-base font-medium",
-                  isActive(pathname, "/projects/invitations") &&
-                    "bg-primary/10 text-primary"
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <SidebarMenuButton
+                    asChild
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start gap-4 py-4 text-base font-medium",
+                      isActive(pathname, "/projects/invitations") &&
+                        "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <Link href="/projects/invitations" passHref>
+                      <SendIcon className="h-4 w-4" />
+                      <span>Invitations</span>
+                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
+                        {invitations.length}
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </TooltipTrigger>
+
+                {!isExpanded && (
+                  <TooltipContent side="right">
+                    Invitations ({invitations.length})
+                  </TooltipContent>
                 )}
-              >
-                <Link href="/projects/invitations" passHref>
-                  <SendIcon className="h-4 w-4" />
-                  <span>Invitations</span>
-                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
-                    {invitations.length}
-                  </span>
-                </Link>
-              </SidebarMenuButton>
+              </Tooltip>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
@@ -172,21 +200,29 @@ function AccountMenu({ isExpanded }: { isExpanded: boolean }) {
           <SidebarMenu>
             {accountNavigationItems.map(({ name, icon: Icon, href }) => (
               <SidebarMenuItem key={name}>
-                <SidebarMenuButton
-                  asChild
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start gap-4 py-4 text-base font-medium",
-                    isActive(pathname, href)
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-accent hover:text-accent-foreground"
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarMenuButton
+                      asChild
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-4 py-4 text-base font-medium",
+                        isActive(pathname, href)
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <Link href={href} passHref>
+                        <Icon className="h-4 w-4" />
+                        {name}
+                      </Link>
+                    </SidebarMenuButton>
+                  </TooltipTrigger>
+
+                  {!isExpanded && (
+                    <TooltipContent side="right">{name}</TooltipContent>
                   )}
-                >
-                  <Link href={href} passHref>
-                    <Icon className="h-4 w-4" />
-                    {name}
-                  </Link>
-                </SidebarMenuButton>
+                </Tooltip>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -236,88 +272,153 @@ function ProjectMenu({ isExpanded }: { isExpanded: boolean }) {
     <>
       {(isProjectPage || isProjectSettingsPage) && project && (
         <SidebarGroup>
-          {isExpanded && <SidebarGroupLabel>{project?.name}</SidebarGroupLabel>}
+          {isExpanded && <SidebarGroupLabel>{project.name}</SidebarGroupLabel>}
 
           <SidebarMenu>
             {projectNavigationItems.map(({ name, icon: Icon, href }) => {
               const projectHref = href.replace("[projectId]", project.id)
               return (
                 <SidebarMenuItem key={name}>
-                  <SidebarMenuButton
-                    asChild
-                    size="sm"
-                    className={cn(
-                      "w-full justify-start gap-4 py-4 text-base font-medium",
-                      isActive(pathname, projectHref)
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-accent hover:text-accent-foreground"
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuButton
+                        asChild
+                        size="sm"
+                        className={cn(
+                          "w-full justify-start gap-4 py-4 text-base font-medium",
+                          isActive(pathname, projectHref)
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-accent hover:text-accent-foreground"
+                        )}
+                      >
+                        <Link href={projectHref} passHref>
+                          <Icon className="h-4 w-4" />
+                          {name}
+                        </Link>
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+
+                    {!isExpanded && (
+                      <TooltipContent side="right">{name}</TooltipContent>
                     )}
-                  >
-                    <Link href={projectHref} passHref>
-                      <Icon className="h-4 w-4" />
-                      {name}
-                    </Link>
-                  </SidebarMenuButton>
+                  </Tooltip>
                 </SidebarMenuItem>
               )
             })}
 
-            <Collapsible
-              asChild
-              className="group/collapsible"
-              open={isSettingsExpanded || isProjectSettingsPage}
-              onOpenChange={setIsSettingsExpanded}
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    size="sm"
-                    className={cn(
-                      "w-full justify-start gap-4 py-4 text-base",
-                      isProjectSettingsPage
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <CogIcon className="h-4 w-4" />
-                    Settings
-                    <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
+            {isExpanded ? (
+              <Collapsible
+                asChild
+                className="group/collapsible"
+                open={isSettingsExpanded || isProjectSettingsPage}
+                onOpenChange={setIsSettingsExpanded}
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-4 py-4 text-base",
+                        isProjectSettingsPage
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <CogIcon className="h-4 w-4" />
+                      Settings
+                      <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
 
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {projectSettingsNavigationItems.map(
-                      ({ name, icon: Icon, href }) => {
-                        const projectHref = href.replace(
-                          "[projectId]",
-                          project.id
-                        )
-                        return (
-                          <SidebarMenuSubItem key={name}>
-                            <SidebarMenuSubButton
-                              asChild
-                              size="md"
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {projectSettingsNavigationItems.map(
+                        ({ name, icon: Icon, href }) => {
+                          const projectHref = href.replace(
+                            "[projectId]",
+                            project.id
+                          )
+                          return (
+                            <SidebarMenuSubItem key={name}>
+                              <SidebarMenuSubButton
+                                asChild
+                                size="md"
+                                className={cn(
+                                  "w-full justify-start gap-2 py-2 text-base font-medium",
+                                  isActive(pathname, projectHref)
+                                    ? "bg-primary/10 text-primary"
+                                    : "hover:bg-accent hover:text-accent-foreground"
+                                )}
+                              >
+                                <Link href={projectHref} passHref>
+                                  <Icon className="h-4 w-4" />
+                                  {name}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        }
+                      )}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            ) : (
+              <SidebarMenuItem>
+                <HoverCard openDelay={10}>
+                  <HoverCardTrigger asChild>
+                    <SidebarMenuButton
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-4 py-4 text-base",
+                        isProjectSettingsPage
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <CogIcon className="h-4 w-4" />
+                      <span>Settings</span>
+                    </SidebarMenuButton>
+                  </HoverCardTrigger>
+
+                  <HoverCardContent
+                    side="right"
+                    align="start"
+                    className="w-auto"
+                  >
+                    <h2 className="mb-2 text-sm font-semibold">
+                      Project Settings
+                    </h2>
+
+                    <div className="flex flex-col gap-1">
+                      {projectSettingsNavigationItems.map(
+                        ({ name, icon: Icon, href }) => {
+                          const projectHref = href.replace(
+                            "[projectId]",
+                            project.id
+                          )
+                          return (
+                            <Link
+                              key={name}
+                              href={projectHref}
                               className={cn(
-                                "w-full justify-start gap-2 py-2 text-base font-medium",
+                                "flex items-center gap-2 rounded-md px-3 py-1 text-sm font-medium",
                                 isActive(pathname, projectHref)
                                   ? "bg-primary/10 text-primary"
                                   : "hover:bg-accent hover:text-accent-foreground"
                               )}
                             >
-                              <Link href={projectHref} passHref>
-                                <Icon className="h-4 w-4" />
-                                {name}
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        )
-                      }
-                    )}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
+                              <Icon className="h-4 w-4" />
+                              {name}
+                            </Link>
+                          )
+                        }
+                      )}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               </SidebarMenuItem>
-            </Collapsible>
+            )}
           </SidebarMenu>
         </SidebarGroup>
       )}
@@ -357,21 +458,29 @@ function AdminMenu({ isExpanded }: { isExpanded: boolean }) {
           <SidebarMenu>
             {adminNavigationItems.map(({ name, icon: Icon, href }) => (
               <SidebarMenuItem key={name}>
-                <SidebarMenuButton
-                  asChild
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start gap-4 py-4 text-base font-medium",
-                    isActive(pathname, href)
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-accent hover:text-accent-foreground"
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <SidebarMenuButton
+                      asChild
+                      size="sm"
+                      className={cn(
+                        "w-full justify-start gap-4 py-4 text-base font-medium",
+                        isActive(pathname, href)
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <Link href={href} passHref>
+                        <Icon className="h-4 w-4" />
+                        {name}
+                      </Link>
+                    </SidebarMenuButton>
+                  </TooltipTrigger>
+
+                  {!isExpanded && (
+                    <TooltipContent side="right">{name} (Admin)</TooltipContent>
                   )}
-                >
-                  <Link href={href} passHref>
-                    <Icon className="h-4 w-4" />
-                    {name}
-                  </Link>
-                </SidebarMenuButton>
+                </Tooltip>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
