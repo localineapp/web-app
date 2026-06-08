@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ChevronRightIcon, CogIcon, SendIcon } from "lucide-react"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import {
   Sidebar,
   SidebarContent,
@@ -38,36 +38,181 @@ import {
   projectSettingsNavigationItems,
 } from "@/components/dashboard/navigation-items"
 
-export default function AppSidebar({
-  appName,
-  session,
-}: {
-  appName: string
-  session: ReturnType<typeof useSession>["data"]
-}) {
+const isActive = (pathname: string, href: string) => {
+  if (!pathname) return false
+  return pathname === href
+}
+
+export default function AppSidebar({ appName }: { appName: string }) {
   const pathname = usePathname()
   const { state } = useSidebar()
 
-  const user = session?.user
+  const isExpanded = state === "expanded"
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [canAccessAdmin, setCanAccessAdmin] = useState(false)
-  const [currentInvitations, setCurrentInvitations] = useState<
-    ProjectInvitation[] | null
-  >(null)
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="flex h-16 items-center justify-center border-b px-4">
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+            isExpanded ? "gap-2" : "justify-center"
+          )}
+        >
+          <div className="flex size-8 items-center justify-center rounded-lg">
+            <LocalineLogo />
+          </div>
+
+          {isExpanded && (
+            <div className="grid flex-1 text-left">
+              <span className="truncate text-lg font-semibold">{appName}</span>
+            </div>
+          )}
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenu>
+            {navigationItems.map(({ name, icon: Icon, href }) => (
+              <SidebarMenuItem key={name}>
+                <SidebarMenuButton
+                  asChild
+                  size="sm"
+                  className={cn(
+                    "w-full justify-start gap-4 py-4 text-base font-medium",
+                    isActive(pathname, href)
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  <Link href={href} passHref>
+                    <Icon className="h-4 w-4" />
+                    {name}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <InvitationsMenu isExpanded={isExpanded} />
+        <AccountMenu isExpanded={isExpanded} />
+        <ProjectMenu isExpanded={isExpanded} />
+        <AdminMenu isExpanded={isExpanded} />
+      </SidebarContent>
+
+      <SidebarRail />
+    </Sidebar>
+  )
+}
+
+function InvitationsMenu({ isExpanded }: { isExpanded: boolean }) {
+  const pathname = usePathname()
+
+  const [invitations, setInvitations] = useState<ProjectInvitation[]>([])
 
   useEffect(() => {
     const loadInvitations = async () => {
       try {
         const invitations = await getProjectInvitations()
-        setCurrentInvitations(invitations)
+        setInvitations(invitations)
       } catch {
-        setCurrentInvitations([])
+        setInvitations([])
       }
     }
 
     loadInvitations()
-  }, [pathname, user?.id])
+  }, [pathname])
+
+  return (
+    <>
+      {(isActive(pathname, "/projects/invitations") ||
+        invitations.length > 0) && (
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                size="sm"
+                className={cn(
+                  "w-full justify-start gap-4 py-4 text-base font-medium",
+                  isActive(pathname, "/projects/invitations") &&
+                    "bg-primary/10 text-primary"
+                )}
+              >
+                <Link href="/projects/invitations" passHref>
+                  <SendIcon className="h-4 w-4" />
+                  <span>Invitations</span>
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
+                    {invitations.length}
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      )}
+    </>
+  )
+}
+
+function AccountMenu({ isExpanded }: { isExpanded: boolean }) {
+  const pathname = usePathname()
+  const isAccountPage = accountNavigationItems.some(({ href }) =>
+    isActive(pathname, href)
+  )
+
+  return (
+    <>
+      {isAccountPage && (
+        <SidebarGroup>
+          {isExpanded && <SidebarGroupLabel>Your Account</SidebarGroupLabel>}
+
+          <SidebarMenu>
+            {accountNavigationItems.map(({ name, icon: Icon, href }) => (
+              <SidebarMenuItem key={name}>
+                <SidebarMenuButton
+                  asChild
+                  size="sm"
+                  className={cn(
+                    "w-full justify-start gap-4 py-4 text-base font-medium",
+                    isActive(pathname, href)
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  <Link href={href} passHref>
+                    <Icon className="h-4 w-4" />
+                    {name}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      )}
+    </>
+  )
+}
+
+function ProjectMenu({ isExpanded }: { isExpanded: boolean }) {
+  const pathname = usePathname()
+
+  const [project, setProject] = useState<Project | null>(null)
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false)
+
+  const isProjectPage = projectNavigationItems.some(({ href }) => {
+    const projectHref = href.replace("[projectId]", project?.id || "")
+    return isActive(pathname, projectHref)
+  })
+
+  const isProjectSettingsPage = projectSettingsNavigationItems.some(
+    ({ href }) => {
+      const projectHref = href.replace("[projectId]", project?.id || "")
+      return isActive(pathname, projectHref)
+    }
+  )
 
   useEffect(() => {
     const match = pathname?.match(/\/projects\/([^/]+)/)
@@ -87,6 +232,104 @@ export default function AppSidebar({
     loadProject()
   }, [pathname])
 
+  return (
+    <>
+      {(isProjectPage || isProjectSettingsPage) && project && (
+        <SidebarGroup>
+          {isExpanded && <SidebarGroupLabel>{project?.name}</SidebarGroupLabel>}
+
+          <SidebarMenu>
+            {projectNavigationItems.map(({ name, icon: Icon, href }) => {
+              const projectHref = href.replace("[projectId]", project.id)
+              return (
+                <SidebarMenuItem key={name}>
+                  <SidebarMenuButton
+                    asChild
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start gap-4 py-4 text-base font-medium",
+                      isActive(pathname, projectHref)
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <Link href={projectHref} passHref>
+                      <Icon className="h-4 w-4" />
+                      {name}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+
+            <Collapsible
+              asChild
+              className="group/collapsible"
+              open={isSettingsExpanded || isProjectSettingsPage}
+              onOpenChange={setIsSettingsExpanded}
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start gap-4 py-4 text-base",
+                      isProjectSettingsPage
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <CogIcon className="h-4 w-4" />
+                    Settings
+                    <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {projectSettingsNavigationItems.map(
+                      ({ name, icon: Icon, href }) => {
+                        const projectHref = href.replace(
+                          "[projectId]",
+                          project.id
+                        )
+                        return (
+                          <SidebarMenuSubItem key={name}>
+                            <SidebarMenuSubButton
+                              asChild
+                              size="md"
+                              className={cn(
+                                "w-full justify-start gap-2 py-2 text-base font-medium",
+                                isActive(pathname, projectHref)
+                                  ? "bg-primary/10 text-primary"
+                                  : "hover:bg-accent hover:text-accent-foreground"
+                              )}
+                            >
+                              <Link href={projectHref} passHref>
+                                <Icon className="h-4 w-4" />
+                                {name}
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        )
+                      }
+                    )}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          </SidebarMenu>
+        </SidebarGroup>
+      )}
+    </>
+  )
+}
+
+function AdminMenu({ isExpanded }: { isExpanded: boolean }) {
+  const pathname = usePathname()
+
+  const [canAccessAdmin, setCanAccessAdmin] = useState(false)
+
   useEffect(() => {
     const checkAdminAccess = async () => {
       const { data, error } = await authClient.admin.hasPermission({
@@ -103,65 +346,23 @@ export default function AppSidebar({
     }
 
     checkAdminAccess()
-  }, [user])
-
-  const isActive = (href: string) => {
-    if (!pathname) return false
-    if (href === "/") return pathname === "/"
-    return (
-      pathname === href ||
-      (href.endsWith("/")
-        ? pathname.endsWith(href.slice(0, -1))
-        : pathname.startsWith(href + "/"))
-    )
-  }
-
-  const isExpanded = state === "expanded"
-
-  const isAccountPage = accountNavigationItems.some(({ href }) =>
-    isActive(href)
-  )
-
-  const isProjectPage =
-    projectNavigationItems.some(({ href }) =>
-      isActive(href.replace("[projectId]", project?.id || ""))
-    ) ||
-    projectSettingsNavigationItems.some(({ href }) =>
-      isActive(href.replace("[projectId]", project?.id || ""))
-    )
+  })
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="flex h-16 items-center justify-center border-b px-4">
-        <Link
-          href="/"
-          className={cn(
-            "flex items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-            isExpanded ? "gap-2" : "justify-center"
-          )}
-        >
-          <div className="flex size-8 items-center justify-center rounded-lg">
-            <LocalineLogo />
-          </div>
-          {isExpanded && (
-            <div className="grid flex-1 text-left">
-              <span className="truncate text-lg font-semibold">{appName}</span>
-            </div>
-          )}
-        </Link>
-      </SidebarHeader>
-
-      <SidebarContent>
+    <>
+      {canAccessAdmin && (
         <SidebarGroup>
+          {isExpanded && <SidebarGroupLabel>Administration</SidebarGroupLabel>}
+
           <SidebarMenu>
-            {navigationItems.map(({ name, icon: Icon, href }) => (
+            {adminNavigationItems.map(({ name, icon: Icon, href }) => (
               <SidebarMenuItem key={name}>
                 <SidebarMenuButton
                   asChild
                   size="sm"
                   className={cn(
                     "w-full justify-start gap-4 py-4 text-base font-medium",
-                    isActive(href)
+                    isActive(pathname, href)
                       ? "bg-primary/10 text-primary"
                       : "hover:bg-accent hover:text-accent-foreground"
                   )}
@@ -175,180 +376,7 @@ export default function AppSidebar({
             ))}
           </SidebarMenu>
         </SidebarGroup>
-
-        {currentInvitations && currentInvitations.length > 0 && (
-          <SidebarGroup>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start gap-4 py-4 text-base font-medium",
-                    isActive("/projects/invitations") &&
-                      "bg-primary/10 text-primary"
-                  )}
-                >
-                  <Link href="/projects/invitations" passHref>
-                    <SendIcon className="h-4 w-4" />
-                    <span>Invitations</span>
-                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
-                      {currentInvitations?.length}
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {isAccountPage && (
-          <SidebarGroup>
-            {isExpanded && <SidebarGroupLabel>Your Account</SidebarGroupLabel>}
-
-            <SidebarMenu>
-              {accountNavigationItems.map(({ name, icon: Icon, href }) => (
-                <SidebarMenuItem key={name}>
-                  <SidebarMenuButton
-                    asChild
-                    size="sm"
-                    className={cn(
-                      "w-full justify-start gap-4 py-4 text-base font-medium",
-                      isActive(href)
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <Link href={href} passHref>
-                      <Icon className="h-4 w-4" />
-                      {name}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {isProjectPage && project && (
-          <SidebarGroup>
-            {isExpanded && (
-              <SidebarGroupLabel>{project.name}</SidebarGroupLabel>
-            )}
-
-            <SidebarMenu>
-              {projectNavigationItems.map(({ name, icon: Icon, href }) => {
-                const projectHref = href.replace("[projectId]", project.id)
-                return (
-                  <SidebarMenuItem key={name}>
-                    <SidebarMenuButton
-                      asChild
-                      size="sm"
-                      className={cn(
-                        "w-full justify-start gap-4 py-4 text-base font-medium",
-                        isActive(projectHref)
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      )}
-                    >
-                      <Link href={projectHref} passHref>
-                        <Icon className="h-4 w-4" />
-                        {name}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-
-              <Collapsible asChild className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton
-                      size="sm"
-                      className={cn(
-                        "w-full justify-start gap-4 py-4 text-base",
-                        isActive(`/projects/${project.id}/settings`) ||
-                          isActive(
-                            `/projects/${project.id}/settings/member-roles`
-                          ) ||
-                          isActive(`/projects/${project.id}/settings/workflows`)
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      )}
-                    >
-                      <CogIcon className="h-4 w-4" />
-                      Settings
-                      <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {projectSettingsNavigationItems.map(
-                        ({ name, icon: Icon, href }) => (
-                          <SidebarMenuSubItem key={name}>
-                            <SidebarMenuSubButton
-                              asChild
-                              size="md"
-                              className={cn(
-                                "w-full justify-start gap-2 py-2 text-base font-medium",
-                                isActive(
-                                  href.replace("[projectId]", project.id)
-                                )
-                                  ? "bg-primary/10 text-primary"
-                                  : "hover:bg-accent hover:text-accent-foreground"
-                              )}
-                            >
-                              <Link
-                                href={href.replace("[projectId]", project.id)}
-                                passHref
-                              >
-                                <Icon className="h-4 w-4" />
-                                {name}
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        )
-                      )}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-        {canAccessAdmin && (
-          <SidebarGroup>
-            {isExpanded && (
-              <SidebarGroupLabel>Administration</SidebarGroupLabel>
-            )}
-
-            <SidebarMenu>
-              {adminNavigationItems.map(({ name, icon: Icon, href }) => (
-                <SidebarMenuItem key={name}>
-                  <SidebarMenuButton
-                    asChild
-                    size="sm"
-                    className={cn(
-                      "w-full justify-start gap-4 py-4 text-base font-medium",
-                      isActive(href)
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <Link href={href} passHref>
-                      <Icon className="h-4 w-4" />
-                      {name}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-      </SidebarContent>
-
-      <SidebarRail />
-    </Sidebar>
+      )}
+    </>
   )
 }
