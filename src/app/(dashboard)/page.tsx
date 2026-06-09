@@ -72,7 +72,7 @@ export default async function DashboardPage() {
         )}
 
         <DashboardCards
-          version={version}
+          currentVersion={version}
           canViewUpdateNotification={canViewUpdateNotification}
         />
 
