@@ -21,7 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Project, ProjectInvitation } from "@prisma/client"
-import { useEffect, useState } from "react"
+import { MouseEvent, useEffect, useState } from "react"
 import { getProject } from "@/actions/projects"
 import { getProjectInvitations } from "@/actions/project-invitations"
 import {
@@ -47,6 +47,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const isActive = (pathname: string, href: string) => {
   if (!pathname) return false
@@ -55,9 +56,16 @@ const isActive = (pathname: string, href: string) => {
 
 export default function AppSidebar({ appName }: { appName: string }) {
   const pathname = usePathname()
-  const { state } = useSidebar()
+  const isMobile = useIsMobile()
+  const { state, toggleSidebar } = useSidebar()
 
   const isExpanded = state === "expanded"
+
+  const handleLinkClick = (_: MouseEvent<HTMLAnchorElement>) => {
+    if (isExpanded && isMobile) {
+      toggleSidebar()
+    }
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -98,7 +106,7 @@ export default function AppSidebar({ appName }: { appName: string }) {
                           : "hover:bg-accent hover:text-accent-foreground"
                       )}
                     >
-                      <Link href={href} passHref>
+                      <Link href={href} passHref onClick={handleLinkClick}>
                         <Icon className="h-4 w-4" />
                         {name}
                       </Link>
@@ -114,10 +122,19 @@ export default function AppSidebar({ appName }: { appName: string }) {
           </SidebarMenu>
         </SidebarGroup>
 
-        <InvitationsMenu isExpanded={isExpanded} />
-        <AccountMenu isExpanded={isExpanded} />
-        <ProjectMenu isExpanded={isExpanded} />
-        <AdminMenu isExpanded={isExpanded} />
+        <InvitationsMenu
+          isExpanded={isExpanded}
+          handleLinkClick={handleLinkClick}
+        />
+        <AccountMenu
+          isExpanded={isExpanded}
+          handleLinkClick={handleLinkClick}
+        />
+        <ProjectMenu
+          isExpanded={isExpanded}
+          handleLinkClick={handleLinkClick}
+        />
+        <AdminMenu isExpanded={isExpanded} handleLinkClick={handleLinkClick} />
       </SidebarContent>
 
       <SidebarRail />
@@ -125,7 +142,13 @@ export default function AppSidebar({ appName }: { appName: string }) {
   )
 }
 
-function InvitationsMenu({ isExpanded }: { isExpanded: boolean }) {
+function InvitationsMenu({
+  isExpanded,
+  handleLinkClick,
+}: {
+  isExpanded: boolean
+  handleLinkClick: (e: MouseEvent<HTMLAnchorElement>) => void
+}) {
   const pathname = usePathname()
 
   const [invitations, setInvitations] = useState<ProjectInvitation[]>([])
@@ -161,7 +184,11 @@ function InvitationsMenu({ isExpanded }: { isExpanded: boolean }) {
                         "bg-primary/10 text-primary"
                     )}
                   >
-                    <Link href="/projects/invitations" passHref>
+                    <Link
+                      href="/projects/invitations"
+                      passHref
+                      onClick={handleLinkClick}
+                    >
                       <SendIcon className="h-4 w-4" />
                       <span>Invitations</span>
                       <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-md bg-muted px-1.5 text-xs font-medium">
@@ -185,7 +212,13 @@ function InvitationsMenu({ isExpanded }: { isExpanded: boolean }) {
   )
 }
 
-function AccountMenu({ isExpanded }: { isExpanded: boolean }) {
+function AccountMenu({
+  isExpanded,
+  handleLinkClick,
+}: {
+  isExpanded: boolean
+  handleLinkClick: (e: MouseEvent<HTMLAnchorElement>) => void
+}) {
   const pathname = usePathname()
   const isAccountPage = accountNavigationItems.some(({ href }) =>
     isActive(pathname, href)
@@ -212,7 +245,7 @@ function AccountMenu({ isExpanded }: { isExpanded: boolean }) {
                           : "hover:bg-accent hover:text-accent-foreground"
                       )}
                     >
-                      <Link href={href} passHref>
+                      <Link href={href} passHref onClick={handleLinkClick}>
                         <Icon className="h-4 w-4" />
                         {name}
                       </Link>
@@ -232,7 +265,13 @@ function AccountMenu({ isExpanded }: { isExpanded: boolean }) {
   )
 }
 
-function ProjectMenu({ isExpanded }: { isExpanded: boolean }) {
+function ProjectMenu({
+  isExpanded,
+  handleLinkClick,
+}: {
+  isExpanded: boolean
+  handleLinkClick: (e: MouseEvent<HTMLAnchorElement>) => void
+}) {
   const pathname = usePathname()
 
   const [project, setProject] = useState<Project | null>(null)
@@ -291,7 +330,11 @@ function ProjectMenu({ isExpanded }: { isExpanded: boolean }) {
                             : "hover:bg-accent hover:text-accent-foreground"
                         )}
                       >
-                        <Link href={projectHref} passHref>
+                        <Link
+                          href={projectHref}
+                          passHref
+                          onClick={handleLinkClick}
+                        >
                           <Icon className="h-4 w-4" />
                           {name}
                         </Link>
@@ -350,7 +393,11 @@ function ProjectMenu({ isExpanded }: { isExpanded: boolean }) {
                                     : "hover:bg-accent hover:text-accent-foreground"
                                 )}
                               >
-                                <Link href={projectHref} passHref>
+                                <Link
+                                  href={projectHref}
+                                  passHref
+                                  onClick={handleLinkClick}
+                                >
                                   <Icon className="h-4 w-4" />
                                   {name}
                                 </Link>
@@ -426,7 +473,13 @@ function ProjectMenu({ isExpanded }: { isExpanded: boolean }) {
   )
 }
 
-function AdminMenu({ isExpanded }: { isExpanded: boolean }) {
+function AdminMenu({
+  isExpanded,
+  handleLinkClick,
+}: {
+  isExpanded: boolean
+  handleLinkClick: (e: React.MouseEvent<HTMLAnchorElement>) => void
+}) {
   const pathname = usePathname()
 
   const [canAccessAdmin, setCanAccessAdmin] = useState(false)
@@ -470,7 +523,7 @@ function AdminMenu({ isExpanded }: { isExpanded: boolean }) {
                           : "hover:bg-accent hover:text-accent-foreground"
                       )}
                     >
-                      <Link href={href} passHref>
+                      <Link href={href} passHref onClick={handleLinkClick}>
                         <Icon className="h-4 w-4" />
                         {name}
                       </Link>
