@@ -12,10 +12,18 @@ export default getRequestConfig(async () => {
 
   return {
     locale: locale.replace("_", "-"),
-    messages: (await import(`../../i18n/${locale}.json`)).default,
+    messages: await safeLoadMessages(locale),
     onError() {},
     getMessageFallback({ namespace, key }) {
       return namespace ? `${namespace}.${key}` : key
     },
   }
 })
+
+async function safeLoadMessages(locale: string) {
+  try {
+    return (await import(`../../i18n/${locale}.json`)).default
+  } catch {
+    return {}
+  }
+}
