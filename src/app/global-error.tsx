@@ -50,7 +50,6 @@ export default function GlobalError({
 
           <div className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row">
             <Button
-              asChild
               variant="outline"
               size="lg"
               onClick={() => unstable_retry()}
@@ -58,10 +57,10 @@ export default function GlobalError({
               <RefreshCwIcon className="mr-2 h-5 w-5" />
               Retry
             </Button>
-            <Button asChild size="lg">
-              <Link href="/">
+            <Button size="lg">
+              <Link href="/" className="flex items-center">
                 <HomeIcon className="mr-2 h-5 w-5" />
-                Go back to main page
+                Go Home
               </Link>
             </Button>
           </div>
