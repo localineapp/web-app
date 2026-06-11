@@ -24,7 +24,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden">
       <SidebarProvider>
-        <AppSidebar appName={appName} session={session} />
+        <AppSidebar appName={appName} />
 
         <div className="flex flex-1 flex-col overflow-hidden">
           <AppHeader session={session} projects={projects} />
