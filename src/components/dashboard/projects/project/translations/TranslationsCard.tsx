@@ -216,7 +216,7 @@ function TranslationsCardContent({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-32">Key</TableHead>
+              <TableHead>Key</TableHead>
               <TableHead className="text-center">Translation</TableHead>
               <TableHead className="w-0" />
             </TableRow>
@@ -239,9 +239,11 @@ function TranslationsCardContent({
                       rowRefs.current[term.id] = el
                     }}
                   >
-                    <TableCell className="max-w-32">{term.key}</TableCell>
+                    <TableCell className="min-w-32 break-all whitespace-normal md:min-w-64 lg:min-w-96">
+                      {term.key}
+                    </TableCell>
 
-                    <TableCell className="w-full max-w-0">
+                    <TableCell className="w-full">
                       <Textarea
                         value={currentValue}
                         readOnly={!canTranslate}
