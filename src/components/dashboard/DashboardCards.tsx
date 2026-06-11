@@ -202,7 +202,7 @@ export default function DashboardCards({
 
             <CardAction className="ml-auto">
               <Button asChild size="lg">
-                <Link href="https://google.com" prefetch={false}>
+                <Link href="https://localine.mintlify.app" prefetch={false}>
                   Read Documentation
                 </Link>
               </Button>
