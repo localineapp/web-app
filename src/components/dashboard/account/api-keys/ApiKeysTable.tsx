@@ -20,6 +20,7 @@ import { authClient } from "@/lib/auth-client"
 import {
   BadgeCheckIcon,
   BadgeXIcon,
+  InfinityIcon,
   KeyRoundIcon,
   SearchIcon,
   TrashIcon,
@@ -156,6 +157,7 @@ export default function ApiKeysTable({
               <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="text-center">Enabled</TableHead>
+              <TableHead className="text-center">Rate Limited</TableHead>
               <TableHead>Last Used</TableHead>
               <TableHead>Expires at</TableHead>
               <TableHead>Created at</TableHead>
@@ -190,6 +192,18 @@ export default function ApiKeysTable({
                         <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
                       )}
                     </Button>
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {apiKey.configId === "no-rate-limit" ? (
+                        <InfinityIcon className="size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                      ) : apiKey.remaining === 0 ? (
+                        <BadgeCheckIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                      ) : (
+                        <BadgeXIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      )}
+                    </div>
                   </TableCell>
 
                   <TableCell
