@@ -1,3 +1,4 @@
+import { getApiKeysLimit } from "@/actions/get-env"
 import ApiKeysTable from "@/components/dashboard/account/api-keys/ApiKeysTable"
 import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
 import { auth } from "@/lib/auth"
@@ -19,6 +20,34 @@ export default async function ApiKeysPage() {
     headers: requestHeaders,
   })
 
+  const user = session?.user
+
+  const hasUnlimitedApiKeys = (
+    await auth.api.userHasPermission({
+      body: {
+        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+        role: user?.role ?? "user",
+        permissions: {
+          apiKeys: ["unlimited"],
+        },
+      },
+    })
+  ).success
+
+  const canDisableRateLimiting = (
+    await auth.api.userHasPermission({
+      body: {
+        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+        role: user.role ?? "user",
+        permissions: {
+          apiKeys: ["no-rate-limit"],
+        },
+      },
+    })
+  ).success
+
+  const apiKeysLimit = hasUnlimitedApiKeys ? Infinity : await getApiKeysLimit()
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -30,12 +59,20 @@ export default async function ApiKeysPage() {
         </div>
 
         <div className="flex gap-2">
-          <CreateApiKeyDialog session={session} apiKeysCount={apiKeys.total} />
+          <CreateApiKeyDialog
+            apiKeysCount={apiKeys.total}
+            apiKeysLimit={apiKeysLimit}
+            canDisableRateLimiting={canDisableRateLimiting}
+          />
         </div>
       </div>
 
       <div>
-        <ApiKeysTable session={session} apiKeys={apiKeys} />
+        <ApiKeysTable
+          apiKeys={apiKeys}
+          apiKeysLimit={apiKeysLimit}
+          canDisableRateLimiting={canDisableRateLimiting}
+        />
       </div>
     </div>
   )
