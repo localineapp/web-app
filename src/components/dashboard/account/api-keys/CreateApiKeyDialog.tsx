@@ -81,7 +81,6 @@ export default function CreateApiKeyDialog({
           setExpiryDate(undefined)
 
           setApiKey(key)
-          router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
@@ -97,7 +96,7 @@ export default function CreateApiKeyDialog({
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={isDialogOpen || !!apiKey} onOpenChange={setDialogOpen}>
       <Tooltip>
         <TooltipTrigger
           asChild
@@ -155,6 +154,8 @@ export default function CreateApiKeyDialog({
                 onClick={() => {
                   setDialogOpen(false)
                   setApiKey("")
+
+                  router.refresh()
                 }}
               >
                 Close
