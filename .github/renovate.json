@@ -4,8 +4,8 @@
     "config:recommended"
   ],
   "commitMessagePrefix": "chore(deps): ",
-  "labels": ["dependencies"],
   "ignoreDeps": ["next", "react", "react-dom"],
+  "labels": ["dependencies"],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
@@ -19,5 +19,6 @@
   ],
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
+  "rangeStrategy": "pin",
   "timezone": "Europe/Berlin"
 }
