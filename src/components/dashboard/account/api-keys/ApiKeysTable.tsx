@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { auth } from "@/lib/auth"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import {
   BadgeCheckIcon,
   BadgeXIcon,
@@ -57,11 +57,13 @@ type ApiKey = NonNullable<
 const PAGE_SIZE = 10
 
 export default function ApiKeysTable({
-  session,
   apiKeys,
+  apiKeysLimit,
+  canDisableRateLimiting,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   apiKeys: Awaited<ReturnType<typeof auth.api.listApiKeys>>
+  apiKeysLimit: number
+  canDisableRateLimiting: boolean
 }) {
   const router = useRouter()
 
@@ -121,8 +123,9 @@ export default function ApiKeysTable({
           <EmptyDescription className="grid gap-2">
             There have been no API keys created yet.
             <CreateApiKeyDialog
-              session={session}
               apiKeysCount={apiKeys.total}
+              apiKeysLimit={apiKeysLimit}
+              canDisableRateLimiting={canDisableRateLimiting}
             />
           </EmptyDescription>
         </EmptyHeader>

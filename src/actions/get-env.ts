@@ -20,6 +20,12 @@ export async function areSignUpsDisabled(): Promise<boolean> {
   return signUpsDisabled
 }
 
+export async function getApiKeysLimit(): Promise<number> {
+  const fallbackLimit = 10
+  const apiKeysLimit = process.env.API_KEYS_LIMIT
+  return apiKeysLimit ? parseInt(apiKeysLimit, fallbackLimit) : fallbackLimit
+}
+
 export async function isEmailVerificationRequired(): Promise<boolean> {
   return auth.options.emailAndPassword.requireEmailVerification
 }

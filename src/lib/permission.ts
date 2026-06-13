@@ -7,6 +7,7 @@ import {
 
 export const statement = {
   dashboard: ["admin", "updates"],
+  apiKeys: ["unlimited", "no-rate-limit"],
   locales: ["read:disabled", "create", "update", "delete"],
   plans: ["read", "create", "update", "delete"],
   projects: ["read", "update", "update:plan", "delete"],
@@ -17,6 +18,7 @@ export const ac = createAccessControl(statement)
 
 export const admin = ac.newRole({
   dashboard: ["admin", "updates"],
+  apiKeys: ["unlimited", "no-rate-limit"],
   locales: ["read:disabled", "create", "update", "delete"],
   plans: ["read", "create", "update", "delete"],
   projects: ["read", "update", "update:plan", "delete"],
