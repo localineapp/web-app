@@ -1,5 +1,6 @@
 "use client"
 
+import { addPassword } from "@/actions/users"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -114,14 +115,30 @@ export default function SecurityDetailsCard({
     event.preventDefault()
     setLoading(true)
 
-    setTimeout(() => {
-      toast.error("Adding a password to an account is not supported yet.")
-      setPasswordDialogOpen(false)
+    if (newPassword.trim() !== confirmNewPassword.trim()) {
+      toast.error("The new password and confirm password fields do not match.")
       setLoading(false)
+      return
+    }
 
-      setNewPassword("")
-      setConfirmNewPassword("")
-    }, 1000)
+    await addPassword(newPassword.trim())
+      .then(() => {
+        toast.success("Password has been successfully added to your account.")
+
+        router.refresh()
+      })
+      .catch((error) => {
+        toast.error(
+          error?.message ||
+            "Failed to add a password to your account. Please try again."
+        )
+      })
+      .finally(() => {
+        setPasswordDialogOpen(false)
+        setLoading(false)
+        setNewPassword("")
+        setConfirmNewPassword("")
+      })
   }
 
   return (
