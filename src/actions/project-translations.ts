@@ -3,6 +3,7 @@
 import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { upsertTranslation } from "@/services/project-translations"
+import { ProjectTranslationWithTerm } from "@/types/project"
 
 export async function upsertProjectTranslation({
   projectId,
@@ -14,7 +15,7 @@ export async function upsertProjectTranslation({
   termId: string
   localeId: string
   value: string | null
-}) {
+}): Promise<ProjectTranslationWithTerm> {
   const { member } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.TRANSLATE,

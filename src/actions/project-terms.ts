@@ -2,7 +2,7 @@
 
 import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
-import { ProjectLabel } from "@prisma/client"
+import { ProjectLabel, ProjectTerm } from "@prisma/client"
 import { createTerm, deleteTerm, updateTerm } from "@/services/project-terms"
 
 export async function createProjectTerm({
@@ -15,7 +15,7 @@ export async function createProjectTerm({
   key: string
   context?: string | null
   locked?: boolean
-}) {
+}): Promise<ProjectTerm> {
   const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.CREATE_TERMS,
@@ -43,7 +43,7 @@ export async function updateProjectTerm({
   context?: string | null
   locked?: boolean
   labels?: ProjectLabel[]
-}) {
+}): Promise<ProjectTerm> {
   const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.UPDATE_TERMS,
@@ -65,7 +65,7 @@ export async function deleteProjectTerm({
 }: {
   projectId: string
   termId: string
-}) {
+}): Promise<void> {
   const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.DELETE_TERMS,
