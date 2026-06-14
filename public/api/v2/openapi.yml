@@ -1187,6 +1187,60 @@ paths:
           $ref: "#/components/responses/NotFoundError"
         "500":
           $ref: "#/components/responses/InternalServerError"
+  "/projects/{projectId}/translations/export":
+    get:
+      summary: "Export project translations"
+      description: "Export all translations of a project grouped by term or locale."
+      operationId: exportProjectTranslations
+      tags:
+        - Project Translations
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: "The unique identifier of the project."
+          schema:
+            type: string
+            example: "52avam77Q8Yqd9oLSPNTTtNFLN9ujGyW"
+        - name: inverted
+          in: query
+          required: false
+          description: "If true, the export is grouped by locale. If false, grouped by term."
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: "Exported translations grouped by term."
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  A map where each key is a translation key (term),
+                  and each value is a map of locale codes to translated strings.
+                additionalProperties:
+                  type: object
+                  additionalProperties:
+                    type: string
+              examples:
+                default:
+                  summary: "Grouped by term"
+                  value:
+                    message.welcome:
+                      de_DE: Willkommen
+                      en_US: Welcome
+                    message.goodbye:
+                      de_DE: Tschüss
+                      en_US: Goodbye
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
   "/projects/{projectId}/labels":
     get:
       summary: "Get project labels."
