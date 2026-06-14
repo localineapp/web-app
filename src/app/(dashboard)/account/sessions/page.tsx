@@ -14,13 +14,14 @@ export const metadata: Metadata = {
 export default async function SessionsPage() {
   const requestHeaders = await headers()
 
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
-
-  const sessions = await auth.api.listSessions({
-    headers: requestHeaders,
-  })
+  const [session, sessions] = await Promise.all([
+    auth.api.getSession({
+      headers: requestHeaders,
+    }),
+    auth.api.listSessions({
+      headers: requestHeaders,
+    }),
+  ])
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,7 +40,7 @@ export default async function SessionsPage() {
       </div>
 
       <div>
-        <SessionsTable session={session} sessions={sessions} />
+        <SessionsTable currentSession={session?.session} sessions={sessions} />
       </div>
     </div>
   )

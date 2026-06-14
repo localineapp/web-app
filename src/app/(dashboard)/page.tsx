@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     await auth.api.userHasPermission({
       body: {
         // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user?.role ?? "user",
+        role: user.role ?? "user",
         permissions: {
           dashboard: ["updates"],
         },
@@ -33,8 +33,10 @@ export default async function DashboardPage() {
     })
   ).success
 
-  const emailVerificationRequired = await isEmailVerificationRequired()
-  const version = await getVersion()
+  const [emailVerificationRequired, version] = await Promise.all([
+    isEmailVerificationRequired(),
+    getVersion(),
+  ])
 
   const startYear = 2026
   const currentYear = new Date().getFullYear()
@@ -54,7 +56,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          {!(await isProduction()) && <ToggleAdminButton session={session} />}
+          {user && !(await isProduction()) && <ToggleAdminButton user={user} />}
         </div>
 
         {emailVerificationRequired && !user?.emailVerified && (

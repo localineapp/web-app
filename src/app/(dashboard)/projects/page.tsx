@@ -11,15 +11,15 @@ export const metadata: Metadata = {
 }
 
 export default async function ProjectsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  const projects = await getProjects({
-    includeAll: false,
-  })
-
-  const defaultPlan = await getDefaultPlan()
+  const [session, projects, defaultPlan] = await Promise.all([
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+    getProjects({
+      includeAll: false,
+    }),
+    getDefaultPlan(),
+  ])
 
   const user = session?.user
 
@@ -47,7 +47,7 @@ export default async function ProjectsPage() {
 
       <div>
         <ProjectsList
-          session={session}
+          user={user}
           projects={projects}
           defaultPlan={defaultPlan}
         />

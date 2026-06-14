@@ -12,39 +12,39 @@ export const metadata: Metadata = {
 export default async function ApiKeysPage() {
   const requestHeaders = await headers()
 
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
-
-  const apiKeys = await auth.api.listApiKeys({
-    headers: requestHeaders,
-  })
+  const [session, apiKeys] = await Promise.all([
+    auth.api.getSession({
+      headers: requestHeaders,
+    }),
+    auth.api.listApiKeys({
+      headers: requestHeaders,
+    }),
+  ])
 
   const user = session?.user
 
-  const hasUnlimitedApiKeys = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user?.role ?? "user",
-        permissions: {
-          apiKeys: ["unlimited"],
+  const [hasUnlimitedApiKeys, canDisableRateLimiting] = (
+    await Promise.all([
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            apiKeys: ["unlimited"],
+          },
         },
-      },
-    })
-  ).success
-
-  const canDisableRateLimiting = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          apiKeys: ["no-rate-limit"],
+      }),
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            apiKeys: ["no-rate-limit"],
+          },
         },
-      },
-    })
-  ).success
+      }),
+    ])
+  ).map((result) => result.success)
 
   const apiKeysLimit = hasUnlimitedApiKeys ? Infinity : await getApiKeysLimit()
 
@@ -69,7 +69,7 @@ export default async function ApiKeysPage() {
 
       <div>
         <ApiKeysTable
-          apiKeys={apiKeys}
+          apiKeys={apiKeys.apiKeys}
           apiKeysLimit={apiKeysLimit}
           canDisableRateLimiting={canDisableRateLimiting}
         />

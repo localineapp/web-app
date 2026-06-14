@@ -44,9 +44,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { auth } from "@/lib/auth"
 import { authClient, useSession } from "@/lib/auth-client"
-import { UserWithRole } from "better-auth/plugins"
 import {
   AlertTriangleIcon,
   BadgeCheckIcon,
@@ -68,15 +66,18 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { cn } from "@/lib/utils"
+import { UserWithRole } from "better-auth/plugins"
 
 const PAGE_SIZE = 10
 
 export default function UsersTable({
-  session,
+  currentUser,
   users,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  users: Awaited<ReturnType<typeof auth.api.listUsers>>
+  currentUser:
+    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+    | undefined
+  users: UserWithRole[]
 }) {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -84,13 +85,13 @@ export default function UsersTable({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredUsers = normalizedSearchQuery
-    ? users.users.filter(
+    ? users.filter(
         (user) =>
           (user.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (user.name ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (user.email ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : users.users
+    : users
 
   const total = filteredUsers.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -141,7 +142,7 @@ export default function UsersTable({
                     <TableCell className="min-w-40">
                       <div className="flex gap-2">
                         <span className="font-mono text-sm">{user.name}</span>
-                        {user.id === session?.user.id && <Badge>You</Badge>}
+                        {user.id === currentUser?.id && <Badge>You</Badge>}
                       </div>
                     </TableCell>
 
@@ -183,19 +184,19 @@ export default function UsersTable({
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
                         <EditUserSheet
-                          session={session}
+                          currentUser={currentUser}
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
                         />
                         <ImpersonateUserButton
-                          session={session}
+                          currentUser={currentUser}
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
                         />
                         <DeleteUserDialog
-                          session={session}
+                          currentUser={currentUser}
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
@@ -234,12 +235,14 @@ export default function UsersTable({
 }
 
 function EditUserSheet({
-  session,
+  currentUser,
   user,
   loading,
   setLoading,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  currentUser:
+    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+    | undefined
   user: UserWithRole
   loading: boolean
   setLoading: (loading: boolean) => void
@@ -531,7 +534,7 @@ function EditUserSheet({
               Here you can edit the user&rsquo;s details, change their role, or
               ban/unban the user.
             </SheetDescription>
-            {session?.user.id === editingUser?.id && (
+            {editingUser?.id === currentUser?.id && (
               <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                 <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
                 <AlertTitle>Editing Own Profile</AlertTitle>
@@ -732,22 +735,25 @@ function EditUserSheet({
 }
 
 function ImpersonateUserButton({
-  session,
+  currentUser,
   user,
   loading,
   setLoading,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  currentUser:
+    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+    | undefined
   user: UserWithRole
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
 
-  const canImpersonateUser = user.id !== session?.user.id && !user.banned
+  const canImpersonateUser = user.id !== currentUser?.id && !user.banned
 
-  function handleImpersonateUser({ user }: { user: UserWithRole }) {
+  function handleImpersonateUser(user: { id: string; name: string }) {
     setLoading(true)
+
     authClient.admin.impersonateUser({
       userId: user.id,
       fetchOptions: {
@@ -779,8 +785,8 @@ function ImpersonateUserButton({
             variant="outline"
             size="icon"
             className="inline-flex items-center p-1 text-sm"
-            disabled={user.id === session?.user.id || user.banned || loading}
-            onClick={() => handleImpersonateUser({ user })}
+            disabled={user.id === currentUser?.id || user.banned || loading}
+            onClick={() => handleImpersonateUser(user)}
           >
             <ScanFaceIcon size={16} />
           </Button>
@@ -789,7 +795,7 @@ function ImpersonateUserButton({
 
       {!canImpersonateUser && (
         <TooltipContent>
-          {user.id === session?.user.id
+          {user.id === currentUser?.id
             ? "You can't impersonate yourself."
             : "You can't impersonate a banned user."}
         </TooltipContent>
@@ -799,12 +805,14 @@ function ImpersonateUserButton({
 }
 
 function DeleteUserDialog({
-  session,
+  currentUser,
   user,
   loading,
   setLoading,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  currentUser:
+    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+    | undefined
   user: UserWithRole
   loading: boolean
   setLoading: (loading: boolean) => void
@@ -813,9 +821,9 @@ function DeleteUserDialog({
 
   const [deletingUser, setDeletingUser] = useState<UserWithRole | null>(null)
 
-  const canDeleteUser = user.id !== session?.user.id
+  const canDeleteUser = user.id !== currentUser?.id
 
-  async function handleDeleteUser(user: UserWithRole) {
+  async function handleDeleteUser(user: { id: string; name: string }) {
     setLoading(true)
     await authClient.admin.removeUser({
       userId: user.id,

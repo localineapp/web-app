@@ -24,6 +24,8 @@ export default async function ProjectPage({
     headers: await headers(),
   })
 
+  const user = session?.user
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex w-full items-start justify-between gap-4">
@@ -66,7 +68,7 @@ export default async function ProjectPage({
           <div className="flex flex-col gap-2">
             <h2 className="mb-2 text-lg font-medium">Your Membership</h2>
 
-            <MemberInfoCards session={session} project={project} />
+            <MemberInfoCards user={user!} project={project} />
           </div>
         </div>
       </div>

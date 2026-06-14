@@ -20,15 +20,13 @@ import {
 import { toast } from "sonner"
 import { useSession } from "@/lib/auth-client"
 import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 
 export default function ProfileInformationCard({
-  session,
+  user,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
 }) {
-  const user = session?.user
-
   return (
     <Card className="w-full">
       <CardContent className="flex items-center justify-between">
@@ -39,7 +37,7 @@ export default function ProfileInformationCard({
 
         <div className="flex min-w-0 items-center gap-2">
           <p className="min-w-0 font-mono text-sm break-all text-foreground">
-            {user?.id.slice(0, 8)}
+            {user.id.slice(0, 8)}
           </p>
 
           <Button
@@ -48,13 +46,12 @@ export default function ProfileInformationCard({
             className="shrink-0"
             onClick={async () => {
               try {
-                await navigator.clipboard.writeText(user?.id ?? "")
+                await navigator.clipboard.writeText(user.id)
                 toast.success("User ID copied to clipboard.")
               } catch {
                 toast.error("Failed to copy user ID.")
               }
             }}
-            disabled={!user?.id}
           >
             <CopyIcon />
           </Button>
@@ -70,13 +67,13 @@ export default function ProfileInformationCard({
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-foreground">
-          {user?.role === "admin" ? (
+          {user.role === "admin" ? (
             <UserCogIcon className="size-4 shrink-0" />
           ) : (
             <UserIcon className="size-4 shrink-0" />
           )}
           <p className="min-w-0 font-mono text-sm break-all text-foreground capitalize">
-            {user?.role ?? "Unknown"}
+            {user.role ?? "Unknown"}
           </p>
         </div>
       </CardContent>
@@ -90,7 +87,7 @@ export default function ProfileInformationCard({
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground capitalize">
-          {user?.lastLoginMethod ?? "Unknown"}
+          {user.lastLoginMethod ?? "Unknown"}
         </p>
       </CardContent>
 
@@ -103,9 +100,7 @@ export default function ProfileInformationCard({
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
-          {!!user?.projectsLimit
-            ? user.projectsLimit.toLocaleString("en-US")
-            : "Unknown"}
+          {user.projectsLimit.toLocaleString("en-US")}
         </p>
       </CardContent>
 
@@ -118,7 +113,7 @@ export default function ProfileInformationCard({
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-foreground">
-          {user?.emailVerified ? (
+          {user.emailVerified ? (
             <BadgeCheckIcon className="size-4 shrink-0" />
           ) : (
             <BadgeXIcon className="size-4 shrink-0" />
@@ -126,12 +121,12 @@ export default function ProfileInformationCard({
           <p
             className={cn(
               "min-w-0 font-mono text-sm break-all text-foreground capitalize",
-              user?.emailVerified
+              user.emailVerified
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
             )}
           >
-            {user?.emailVerified ? "Yes" : "No"}
+            {user.emailVerified ? "Yes" : "No"}
           </p>
         </div>
       </CardContent>
@@ -145,7 +140,7 @@ export default function ProfileInformationCard({
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-foreground">
-          {user?.banned ? (
+          {user.banned ? (
             <BadgeAlertIcon className="size-4 shrink-0" />
           ) : (
             <BadgeCheckIcon className="size-4 shrink-0" />
@@ -153,12 +148,12 @@ export default function ProfileInformationCard({
           <p
             className={cn(
               "min-w-0 font-mono text-sm break-all text-foreground capitalize",
-              user?.banned
+              user.banned
                 ? "text-red-600 dark:text-red-400"
                 : "text-emerald-600 dark:text-emerald-400"
             )}
           >
-            {user?.banned ? "Yes" : "No"}
+            {user.banned ? "Yes" : "No"}
           </p>
         </div>
       </CardContent>
@@ -172,9 +167,7 @@ export default function ProfileInformationCard({
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
-          {user?.createdAt
-            ? new Date(user.createdAt).toLocaleString()
-            : "Unknown"}
+          {formatDate(user.createdAt)}
         </p>
       </CardContent>
     </Card>

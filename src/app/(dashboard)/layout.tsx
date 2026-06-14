@@ -11,15 +11,18 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const [appName, session, projects] = await Promise.all([
+    getAppName(),
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+    getProjects({
+      includeAll: false,
+    }),
+  ])
 
-  const appName = await getAppName()
-
-  const projects = await getProjects({
-    includeAll: false,
-  })
+  const user = session?.user
+  const isImpersonating = session?.session.impersonatedBy !== null
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -27,7 +30,11 @@ export default async function DashboardLayout({
         <AppSidebar appName={appName} />
 
         <div className="flex flex-1 flex-col overflow-hidden">
-          <AppHeader session={session} projects={projects} />
+          <AppHeader
+            user={user}
+            isImpersonating={isImpersonating}
+            projects={projects}
+          />
 
           <main className="flex-1 overflow-auto bg-muted/30 p-4 lg:p-6">
             {children}

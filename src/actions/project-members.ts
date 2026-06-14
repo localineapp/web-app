@@ -27,7 +27,6 @@ export async function getProjectMembers({
   }
 
   const user = session.user
-
   const canReadAllProjects = (
     await auth.api.userHasPermission({
       body: {

@@ -30,15 +30,13 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function SecurityDetailsCard({
-  session,
-  hasPassword,
+  user,
+  hasCredentialAccount,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  hasPassword: boolean
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+  hasCredentialAccount: boolean
 }) {
   const router = useRouter()
-
-  const user = session?.user
 
   const [loading, setLoading] = useState(false)
   const [isEmailVisible, setEmailVisible] = useState(false)
@@ -240,7 +238,7 @@ export default function SecurityDetailsCard({
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
-          {hasPassword ? (
+          {hasCredentialAccount ? (
             <Dialog
               open={isPasswordDialogOpen}
               onOpenChange={setPasswordDialogOpen}

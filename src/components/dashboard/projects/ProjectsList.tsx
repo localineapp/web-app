@@ -63,23 +63,26 @@ function setCookie(name: string, value: string, days = 365) {
 }
 
 export default function ProjectsList({
-  session,
+  user,
   projects = [],
   defaultPlan,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
   projects: FullProject[]
   defaultPlan: Plan | null
 }) {
   const [view, setView] = useState<"table" | "cards">("table")
   const [page, setPage] = useState<number>(1)
 
-  const projectLimit = session?.user.projectsLimit ?? 0
+  const projectLimit = user?.projectsLimit ?? 0
 
   useEffect(() => {
-    const v = getCookie(COOKIE_NAME)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (v === "cards" || v === "table") setView(v as "cards" | "table")
+    const value = getCookie(COOKIE_NAME)
+
+    if (value === "cards" || value === "table") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setView(value as "cards" | "table")
+    }
   }, [])
 
   function selectView(next: "table" | "cards") {
@@ -136,7 +139,7 @@ export default function ProjectsList({
 
       {view === "table" ? (
         <ProjectsTable
-          session={session}
+          user={user}
           projects={projects}
           page={page}
           setPage={setPage}
@@ -219,11 +222,13 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
 }
 
 export function ProjectsTable({
-  session,
+  user,
   projects,
   page,
   setPage,
-}: { session: ReturnType<typeof useSession>["data"] } & ProjectsListProps) {
+}: {
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
+} & ProjectsListProps) {
   const total = projects.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_TABLE))
   const currentPage = Math.min(page, totalPages)
@@ -251,7 +256,7 @@ export function ProjectsTable({
             {currentProjects.map(
               ({ id, name, description, members, plan: { displayName } }) => {
                 const member = members.find(
-                  (m) => m.userId === session?.user.id
+                  (member) => member.userId === user?.id
                 )
                 return (
                   <TableRow key={id}>

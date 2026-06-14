@@ -8,13 +8,13 @@ import { CalendarIcon, FlagIcon, Globe2Icon, TagIcon } from "lucide-react"
 import { createElement } from "react"
 
 export default function MemberInfoCards({
-  session,
+  user,
   project,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
   project: FullProject
 }) {
-  const member = project.members.find((m) => m.userId === session?.user.id)
+  const member = project.members.find((member) => member.userId === user.id)
   const isMember = !!member
 
   return (

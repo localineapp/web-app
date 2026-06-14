@@ -25,16 +25,16 @@ import { accountNavigationItems } from "@/components/dashboard/navigation-items"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 
 export default function AppHeader({
-  session,
+  user,
+  isImpersonating,
   projects,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
+  isImpersonating: boolean
   projects: Awaited<ReturnType<typeof getProjects>>
 }) {
   const router = useRouter()
   const searchContainerRef = useRef<HTMLDivElement>(null)
-
-  const user = session?.user
 
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -198,29 +198,7 @@ export default function AppHeader({
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              {session?.session.impersonatedBy === null ? (
-                <DropdownMenuItem
-                  variant="destructive"
-                  className={cn(
-                    "cursor-pointer",
-                    loading && "cursor-not-allowed opacity-50"
-                  )}
-                  disabled={loading}
-                  onClick={handleSignOut}
-                >
-                  {loading ? (
-                    <>
-                      <Spinner className="h-4 w-4" aria-hidden />
-                      Signing out...
-                    </>
-                  ) : (
-                    <>
-                      <LogOutIcon className="h-4 w-4" aria-hidden />
-                      Sign Out
-                    </>
-                  )}
-                </DropdownMenuItem>
-              ) : (
+              {isImpersonating ? (
                 <DropdownMenuItem
                   variant="destructive"
                   className={cn(
@@ -239,6 +217,28 @@ export default function AppHeader({
                     <>
                       <UserCog2Icon className="h-4 w-4" aria-hidden />
                       Stop Impersonation
+                    </>
+                  )}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  variant="destructive"
+                  className={cn(
+                    "cursor-pointer",
+                    loading && "cursor-not-allowed opacity-50"
+                  )}
+                  disabled={loading}
+                  onClick={handleSignOut}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner className="h-4 w-4" aria-hidden />
+                      Signing out...
+                    </>
+                  ) : (
+                    <>
+                      <LogOutIcon className="h-4 w-4" aria-hidden />
+                      Sign Out
                     </>
                   )}
                 </DropdownMenuItem>

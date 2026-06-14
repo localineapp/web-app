@@ -6,49 +6,46 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
 export default async function AdminPlansPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  const plans = await getPlans()
+  const [session, plans] = await Promise.all([
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+    getPlans(),
+  ])
 
   const user = session?.user
 
-  const canCreatePlans = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          plans: ["create"],
+  const [canCreatePlans, canUpdatePlans, canDeletePlans] = (
+    await Promise.all([
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            plans: ["create"],
+          },
         },
-      },
-    })
-  ).success
-
-  const canUpdatePlans = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          plans: ["update"],
+      }),
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            plans: ["update"],
+          },
         },
-      },
-    })
-  ).success
-
-  const canDeletePlans = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          plans: ["delete"],
+      }),
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            plans: ["delete"],
+          },
         },
-      },
-    })
-  ).success
+      }),
+    ])
+  ).map((result) => result.success)
 
   const existsDefaultPlan =
     plans.length !== 0 && plans.some((plan) => plan.default)

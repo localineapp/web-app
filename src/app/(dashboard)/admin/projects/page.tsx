@@ -10,22 +10,22 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminProjectsPage() {
-  const projects = await getProjects({
-    includeAll: true,
-  })
-
-  const plans = await getPlans()
-
-  const canUpdatePlan = (
-    await auth.api.userHasPermission({
-      headers: await headers(),
-      body: {
-        permissions: {
-          projects: ["update:plan"],
+  const [projects, plans, canUpdatePlan] = await Promise.all([
+    getProjects({
+      includeAll: true,
+    }),
+    getPlans(),
+    auth.api
+      .userHasPermission({
+        headers: await headers(),
+        body: {
+          permissions: {
+            projects: ["update:plan"],
+          },
         },
-      },
-    })
-  ).success
+      })
+      .then((result) => result.success),
+  ])
 
   return (
     <div className="flex flex-col gap-4">

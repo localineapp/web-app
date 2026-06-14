@@ -11,13 +11,16 @@ export const metadata: Metadata = {
 export default async function PublicProfilePage() {
   const requestHeaders = await headers()
 
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
+  const [session, accounts] = await Promise.all([
+    auth.api.getSession({
+      headers: requestHeaders,
+    }),
+    auth.api.listUserAccounts({
+      headers: requestHeaders,
+    }),
+  ])
 
-  const accounts = await auth.api.listUserAccounts({
-    headers: requestHeaders,
-  })
+  const user = session?.user
 
   const githubAccount = accounts.find(
     (account) => account.providerId === "github"
@@ -34,12 +37,22 @@ export default async function PublicProfilePage() {
       </div>
 
       <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">
-        <div className="w-full min-w-0 xl:flex-1">
-          <ProfileDetailsCard session={session} githubAccount={githubAccount} />
-        </div>
-        <div className="w-full min-w-0 xl:flex-1">
-          <ProfileInformationCard session={session} />
-        </div>
+        {user ? (
+          <>
+            <div className="w-full min-w-0 xl:flex-1">
+              <ProfileDetailsCard user={user} githubAccount={githubAccount} />
+            </div>
+            <div className="w-full min-w-0 xl:flex-1">
+              <ProfileInformationCard user={user} />
+            </div>
+          </>
+        ) : (
+          <div className="w-full rounded-lg border bg-popover p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              No user information available.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

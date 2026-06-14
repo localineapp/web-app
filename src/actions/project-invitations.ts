@@ -1,6 +1,6 @@
 "use server"
 
-import { ProjectInvitation } from "@prisma/client"
+import { ProjectInvitation, ProjectMember } from "@prisma/client"
 import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { prisma } from "@/lib/prisma"
@@ -28,7 +28,7 @@ export async function getProjectInvitations(
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
@@ -45,7 +45,7 @@ export async function getProjectInvitation(
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
@@ -122,12 +122,12 @@ export async function acceptProjectInvitation({
   token,
 }: {
   token: string
-}): Promise<ProjectInvitationWithProject> {
+}): Promise<[ProjectInvitationWithProject, ProjectMember]> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
@@ -160,22 +160,24 @@ export async function acceptProjectInvitation({
     )
   }
 
-  await prisma.projectMember.create({
-    data: {
-      id: generateId(),
-      projectId: invitation.projectId,
-      userId: session.user.id,
-      roleId: invitation.roleId,
-    },
-  })
-  return await prisma.projectInvitation.delete({
-    where: {
-      id: invitation.id,
-    },
-    include: {
-      project: true,
-    },
-  })
+  return [
+    await prisma.projectInvitation.delete({
+      where: {
+        id: invitation.id,
+      },
+      include: {
+        project: true,
+      },
+    }),
+    await prisma.projectMember.create({
+      data: {
+        id: generateId(),
+        projectId: invitation.projectId,
+        userId: session.user.id,
+        roleId: invitation.roleId,
+      },
+    }),
+  ]
 }
 
 export async function declineProjectInvitation({
@@ -187,7 +189,7 @@ export async function declineProjectInvitation({
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 

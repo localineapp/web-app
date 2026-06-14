@@ -22,13 +22,14 @@ export async function getLocales({
     return unauthorized()
   }
 
+  const user = session.user
+
   if (
     includeDisabled &&
     !(await auth.api.userHasPermission({
-      headers: await headers(),
       body: {
         // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: session.user.role ?? "user",
+        role: user.role ?? "user",
         permissions: {
           locales: ["read:disabled"],
         },

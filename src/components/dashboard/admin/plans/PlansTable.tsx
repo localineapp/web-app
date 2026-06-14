@@ -117,7 +117,11 @@ export default function PlansTable({
   const currentPlans = filteredPlans.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  async function handleUpdateDefaultPlan(plan: Plan) {
+  async function handleUpdateDefaultPlan(plan: {
+    id: string
+    displayName: string
+    default?: boolean
+  }) {
     if (plan.default) {
       toast.error(
         `Plan ${plan.displayName} (${plan.id.slice(0, 8)}) is already the default plan.`

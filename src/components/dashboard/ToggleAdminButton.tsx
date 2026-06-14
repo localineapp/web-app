@@ -14,13 +14,11 @@ import {
 } from "@/components/ui/tooltip"
 
 export default function ToggleAdminButton({
-  session,
+  user,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
 }) {
   const router = useRouter()
-
-  const user = session?.user
 
   const [loading, setLoading] = useState(false)
 

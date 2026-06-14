@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
 import { CopyIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -20,19 +19,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { authClient, useSession } from "@/lib/auth-client"
-import { auth } from "@/lib/auth"
+import { authClient } from "@/lib/auth-client"
 import TablePagination from "@/components/dashboard/TablePagination"
+import { Session } from "better-auth"
+import { formatDate } from "@/lib/utils"
 
 const PAGE_SIZE = 10
-
-function formatDate(value: Date | string) {
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) return "Unknown"
-
-  return format(date, "PP p")
-}
 
 function getDeviceLabel(userAgent?: string | null) {
   if (!userAgent) return "Unknown device"
@@ -66,17 +58,15 @@ function getBrowserLabel(userAgent?: string | null) {
 }
 
 export default function SessionsTable({
-  session,
+  currentSession,
   sessions,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  sessions: Awaited<ReturnType<typeof auth.api.listSessions>>
+  currentSession: Session | undefined
+  sessions: Session[]
 }) {
   const router = useRouter()
 
   const [page, setPage] = useState(1)
-
-  const currentSessionId = session?.session?.id
 
   const total = sessions.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -129,7 +119,7 @@ export default function SessionsTable({
           <TableBody>
             {currentSessions.length > 0 ? (
               currentSessions.map((session) => {
-                const isCurrentSession = session.id === currentSessionId
+                const isCurrentSession = session.id === currentSession?.id
                 const browserLabel = getBrowserLabel(session.userAgent)
 
                 return (

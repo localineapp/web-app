@@ -6,51 +6,48 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
 export default async function AdminLocalesPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  const locales = await getLocales({
-    includeDisabled: true,
-  })
+  const [session, locales] = await Promise.all([
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+    getLocales({
+      includeDisabled: true,
+    }),
+  ])
 
   const user = session?.user
 
-  const canCreateLocales = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          locales: ["create"],
+  const [canCreateLocales, canUpdateLocales, canDeleteLocales] = (
+    await Promise.all([
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user?.role ?? "user",
+          permissions: {
+            locales: ["create"],
+          },
         },
-      },
-    })
-  ).success
-
-  const canUpdateLocales = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          locales: ["update"],
+      }),
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            locales: ["update"],
+          },
         },
-      },
-    })
-  ).success
-
-  const canDeleteLocales = (
-    await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          locales: ["delete"],
+      }),
+      auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            locales: ["delete"],
+          },
         },
-      },
-    })
-  ).success
+      }),
+    ])
+  ).map((result) => result.success)
 
   return (
     <div className="flex flex-col gap-4">

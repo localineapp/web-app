@@ -23,7 +23,7 @@ export async function upsertProjectTranslation({
   if (
     member &&
     member.locales.length > 0 &&
-    !member.locales.some((l) => l.localeId === localeId)
+    !member.locales.some((locale) => locale.localeId === localeId)
   ) {
     throw new Error("You don't have access to translate this locale.")
   }

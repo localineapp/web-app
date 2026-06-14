@@ -15,13 +15,11 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function DataExportCard({
-  session,
-}: {
-  session: ReturnType<typeof useSession>["data"]
-}) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const user = session?.user
-
+  user,
+}: {
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+}) {
   const [loading, setLoading] = useState(false)
 
   const handleDataExport = async (event: MouseEvent<HTMLButtonElement>) => {

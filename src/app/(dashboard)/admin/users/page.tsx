@@ -10,17 +10,22 @@ export const metadata: Metadata = {
 export default async function AdminUsersPage() {
   const requestHeaders = await headers()
 
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
+  const [session, users] = await Promise.all([
+    auth.api.getSession({
+      headers: requestHeaders,
+    }),
+    auth.api
+      .listUsers({
+        headers: requestHeaders,
+        query: {
+          sortBy: "createdAt",
+          sortDirection: "asc",
+        },
+      })
+      .then((users) => users.users),
+  ])
 
-  const users = await auth.api.listUsers({
-    headers: requestHeaders,
-    query: {
-      sortBy: "createdAt",
-      sortDirection: "asc",
-    },
-  })
+  const user = session?.user
 
   return (
     <div className="flex flex-col gap-4">
@@ -32,7 +37,7 @@ export default async function AdminUsersPage() {
       </div>
 
       <div>
-        <UsersTable session={session} users={users} />
+        <UsersTable currentUser={user} users={users} />
       </div>
     </div>
   )

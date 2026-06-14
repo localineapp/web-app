@@ -75,13 +75,13 @@ import { toast } from "sonner"
 const PAGE_SIZE = 10
 
 export default function MembersTable({
-  session,
+  user,
   project,
   projectMembers,
   canUpdateMembers,
   canRemoveMembers,
 }: {
-  session: ReturnType<typeof useSession>["data"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
   project: FullProject
   projectMembers: ProjectMemberWithUserAndRole[]
   canUpdateMembers: boolean
@@ -90,8 +90,6 @@ export default function MembersTable({
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-
-  const user = session?.user
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjectMembers = normalizedSearchQuery
@@ -214,7 +212,7 @@ export default function MembersTable({
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
                         <EditMemberRoleDialog
-                          user={user!}
+                          user={user}
                           project={project}
                           projectMember={projectMember}
                           canUpdateMembers={canUpdateMembers}
@@ -229,7 +227,7 @@ export default function MembersTable({
                           setLoading={setLoading}
                         />
                         <RemoveMemberDialog
-                          user={user!}
+                          user={user}
                           projectMember={projectMember}
                           canRemoveMembers={canRemoveMembers}
                           isOwner={isOwner}
@@ -277,7 +275,7 @@ function EditMemberRoleDialog({
   loading,
   setLoading,
 }: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
   project: FullProject
   projectMember: ProjectMemberWithUserAndRole
   canUpdateMembers: boolean
@@ -371,7 +369,7 @@ function EditMemberRoleDialog({
       </Tooltip>
 
       <DialogContent
-        className={cn(editingMember?.user.id === user.id && "sm:max-w-130")}
+        className={cn(editingMember?.user.id === user?.id && "sm:max-w-130")}
       >
         <DialogHeader>
           <DialogTitle>Update Member Role</DialogTitle>
@@ -625,7 +623,7 @@ function RemoveMemberDialog({
   loading,
   setLoading,
 }: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
   projectMember: ProjectMemberWithUserAndRole
   canRemoveMembers: boolean
   isOwner: boolean
@@ -715,7 +713,7 @@ function RemoveMemberDialog({
               .
             </AlertDialogDescription>
 
-            {removingMember?.user.id === user.id && (
+            {removingMember?.user.id === user?.id && (
               <Alert className="mt-4 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                 <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
                 <AlertTitle>Removing Own Membership</AlertTitle>

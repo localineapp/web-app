@@ -34,6 +34,7 @@ import { useRouter } from "next/navigation"
 import { MouseEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { Account } from "better-auth"
 
 type AvatarSource = "none" | "gravatar" | "github" | "custom"
 
@@ -73,25 +74,14 @@ function getAvatarSource({
 }
 
 export default function ProfileDetailsCard({
-  session,
+  user,
   githubAccount,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  githubAccount:
-    | {
-        scopes: string[]
-        id: string
-        createdAt: Date
-        updatedAt: Date
-        userId: string
-        providerId: string
-        accountId: string
-      }
-    | undefined
+  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
+  githubAccount: Account | undefined
 }) {
   const router = useRouter()
 
-  const user = session?.user
   const currentAvatarUrl = user?.image || undefined
   const currentAvatarSource = getAvatarSource({ currentAvatarUrl })
 

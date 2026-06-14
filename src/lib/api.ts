@@ -18,13 +18,9 @@ export function validateRequest<T = {}>(
     adminPermission,
   }: {
     permission?: ProjectPermissionValue
-    adminPermission?: Parameters<
-      typeof auth.api.userHasPermission
-    >[0] extends undefined
-      ? never
-      : NonNullable<
-          Parameters<typeof auth.api.userHasPermission>[0]
-        >["body"]["permissions"]
+    adminPermission?: NonNullable<
+      Parameters<typeof auth.api.userHasPermission>[0]
+    >["body"]["permissions"]
   },
   handler: (
     request: NextRequest,
