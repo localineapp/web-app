@@ -2,6 +2,7 @@
 
 import { FullProject } from "@/types/project"
 import { createContext, useContext } from "react"
+import { useSession } from "@/components/session-provider"
 
 const ProjectContext = createContext<FullProject | null>(null)
 
@@ -19,12 +20,18 @@ export function ProjectProvider({
   )
 }
 
-export function useProject() {
+export function useProject(): {
+  project: FullProject
+  member: FullProject["members"][number] | undefined
+} {
   const project = useContext(ProjectContext)
 
   if (!project) {
     throw new Error("useProject must be used within ProjectProvider")
   }
 
-  return project
+  const { user } = useSession()
+  const member = project.members.find((member) => member.userId === user.id)
+
+  return { project, member }
 }

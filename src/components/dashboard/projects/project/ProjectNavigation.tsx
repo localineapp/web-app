@@ -12,7 +12,7 @@ export default function ProjectNavigation({
   description?: string
   href?: string
 }) {
-  const project = useProject()
+  const { project } = useProject()
 
   return (
     <div className="flex w-full items-center gap-4">
@@ -23,7 +23,9 @@ export default function ProjectNavigation({
       </Button>
 
       <div>
-        <h1 className="text-3xl font-bold">{project?.name}</h1>
+        <h1 className="text-3xl font-bold">
+          {project?.name ?? "Invalid Project"}
+        </h1>
         <p className="text-muted-foreground">
           {description ?? project?.description ?? "No description."}
         </p>
