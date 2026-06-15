@@ -1,3 +1,5 @@
+"use client"
+
 import { useProject } from "@/components/project-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
