@@ -1,5 +1,3 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -9,31 +7,30 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { GlobeIcon, GlobeOffIcon } from "lucide-react"
+import { AlertTriangleIcon, HomeIcon } from "lucide-react"
 import Link from "next/link"
 
-export default function NoLocalesEmpty() {
+export default function NotFoundPage() {
   return (
     <div className="flex min-h-full flex-col">
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <GlobeOffIcon />
+            <AlertTriangleIcon />
           </EmptyMedia>
 
-          <EmptyTitle className="text-4xl">No Locales</EmptyTitle>
+          <EmptyTitle className="text-4xl">Project Not Found</EmptyTitle>
 
           <EmptyDescription className="text-lg">
-            In order to add translations, you need at least one locale being
-            added to your project.
+            The project you are looking for does not exist.
           </EmptyDescription>
         </EmptyHeader>
 
         <EmptyContent className="flex-row justify-center gap-2">
           <Button asChild size="lg">
-            <Link href="locales">
-              <GlobeIcon className="mr-2 h-5 w-5" />
-              Go to Locales
+            <Link href="/">
+              <HomeIcon className="mr-2 h-5 w-5" />
+              Go back to dashboard
             </Link>
           </Button>
         </EmptyContent>
