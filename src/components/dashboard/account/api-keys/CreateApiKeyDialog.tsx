@@ -1,5 +1,6 @@
 "use client"
 
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -33,13 +34,12 @@ import { toast } from "sonner"
 export default function CreateApiKeyDialog({
   apiKeysCount,
   apiKeysLimit,
-  canDisableRateLimiting,
 }: {
   apiKeysCount: number
   apiKeysLimit: number
-  canDisableRateLimiting: boolean
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
@@ -49,7 +49,24 @@ export default function CreateApiKeyDialog({
 
   const [apiKey, setApiKey] = useState("")
 
-  const canCreateApiKey = apiKeysCount < apiKeysLimit
+  const hasUnlimitedApiKeys = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user.role ?? "user",
+    permissions: {
+      apiKeys: ["unlimited"],
+    },
+  })
+
+  const canDisableRateLimiting = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user.role ?? "user",
+    permissions: {
+      apiKeys: ["no-rate-limit"],
+    },
+  })
+
+  const userApiKeysLimit = hasUnlimitedApiKeys ? Infinity : apiKeysLimit
+  const canCreateApiKey = apiKeysCount < userApiKeysLimit
 
   const handleCreateApiKey = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -57,9 +74,9 @@ export default function CreateApiKeyDialog({
 
     if (!canCreateApiKey) {
       toast.error(
-        apiKeysLimit === 0
+        userApiKeysLimit === 0
           ? "The API key limit for your account is currently set to 0."
-          : `You have reached your API key limit (${apiKeysCount}/${apiKeysLimit})`
+          : `You have reached your API key limit (${apiKeysCount}/${userApiKeysLimit})`
       )
       setLoading(false)
       setName("")
@@ -113,9 +130,9 @@ export default function CreateApiKeyDialog({
         </TooltipTrigger>
         {!canCreateApiKey && (
           <TooltipContent>
-            {apiKeysLimit === 0
+            {userApiKeysLimit === 0
               ? "The administrator of this system has set the API key limit to 0."
-              : `You have reached your API key limit (${apiKeysCount}/${apiKeysLimit})`}
+              : `You have reached your API key limit (${apiKeysCount}/${userApiKeysLimit})`}
           </TooltipContent>
         )}
       </Tooltip>

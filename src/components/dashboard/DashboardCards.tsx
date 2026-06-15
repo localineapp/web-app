@@ -28,20 +28,32 @@ import {
 } from "@/components/ui/dialog"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { authClient } from "@/lib/auth-client"
+import { useSession } from "@/components/session-provider"
 
 function formatVersion(version: string) {
   return version.replace(/^v/, "")
 }
 
 export default function DashboardCards({
+  emailVerificationRequired,
   currentVersion,
-  canViewUpdateNotification,
 }: {
+  emailVerificationRequired: boolean
   currentVersion: string
-  canViewUpdateNotification: boolean
 }) {
+  const { user } = useSession()
+
   const [latestRelease, setLatestRelease] = useState<string | null>(null)
   const [changelog, setChangelog] = useState<string | null>(null)
+
+  const canViewUpdateNotification = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user.role ?? "user",
+    permissions: {
+      dashboard: ["updates"],
+    },
+  })
 
   useEffect(() => {
     const fetchLatestRelease = async () => {
@@ -89,6 +101,20 @@ export default function DashboardCards({
 
   return (
     <>
+      {emailVerificationRequired && !user?.emailVerified && (
+        <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
+          <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
+
+          <AlertTitle>Email Verification Required</AlertTitle>
+
+          <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
+            Please verify your email address to access all features. Check your
+            inbox for the verification email. If you didn&rsquo;t receive it,
+            please check your spam folder or contact your administrator.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {hasUpdate && (
         <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
           <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />

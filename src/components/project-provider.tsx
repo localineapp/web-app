@@ -4,7 +4,7 @@ import { FullProject } from "@/types/project"
 import { createContext, useContext } from "react"
 import { useSession } from "@/components/session-provider"
 
-const ProjectContext = createContext<FullProject | null>(null)
+const ProjectContext = createContext<FullProject | undefined>(undefined)
 
 export function ProjectProvider({
   project,
@@ -31,7 +31,7 @@ export function useProject(): {
   }
 
   const { user } = useSession()
-  const member = project.members.find((member) => member.userId === user.id)
+  const member = project.members.find((member) => member.userId === user?.id)
 
   return { project, member }
 }

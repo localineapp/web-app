@@ -5,7 +5,7 @@ import { createContext, useContext } from "react"
 
 type Session = Awaited<ReturnType<typeof auth.api.getSession>>
 
-const SessionContext = createContext<Session>(null)
+const SessionContext = createContext<Session | null>(null)
 
 export function SessionProvider({
   session,
@@ -21,12 +21,18 @@ export function SessionProvider({
   )
 }
 
-export function useSession() {
+export function useSession(): {
+  session?: NonNullable<Session>["session"]
+  user?: NonNullable<Session>["user"]
+} {
   const session = useContext(SessionContext)
 
   if (!session) {
     throw new Error("useSession must be used within SessionProvider")
   }
 
-  return session
+  return {
+    session: session.session,
+    user: session.user,
+  }
 }

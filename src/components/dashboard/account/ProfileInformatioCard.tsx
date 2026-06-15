@@ -18,15 +18,25 @@ import {
   UserIcon,
 } from "lucide-react"
 import { toast } from "sonner"
-import { useSession } from "@/lib/auth-client"
 import { Separator } from "@/components/ui/separator"
 import { cn, formatDate } from "@/lib/utils"
+import { useSession } from "@/components/session-provider"
+import { Spinner } from "@/components/ui/spinner"
 
-export default function ProfileInformationCard({
-  user,
-}: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"]
-}) {
+export default function ProfileInformationCard() {
+  const { user } = useSession()
+
+  if (!user) {
+    return (
+      <Card className="w-full">
+        <CardContent className="flex items-center justify-center gap-2">
+          <Spinner />
+          <p>Loading user information...</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card className="w-full">
       <CardContent className="flex items-center justify-between">

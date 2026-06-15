@@ -10,43 +10,12 @@ export const metadata: Metadata = {
 }
 
 export default async function ApiKeysPage() {
-  const requestHeaders = await headers()
-
-  const [session, apiKeys] = await Promise.all([
-    auth.api.getSession({
-      headers: requestHeaders,
-    }),
+  const [apiKeys, apiKeysLimit] = await Promise.all([
     auth.api.listApiKeys({
-      headers: requestHeaders,
+      headers: await headers(),
     }),
+    getApiKeysLimit(),
   ])
-
-  const user = session?.user
-
-  const [hasUnlimitedApiKeys, canDisableRateLimiting] = (
-    await Promise.all([
-      auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            apiKeys: ["unlimited"],
-          },
-        },
-      }),
-      auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            apiKeys: ["no-rate-limit"],
-          },
-        },
-      }),
-    ])
-  ).map((result) => result.success)
-
-  const apiKeysLimit = hasUnlimitedApiKeys ? Infinity : await getApiKeysLimit()
 
   return (
     <div className="flex flex-col gap-4">
@@ -62,17 +31,12 @@ export default async function ApiKeysPage() {
           <CreateApiKeyDialog
             apiKeysCount={apiKeys.total}
             apiKeysLimit={apiKeysLimit}
-            canDisableRateLimiting={canDisableRateLimiting}
           />
         </div>
       </div>
 
       <div>
-        <ApiKeysTable
-          apiKeys={apiKeys.apiKeys}
-          apiKeysLimit={apiKeysLimit}
-          canDisableRateLimiting={canDisableRateLimiting}
-        />
+        <ApiKeysTable apiKeys={apiKeys.apiKeys} apiKeysLimit={apiKeysLimit} />
       </div>
     </div>
   )
