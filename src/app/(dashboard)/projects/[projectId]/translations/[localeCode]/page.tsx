@@ -67,7 +67,20 @@ export default async function ProjectTranslationsPage({
     !member ||
     (hasPermission(member.role.permissions, ProjectPermission.TRANSLATE) &&
       (member.locales.length === 0 ||
-        member.locales.some((ml) => ml.localeId === locale.id)))
+        member.locales.some(
+          (memberLocale) => memberLocale.localeId === locale.id
+        ))) ||
+    (
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            projects: ["update"],
+          },
+        },
+      })
+    ).success
 
   return (
     <div className="flex flex-col gap-4">
