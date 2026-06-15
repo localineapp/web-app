@@ -8,10 +8,12 @@ import LocalineLogo from "@/components/logo"
 import { getAppName } from "@/actions/get-env"
 
 export default async function NotFoundPage() {
-  const appName = await getAppName()
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const [appName, session] = await Promise.all([
+    getAppName(),
+    auth.api.getSession({
+      headers: await headers(),
+    }),
+  ])
   const isAuthenticated = !!session?.session
 
   return (

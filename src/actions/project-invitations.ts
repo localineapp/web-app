@@ -194,10 +194,13 @@ export async function declineProjectInvitation({
   }
 
   const encryptedToken = isEncrypted(token) ? token : encrypt(token)
-  const invitation = await prisma.projectInvitation.findUnique({
+  const invitation = await prisma.projectInvitation.delete({
     where: {
       token: encryptedToken,
       email: session.user.email,
+    },
+    include: {
+      project: true,
     },
   })
 
@@ -205,12 +208,5 @@ export async function declineProjectInvitation({
     return notFound()
   }
 
-  return await prisma.projectInvitation.delete({
-    where: {
-      id: invitation.id,
-    },
-    include: {
-      project: true,
-    },
-  })
+  return invitation
 }
