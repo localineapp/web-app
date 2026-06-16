@@ -2,6 +2,11 @@ import { getLocales } from "@/actions/locales"
 import CreateLocaleDialog from "@/components/dashboard/admin/locales/CreateLocaleDialog"
 import ImportLocalesDialog from "@/components/dashboard/admin/locales/ImportLocalesDialog"
 import LocalesTable from "@/components/dashboard/admin/locales/LocalesTable"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Locales",
+}
 
 export default async function AdminLocalesPage() {
   const locales = await getLocales({

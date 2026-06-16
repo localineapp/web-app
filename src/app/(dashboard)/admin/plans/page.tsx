@@ -2,6 +2,11 @@ import { getPlans } from "@/actions/plans"
 import CreatePlanDialog from "@/components/dashboard/admin/plans/CreatePlanDialog"
 import PlanPresetsDialog from "@/components/dashboard/admin/plans/PlanPresetsDialog"
 import PlansTable from "@/components/dashboard/admin/plans/PlansTable"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Plans",
+}
 
 export default async function AdminPlansPage() {
   const plans = await getPlans()
