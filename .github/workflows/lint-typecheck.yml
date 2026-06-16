@@ -2,15 +2,11 @@ name: Lint & Typecheck
 
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+    branches:
+      - "**"
 
 jobs:
   lint-typecheck:
-    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     steps:
