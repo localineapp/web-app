@@ -75,20 +75,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { useSession } from "@/components/session-provider"
+import { authClient } from "@/lib/auth-client"
 
 const PAGE_SIZE = 10
 
 export default function PlansTable({
   plans,
-  canCreatePlans,
-  canUpdatePlans,
-  canDeletePlans,
   existsDefaultPlan,
 }: {
   plans: Plan[]
-  canCreatePlans: boolean
-  canUpdatePlans: boolean
-  canDeletePlans: boolean
   existsDefaultPlan: boolean
 }) {
   const router = useRouter()
@@ -160,7 +156,7 @@ export default function PlansTable({
 
           <EmptyDescription className="grid gap-2">
             There have been no plans created yet.
-            <CreatePlanDialog canCreatePlans={canCreatePlans} />
+            <CreatePlanDialog />
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -288,13 +284,11 @@ export default function PlansTable({
                     <div className="flex items-center justify-center gap-2">
                       <EditPlanSheet
                         plan={plan}
-                        canUpdatePlans={canUpdatePlans}
                         loading={loading}
                         setLoading={setLoading}
                       />
                       <DeletePlanDialog
                         plan={plan}
-                        canDeletePlans={canDeletePlans}
                         loading={loading}
                         setLoading={setLoading}
                       />
@@ -332,16 +326,15 @@ export default function PlansTable({
 
 function EditPlanSheet({
   plan,
-  canUpdatePlans,
   loading,
   setLoading,
 }: {
   plan: Plan
-  canUpdatePlans: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
 
@@ -351,6 +344,14 @@ function EditPlanSheet({
   const [termsLimit, setTermsLimit] = useState<number | null>(null)
   const [labelsLimit, setLabelsLimit] = useState<number | null>(null)
   const [membersLimit, setMembersLimit] = useState<number | null>(null)
+
+  const canUpdatePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      plans: ["update"],
+    },
+  })
 
   function openEditor(plan: Plan) {
     setDisplayName(plan.displayName ?? "")
@@ -575,18 +576,25 @@ function EditPlanSheet({
 
 function DeletePlanDialog({
   plan,
-  canDeletePlans,
   loading,
   setLoading,
 }: {
   plan: Plan
-  canDeletePlans: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
+
+  const canDeletePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      plans: ["delete"],
+    },
+  })
 
   async function handleDeletePlan(plan: Plan) {
     setLoading(true)

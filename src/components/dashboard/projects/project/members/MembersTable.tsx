@@ -51,11 +51,9 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip"
-import { useSession } from "@/lib/auth-client"
 import { generateRoleBadge } from "@/lib/project-utils"
 import { cn, formatDate } from "@/lib/utils"
 import {
-  FullProject,
   ProjectLocaleWithLocale,
   ProjectMemberWithUserAndRole,
 } from "@/types/project"
@@ -71,29 +69,28 @@ import {
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useSession } from "@/components/session-provider"
+import { useProject } from "@/components/project-provider"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { authClient } from "@/lib/auth-client"
 
 const PAGE_SIZE = 10
 
 export default function MembersTable({
-  user,
-  project,
-  projectMembers,
-  canUpdateMembers,
-  canRemoveMembers,
+  members,
 }: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
-  project: FullProject
-  projectMembers: ProjectMemberWithUserAndRole[]
-  canUpdateMembers: boolean
-  canRemoveMembers: boolean
+  members: ProjectMemberWithUserAndRole[]
 }) {
+  const { user } = useSession()
+  const { project } = useProject()
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
-  const filteredProjectMembers = normalizedSearchQuery
-    ? projectMembers.filter(
+  const filteredMembers = normalizedSearchQuery
+    ? members.filter(
         (projectMember) =>
           (projectMember.id ?? "")
             .toLowerCase()
@@ -105,17 +102,14 @@ export default function MembersTable({
             .toLowerCase()
             .includes(normalizedSearchQuery)
       )
-    : projectMembers
+    : members
 
-  const total = filteredProjectMembers.length
+  const total = filteredMembers.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const startIndex = (currentPage - 1) * PAGE_SIZE
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
-  const currentProjectMembers = filteredProjectMembers.slice(
-    startIndex,
-    endIndex
-  )
+  const currentMembers = filteredMembers.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
   return (
@@ -148,8 +142,8 @@ export default function MembersTable({
           </TableHeader>
 
           <TableBody>
-            {currentProjectMembers.length > 0 ? (
-              currentProjectMembers.map((projectMember) => {
+            {currentMembers.length > 0 ? (
+              currentMembers.map((projectMember) => {
                 const isOwner = projectMember.role.id === project.id
                 return (
                   <TableRow key={projectMember.id}>
@@ -171,11 +165,12 @@ export default function MembersTable({
                           E-Mail:{" "}
                           <span
                             className={cn(
-                              projectMember.user.email ===
-                                "hidden@localine.app" && "blur-xs"
+                              projectMember.user.email === "" && "blur-xs"
                             )}
                           >
-                            {projectMember.user.email}
+                            {projectMember.user.email ||
+                              projectMember.user.id.slice(0, 8) +
+                                "@localine.app"}
                           </span>
                         </span>
                       </div>
@@ -212,24 +207,19 @@ export default function MembersTable({
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
                         <EditMemberRoleDialog
-                          user={user}
-                          project={project}
                           projectMember={projectMember}
-                          canUpdateMembers={canUpdateMembers}
+                          isOwner={isOwner}
                           loading={loading}
                           setLoading={setLoading}
                         />
                         <EditMemberLocalesDialog
-                          project={project}
                           projectMember={projectMember}
-                          canUpdateMembers={canUpdateMembers}
+                          isOwner={isOwner}
                           loading={loading}
                           setLoading={setLoading}
                         />
                         <RemoveMemberDialog
-                          user={user}
                           projectMember={projectMember}
-                          canRemoveMembers={canRemoveMembers}
                           isOwner={isOwner}
                           loading={loading}
                           setLoading={setLoading}
@@ -268,28 +258,37 @@ export default function MembersTable({
 }
 
 function EditMemberRoleDialog({
-  user,
-  project,
   projectMember,
-  canUpdateMembers,
+  isOwner,
   loading,
   setLoading,
 }: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
-  project: FullProject
   projectMember: ProjectMemberWithUserAndRole
-  canUpdateMembers: boolean
+  isOwner: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [editingMember, setEditingMember] =
     useState<ProjectMemberWithUserAndRole | null>()
 
   const [role, setRole] = useState<ProjectMemberRole | null>(projectMember.role)
 
-  const isOwner = projectMember.role.id === project.id
+  const canUpdateMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.UPDATE_MEMBERS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   function openDialog(projectMember: ProjectMemberWithUserAndRole) {
     setEditingMember(projectMember)
@@ -457,19 +456,19 @@ function EditMemberRoleDialog({
 }
 
 function EditMemberLocalesDialog({
-  project,
   projectMember,
-  canUpdateMembers,
+  isOwner,
   loading,
   setLoading,
 }: {
-  project: FullProject
   projectMember: ProjectMemberWithUserAndRole
-  canUpdateMembers: boolean
+  isOwner: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [editingMember, setEditingMember] =
     useState<ProjectMemberWithUserAndRole | null>()
@@ -478,7 +477,18 @@ function EditMemberLocalesDialog({
     projectMember.locales
   )
 
-  const isOwner = projectMember.role.id === project.id
+  const canUpdateMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.UPDATE_MEMBERS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   function openDialog(projectMember: ProjectMemberWithUserAndRole) {
     setEditingMember(projectMember)
@@ -616,24 +626,35 @@ function EditMemberLocalesDialog({
 }
 
 function RemoveMemberDialog({
-  user,
   projectMember,
-  canRemoveMembers,
   isOwner,
   loading,
   setLoading,
 }: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
   projectMember: ProjectMemberWithUserAndRole
-  canRemoveMembers: boolean
   isOwner: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
+  const { member } = useProject()
 
   const [removingMember, setRemovingMember] =
     useState<ProjectMemberWithUserAndRole | null>(null)
+
+  const canRemoveMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.REMOVE_MEMBERS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   async function handleRemoveMember(currentMember: ProjectMember) {
     setLoading(true)

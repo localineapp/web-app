@@ -60,11 +60,9 @@ const PAGE_SIZE = 10
 export default function ApiKeysTable({
   apiKeys,
   apiKeysLimit,
-  canDisableRateLimiting,
 }: {
   apiKeys: ApiKey[]
   apiKeysLimit: number
-  canDisableRateLimiting: boolean
 }) {
   const router = useRouter()
 
@@ -126,7 +124,6 @@ export default function ApiKeysTable({
             <CreateApiKeyDialog
               apiKeysCount={apiKeys.length}
               apiKeysLimit={apiKeysLimit}
-              canDisableRateLimiting={canDisableRateLimiting}
             />
           </EmptyDescription>
         </EmptyHeader>

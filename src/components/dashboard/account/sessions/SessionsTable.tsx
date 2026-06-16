@@ -23,6 +23,7 @@ import { authClient } from "@/lib/auth-client"
 import TablePagination from "@/components/dashboard/TablePagination"
 import { Session } from "better-auth"
 import { formatDate } from "@/lib/utils"
+import { useSession } from "@/components/session-provider"
 
 const PAGE_SIZE = 10
 
@@ -57,14 +58,9 @@ function getBrowserLabel(userAgent?: string | null) {
   return null
 }
 
-export default function SessionsTable({
-  currentSession,
-  sessions,
-}: {
-  currentSession: Session | undefined
-  sessions: Session[]
-}) {
+export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   const router = useRouter()
+  const { session: currentSession } = useSession()
 
   const [page, setPage] = useState(1)
 

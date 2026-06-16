@@ -1,6 +1,7 @@
 "use client"
 
 import { createLocale } from "@/actions/locales"
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,23 +20,29 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
-export default function CreateLocaleDialog({
-  canCreateLocales,
-}: {
-  canCreateLocales: boolean
-}) {
+export default function CreateLocaleDialog() {
   const router = useRouter()
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [language, setLanguage] = useState("")
   const [region, setRegion] = useState<string | null>(null)
   const [code, setCode] = useState("")
+
+  const canCreateLocales = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      locales: ["create"],
+    },
+  })
 
   const handleCreateLocale = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()

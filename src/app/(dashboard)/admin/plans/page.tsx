@@ -2,53 +2,10 @@ import { getPlans } from "@/actions/plans"
 import CreatePlanDialog from "@/components/dashboard/admin/plans/CreatePlanDialog"
 import PlanPresetsDialog from "@/components/dashboard/admin/plans/PlanPresetsDialog"
 import PlansTable from "@/components/dashboard/admin/plans/PlansTable"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
 
 export default async function AdminPlansPage() {
-  const [session, plans] = await Promise.all([
-    auth.api.getSession({
-      headers: await headers(),
-    }),
-    getPlans(),
-  ])
-
-  const user = session?.user
-
-  const [canCreatePlans, canUpdatePlans, canDeletePlans] = (
-    await Promise.all([
-      auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            plans: ["create"],
-          },
-        },
-      }),
-      auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            plans: ["update"],
-          },
-        },
-      }),
-      auth.api.userHasPermission({
-        body: {
-          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
-          permissions: {
-            plans: ["delete"],
-          },
-        },
-      }),
-    ])
-  ).map((result) => result.success)
-
-  const existsDefaultPlan =
-    plans.length !== 0 && plans.some((plan) => plan.default)
+  const plans = await getPlans()
+  const existsDefaultPlan = plans.some((plan) => plan.default)
 
   return (
     <div className="flex flex-col gap-4">
@@ -61,19 +18,13 @@ export default async function AdminPlansPage() {
         </div>
 
         <div className="flex gap-2">
-          <PlanPresetsDialog plans={plans} canCreatePlans={canCreatePlans} />
-          <CreatePlanDialog canCreatePlans={canCreatePlans} />
+          <PlanPresetsDialog plans={plans} />
+          <CreatePlanDialog />
         </div>
       </div>
 
       <div>
-        <PlansTable
-          plans={plans}
-          canCreatePlans={canCreatePlans}
-          canUpdatePlans={canUpdatePlans}
-          canDeletePlans={canDeletePlans}
-          existsDefaultPlan={existsDefaultPlan}
-        />
+        <PlansTable plans={plans} existsDefaultPlan={existsDefaultPlan} />
       </div>
     </div>
   )

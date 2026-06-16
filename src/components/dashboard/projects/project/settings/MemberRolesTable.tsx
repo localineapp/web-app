@@ -56,6 +56,7 @@ import {
   ProjectPermission,
   ProjectPermissionValue,
   getPermissions,
+  hasPermission,
 } from "@/lib/project-permissions"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
@@ -74,6 +75,9 @@ import {
   deleteProjectMemberRole,
   updateProjectMemberRole,
 } from "@/actions/project-member-roles"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
+import { authClient } from "@/lib/auth-client"
 
 const PAGE_SIZE = 10
 
@@ -180,18 +184,20 @@ const PERMISSION_GROUPS: {
 
 const PERMISSION_ITEMS = PERMISSION_GROUPS.flatMap((group) => group.items)
 
-export default function MemberRolesTable({
-  project,
-  memberRoles,
-  canManageRoles,
-}: {
-  project: Project
-  memberRoles: ProjectMemberRole[]
-  canManageRoles: boolean
-}) {
+export default function MemberRolesTable() {
+  const { user } = useSession()
+  const { project, member } = useProject()
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+
+  const memberRoles = project.memberRoles.sort((a, b) => {
+    if (a.id === project.id) return -1
+    if (b.id === project.id) return 1
+
+    return Number(b.permissions) - Number(a.permissions)
+  })
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredMemberRoles = normalizedSearchQuery
@@ -209,6 +215,19 @@ export default function MemberRolesTable({
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentRoles = filteredMemberRoles.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  const canManageRoles =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_ROLES
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   return (
     <>

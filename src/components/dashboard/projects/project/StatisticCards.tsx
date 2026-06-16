@@ -1,6 +1,8 @@
+"use client"
+
+import { useProject } from "@/components/project-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { FullProject } from "@/types/project"
 import {
   ClockAlertIcon,
   GlobeIcon,
@@ -9,7 +11,9 @@ import {
   UsersIcon,
 } from "lucide-react"
 
-export default function StatisticCards({ project }: { project: FullProject }) {
+export default function StatisticCards() {
+  const { project } = useProject()
+
   const terms = project?.terms
   const locales = project?.locales
   const members = project?.members
