@@ -1,11 +1,11 @@
 import { getProjectInvitation } from "@/actions/project-invitations"
 import BackgroundPattern from "@/components/background-pattern"
-import {
-  InvitationExpired,
-  InvitationNotFound,
-} from "@/components/dashboard/projects/invitations/InvitationAlerts"
 import InvitationInformation from "@/components/dashboard/projects/invitations/InvitationInformation"
+import { Button } from "@/components/ui/button"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { AlertTriangleIcon, CalendarClockIcon, HomeIcon } from "lucide-react"
 import { Metadata } from "next"
+import Link from "next/link"
 
 export async function generateMetadata({
   params,
@@ -39,7 +39,28 @@ export default async function InvitationsPage({
   if (!invitation) {
     return (
       <div className="flex min-h-full flex-col">
-        <InvitationNotFound />
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <AlertTriangleIcon />
+            </EmptyMedia>
+
+            <EmptyTitle className="text-4xl">Invitation Not Found</EmptyTitle>
+
+            <EmptyDescription className="text-lg">
+              The invitation you are looking for does not exist.
+            </EmptyDescription>
+          </EmptyHeader>
+
+          <EmptyContent className="flex-row justify-center gap-2">
+            <Button asChild size="lg">
+              <Link href="/">
+                <HomeIcon className="mr-2 h-5 w-5" />
+                Go back to dashboard
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
       </div>
     )
   }
@@ -47,7 +68,28 @@ export default async function InvitationsPage({
   if (invitation.expiresAt < new Date()) {
     return (
       <div className="flex min-h-full flex-col">
-        <InvitationExpired />
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <CalendarClockIcon />
+            </EmptyMedia>
+
+            <EmptyTitle className="text-4xl">Invitation Expired</EmptyTitle>
+
+            <EmptyDescription className="text-lg">
+              This invitation has expired and can no longer be accepted.
+            </EmptyDescription>
+          </EmptyHeader>
+
+          <EmptyContent className="flex-row justify-center gap-2">
+            <Button asChild size="lg">
+              <Link href="/">
+                <HomeIcon className="mr-2 h-5 w-5" />
+                Go back to dashboard
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
       </div>
     )
   }
