@@ -274,12 +274,14 @@ function DeleteApiKeyDialog({
   const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
 
   async function handleDeleteApiKey(apiKey: {
+    configId: string
     id: string
     name: string | null
   }) {
     setLoading(true)
 
     await authClient.apiKey.delete({
+      configId: apiKey.configId,
       keyId: apiKey.id,
       fetchOptions: {
         onSuccess: () => {
