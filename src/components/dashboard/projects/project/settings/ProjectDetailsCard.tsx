@@ -47,7 +47,7 @@ export default function ProjectDetailsCard() {
   const canManageProject =
     hasPermission(
       member?.role.permissions ?? 0n,
-      ProjectPermission.MANAGE_LOCALES
+      ProjectPermission.MANAGE_PROJECT
     ) ||
     authClient.admin.checkRolePermission({
       // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
