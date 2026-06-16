@@ -347,7 +347,7 @@ function EditPlanSheet({
 
   const canUpdatePlans = authClient.admin.checkRolePermission({
     // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user.role ?? "user",
+    role: user?.role ?? "user",
     permissions: {
       plans: ["update"],
     },
@@ -590,7 +590,7 @@ function DeletePlanDialog({
 
   const canDeletePlans = authClient.admin.checkRolePermission({
     // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user.role ?? "user",
+    role: user?.role ?? "user",
     permissions: {
       plans: ["delete"],
     },

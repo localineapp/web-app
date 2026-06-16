@@ -38,7 +38,7 @@ export default function CreateLocaleDialog() {
 
   const canCreateLocales = authClient.admin.checkRolePermission({
     // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user.role ?? "user",
+    role: user?.role ?? "user",
     permissions: {
       locales: ["create"],
     },

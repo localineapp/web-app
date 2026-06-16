@@ -51,7 +51,7 @@ export default function CreateApiKeyDialog({
 
   const hasUnlimitedApiKeys = authClient.admin.checkRolePermission({
     // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user.role ?? "user",
+    role: user?.role ?? "user",
     permissions: {
       apiKeys: ["unlimited"],
     },
@@ -59,7 +59,7 @@ export default function CreateApiKeyDialog({
 
   const canDisableRateLimiting = authClient.admin.checkRolePermission({
     // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user.role ?? "user",
+    role: user?.role ?? "user",
     permissions: {
       apiKeys: ["no-rate-limit"],
     },

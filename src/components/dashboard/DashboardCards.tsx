@@ -49,7 +49,7 @@ export default function DashboardCards({
 
   const canViewUpdateNotification = authClient.admin.checkRolePermission({
     // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user.role ?? "user",
+    role: user?.role ?? "user",
     permissions: {
       dashboard: ["updates"],
     },

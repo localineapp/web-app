@@ -36,7 +36,7 @@ export default async function ProjectMembersPage({
       await auth.api.userHasPermission({
         body: {
           // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
+          role: user?.role ?? "user",
           permissions: {
             projects: ["update"],
           },
@@ -53,7 +53,7 @@ export default async function ProjectMembersPage({
       await auth.api.userHasPermission({
         body: {
           // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
+          role: user?.role ?? "user",
           permissions: {
             projects: ["update"],
           },
@@ -70,7 +70,7 @@ export default async function ProjectMembersPage({
       await auth.api.userHasPermission({
         body: {
           // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-          role: user.role ?? "user",
+          role: user?.role ?? "user",
           permissions: {
             projects: ["update"],
           },

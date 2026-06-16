@@ -302,15 +302,14 @@ function EditUserSheet({
 
     if (!editingUser) return
 
-    const currentUser = editingUser
-    const initialName = currentUser.name?.trim() ?? ""
-    const initialEmail = currentUser.email?.trim() ?? ""
-    const initialEmailVerified = Boolean(currentUser.emailVerified)
-    const initialRole = currentUser.role === "admin" ? "admin" : "user"
-    const initialBanned = Boolean(currentUser.banned)
-    const initialBanReason = (currentUser.banReason ?? "").trim()
-    const initialBanExpires = toDateTimeLocalValue(currentUser.banExpires)
-    const initialProjectsLimit = getProjectsLimit(currentUser)
+    const initialName = editingUser.name?.trim() ?? ""
+    const initialEmail = editingUser.email?.trim() ?? ""
+    const initialEmailVerified = Boolean(editingUser.emailVerified)
+    const initialRole = editingUser.role === "admin" ? "admin" : "user"
+    const initialBanned = Boolean(editingUser.banned)
+    const initialBanReason = (editingUser.banReason ?? "").trim()
+    const initialBanExpires = toDateTimeLocalValue(editingUser.banExpires)
+    const initialProjectsLimit = getProjectsLimit(editingUser)
 
     const currentName = name.trim()
     const currentEmail = email.trim()
@@ -392,7 +391,7 @@ function EditUserSheet({
 
       if (Object.keys(updateData).length > 0) {
         const updateResult = await authClient.admin.updateUser({
-          userId: currentUser.id,
+          userId: editingUser.id,
           data: updateData,
         })
 
@@ -406,7 +405,7 @@ function EditUserSheet({
 
       if (role !== initialRole) {
         const roleResult = await authClient.admin.setRole({
-          userId: currentUser.id,
+          userId: editingUser.id,
           role,
         })
 
@@ -420,7 +419,7 @@ function EditUserSheet({
 
       if (currentPassword !== "") {
         const passwordResult = await authClient.admin.setUserPassword({
-          userId: currentUser.id,
+          userId: editingUser.id,
           newPassword: currentPassword,
         })
 
@@ -447,7 +446,7 @@ function EditUserSheet({
                 )
 
           const banResult = await authClient.admin.banUser({
-            userId: currentUser.id,
+            userId: editingUser.id,
             banReason: currentBanReason || undefined,
             banExpiresIn,
           })
@@ -460,7 +459,7 @@ function EditUserSheet({
           }
         } else {
           const unbanResult = await authClient.admin.unbanUser({
-            userId: currentUser.id,
+            userId: editingUser.id,
           })
 
           if (unbanResult.error) {
@@ -472,7 +471,7 @@ function EditUserSheet({
         }
       }
 
-      toast.success(`Updated ${currentName} (${currentUser.id.slice(0, 8)}).`)
+      toast.success(`Updated ${currentName} (${editingUser.id.slice(0, 8)}).`)
       closeEditor()
       router.refresh()
     } catch (error) {
