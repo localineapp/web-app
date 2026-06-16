@@ -1,6 +1,11 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import DeleteProjectCard from "@/components/dashboard/projects/project/settings/DeleteProjectCard"
 import ProjectDetailsCard from "@/components/dashboard/projects/project/settings/ProjectDetailsCard"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Settings",
+}
 
 export default async function ProjectGeneralSettingsPage() {
   return (

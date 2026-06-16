@@ -19,7 +19,10 @@ export async function generateMetadata({
   }
 
   return {
-    title: { default: project.name, template: `%s | ${project.name}` },
+    title: {
+      default: project.name,
+      template: `%s | ${project.name} | Localine`,
+    },
     robots: "noindex",
   }
 }

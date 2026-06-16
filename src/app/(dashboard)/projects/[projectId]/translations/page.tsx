@@ -1,5 +1,10 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import LocalesCards from "@/components/dashboard/projects/project/translations/LocalesCards"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Translations",
+}
 
 export default async function ProjectTranslationsPage() {
   return (

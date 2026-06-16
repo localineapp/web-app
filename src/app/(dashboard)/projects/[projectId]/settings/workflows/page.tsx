@@ -1,4 +1,9 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Workflows",
+}
 
 export default async function ProjectWorkflowSettingsPage() {
   return (

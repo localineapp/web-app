@@ -1,5 +1,10 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import TranslationsCard from "@/components/dashboard/projects/project/translations/TranslationsCard"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Translate",
+}
 
 export default async function ProjectTranslationsPage({
   params,

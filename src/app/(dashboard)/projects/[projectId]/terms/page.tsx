@@ -1,6 +1,11 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import CreateTermDialog from "@/components/dashboard/projects/project/terms/CreateTermDialog"
 import TermsTable from "@/components/dashboard/projects/project/terms/TermsTable"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Terms",
+}
 
 export default async function ProjectTermsPage() {
   return (

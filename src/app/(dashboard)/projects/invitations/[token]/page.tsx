@@ -2,7 +2,14 @@ import { getProjectInvitation } from "@/actions/project-invitations"
 import BackgroundPattern from "@/components/background-pattern"
 import InvitationInformation from "@/components/dashboard/projects/invitations/InvitationInformation"
 import { Button } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { AlertTriangleIcon, CalendarClockIcon, HomeIcon } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"

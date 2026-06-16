@@ -3,6 +3,11 @@ import InvitationsDialog from "@/components/dashboard/projects/project/members/I
 import InviteMemberDialog from "@/components/dashboard/projects/project/members/InviteMemberDialog"
 import MembersTable from "@/components/dashboard/projects/project/members/MembersTable"
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Members",
+}
 
 export default async function ProjectMembersPage({
   params,

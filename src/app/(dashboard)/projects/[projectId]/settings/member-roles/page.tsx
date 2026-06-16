@@ -1,6 +1,11 @@
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import CreateMemberRoleDialog from "@/components/dashboard/projects/project/settings/CreateMemberRoleDialog"
 import MemberRolesTable from "@/components/dashboard/projects/project/settings/MemberRolesTable"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Member Roles",
+}
 
 export default async function ProjectMemberRoleSettingsPage() {
   return (
