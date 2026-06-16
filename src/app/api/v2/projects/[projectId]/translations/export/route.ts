@@ -18,11 +18,6 @@ export const GET = validateRequest<{ projectId: string }>(
   async (request, _, { project }) => {
     const searchParams = new URL(request.url).searchParams
 
-    console.log(
-      "Exporting translations with params:",
-      Object.fromEntries(searchParams.entries())
-    )
-
     try {
       const { inverted } = QuerySchema.parse(
         Object.fromEntries(searchParams.entries())
@@ -31,16 +26,16 @@ export const GET = validateRequest<{ projectId: string }>(
       const terms = project?.terms || []
       const locales = project?.locales || []
 
-      const localeCodes = locales.map((l) => ({
-        id: l.id,
-        code: l.locale?.code ?? l.localeId ?? l.id,
+      const localeCodes = locales.map(({ id, locale }) => ({
+        id,
+        code: locale.code ?? id ?? locale.id,
       }))
 
       const termMaps = terms.map((term) => {
         const map = new Map<string, string>()
 
-        for (const t of term.translations) {
-          map.set(t.localeId, t.value)
+        for (const { localeId, value } of term.translations) {
+          map.set(localeId, value)
         }
 
         return {
