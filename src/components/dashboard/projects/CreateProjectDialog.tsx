@@ -41,7 +41,7 @@ export default function CreateProjectDialog({
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
 
-  const projectLimit = user?.projectsLimit ?? 0
+  const projectLimit = user?.projectsLimit ?? Infinity;
   const canCreateProject = projectCount < projectLimit
 
   const handleCreateProject = async (event: MouseEvent<HTMLButtonElement>) => {
