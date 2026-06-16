@@ -44,7 +44,7 @@ export default function LocalesCards() {
 
           <EmptyContent className="flex-row justify-center gap-2">
             <Button asChild size="lg">
-              <Link href="locales">
+              <Link href={`/projects/${project.id}/locales`}>
                 <GlobeIcon className="mr-2 h-5 w-5" />
                 Go to Locales
               </Link>
