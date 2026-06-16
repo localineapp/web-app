@@ -110,7 +110,9 @@ export default function ProfileInformationCard() {
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
-          {user.projectsLimit.toLocaleString("en-US")}
+          {user.projectsLimit !== null
+            ? user.projectsLimit.toLocaleString("en-US")
+            : "Unlimited"}
         </p>
       </CardContent>
 

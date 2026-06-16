@@ -192,7 +192,7 @@ export default function MemberRolesTable() {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const memberRoles = project.memberRoles.sort((a, b) => {
+  const memberRoles = [...project.memberRoles].sort((a, b) => {
     if (a.id === project.id) return -1
     if (b.id === project.id) return 1
 

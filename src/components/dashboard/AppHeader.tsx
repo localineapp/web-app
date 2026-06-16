@@ -4,7 +4,7 @@ import { LogOutIcon, SearchIcon, UserCog2Icon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useEffect, useRef, useState } from "react"
-import { authClient, signOut, useSession } from "@/lib/auth-client"
+import { authClient, signOut } from "@/lib/auth-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeModeSelector } from "@/components/theme-provider"
 import {
@@ -23,17 +23,16 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { getProjects } from "@/actions/projects"
 import { accountNavigationItems } from "@/components/dashboard/navigation-items"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
+import { useSession } from "@/components/session-provider"
 
 export default function AppHeader({
-  user,
-  isImpersonating,
   projects,
 }: {
-  user: NonNullable<ReturnType<typeof useSession>["data"]>["user"] | undefined
-  isImpersonating: boolean
   projects: Awaited<ReturnType<typeof getProjects>>
 }) {
   const router = useRouter()
+  const { session, user } = useSession()
+
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   const [loading, setLoading] = useState(false)
@@ -198,7 +197,7 @@ export default function AppHeader({
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              {isImpersonating ? (
+              {session?.impersonatedBy != null ? (
                 <DropdownMenuItem
                   variant="destructive"
                   className={cn(

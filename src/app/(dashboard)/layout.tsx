@@ -22,9 +22,6 @@ export default async function DashboardLayout({
     }),
   ])
 
-  const user = session?.user
-  const isImpersonating = session?.session.impersonatedBy !== null
-
   return (
     <div className="flex h-screen overflow-hidden">
       <SessionProvider session={session}>
@@ -32,11 +29,7 @@ export default async function DashboardLayout({
           <AppSidebar appName={appName} />
 
           <div className="flex flex-1 flex-col overflow-hidden">
-            <AppHeader
-              user={user}
-              isImpersonating={isImpersonating}
-              projects={projects}
-            />
+            <AppHeader projects={projects} />
 
             <main className="flex-1 overflow-auto bg-muted/30 p-4 lg:p-6">
               {children}
