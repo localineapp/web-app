@@ -4,7 +4,6 @@ import {
   Project,
   ProjectInvitation,
   ProjectLocale,
-  ProjectMember,
   ProjectMemberRole,
   ProjectTerm,
   ProjectTranslation,

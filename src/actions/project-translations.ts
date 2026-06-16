@@ -30,7 +30,11 @@ export async function upsertProjectTranslation({
   }
 
   const term = project.terms.find(({ id }) => id === termId)
-  if (term?.locked && (member && !hasPermission(member.role.permissions, ProjectPermission.TRANSLATE_LOCKED))) {
+  if (
+    term?.locked &&
+    member &&
+    !hasPermission(member.role.permissions, ProjectPermission.TRANSLATE_LOCKED)
+  ) {
     throw new Error("You don't have permission to translate locked terms.")
   }
 

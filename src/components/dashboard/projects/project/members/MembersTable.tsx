@@ -53,10 +53,7 @@ import {
 } from "@/components/ui/tooltip"
 import { generateRoleBadge } from "@/lib/project-utils"
 import { cn, formatDate } from "@/lib/utils"
-import {
-  FullProjectMember,
-  ProjectLocaleWithLocale,
-} from "@/types/project"
+import { FullProjectMember, ProjectLocaleWithLocale } from "@/types/project"
 import { ProjectMember, ProjectMemberRole } from "@prisma/client"
 import {
   AlertTriangleIcon,
@@ -498,9 +495,7 @@ function EditMemberLocalesDialog({
     setLocales([])
   }
 
-  async function handleUpdateLocales(
-    projectMember: FullProjectMember
-  ) {
+  async function handleUpdateLocales(projectMember: FullProjectMember) {
     setLoading(true)
     if (!locales) return
 
@@ -638,7 +633,8 @@ function RemoveMemberDialog({
   const { user } = useSession()
   const { member } = useProject()
 
-  const [removingMember, setRemovingMember] = useState<FullProjectMember | null>(null)
+  const [removingMember, setRemovingMember] =
+    useState<FullProjectMember | null>(null)
 
   const canRemoveMembers =
     hasPermission(

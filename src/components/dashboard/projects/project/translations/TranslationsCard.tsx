@@ -103,7 +103,9 @@ export default function TranslationsCard({
     (hasPermission(
       member?.role.permissions ?? 0n,
       ProjectPermission.TRANSLATE
-    ) && (member?.locales.length === 0 || member?.locales.some(({ id }) => id === locale.id))) ||
+    ) &&
+      (member?.locales.length === 0 ||
+        member?.locales.some(({ id }) => id === locale.id))) ||
     authClient.admin.checkRolePermission({
       // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
       role: user?.role ?? "user",
@@ -181,8 +183,8 @@ function TranslationsCardContent({
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjectTerms = normalizedSearchQuery
     ? terms.filter((term) =>
-      (term.key ?? "").toLowerCase().includes(normalizedSearchQuery)
-    )
+        (term.key ?? "").toLowerCase().includes(normalizedSearchQuery)
+      )
     : terms
 
   const total = filteredProjectTerms.length

@@ -5,10 +5,7 @@ import { canManageProjectFeature } from "@/actions/projects"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import {
-  FullProjectMember,
-  projectMemberArgs,
-} from "@/types/project"
+import { FullProjectMember, projectMemberArgs } from "@/types/project"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { updateMember } from "@/services/project-members"
