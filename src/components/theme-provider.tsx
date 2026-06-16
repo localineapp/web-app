@@ -1,6 +1,9 @@
 "use client"
 
-import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
+import {
+  ThemeProvider as NextThemesProvider,
+  useTheme,
+} from "@teispace/next-themes"
 import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from "lucide-react"
 import {
   DropdownMenu,
