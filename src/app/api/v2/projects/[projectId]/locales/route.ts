@@ -1,6 +1,8 @@
 import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
+import { auth } from "@/lib/auth"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { toJsonSafe } from "@/lib/utils"
+import { LocalesService } from "@/services/locales"
 import { addLocale } from "@/services/project-locales"
 import z from "zod"
 
@@ -27,7 +29,7 @@ export const POST = validateRequest<{ projectId: string }>(
   {
     permission: ProjectPermission.MANAGE_LOCALES,
   },
-  async (request, _, { project }) => {
+  async (request, _, { user, project }) => {
     const body = await request.json()
 
     try {
@@ -36,6 +38,28 @@ export const POST = validateRequest<{ projectId: string }>(
           localeId: z.string().max(255),
         })
         .parse(body)
+
+      const locale = await LocalesService.getLocale(localeId)
+
+      if (!locale) {
+        throw new Error(`Locale with ID "${localeId}" does not exist.`)
+      }
+
+      if (!locale.enabled) {
+        const hasPermission = (await auth.api.userHasPermission({
+          body: {
+            // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+            role: user.role ?? "user",
+            permissions: {
+              locales: ["read:disabled"],
+            },
+          },
+        })).success
+
+        if (!hasPermission) {
+          throw new Error(`Locale with ID "${localeId}" does not exist.`)
+        }
+      }
 
       const newLocale = await addLocale({
         project: project!,

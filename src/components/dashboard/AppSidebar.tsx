@@ -49,8 +49,13 @@ import {
 } from "@/components/ui/hover-card"
 import { useIsMobile } from "@/hooks/use-mobile"
 
-const isActive = (pathname: string, href: string) => {
+const isActive = (pathname: string, href: string, matchSubRoutes = false) => {
   if (!pathname) return false
+
+  if (matchSubRoutes) {
+    return pathname === href || pathname.startsWith(href + "/")
+  }
+
   return pathname === href
 }
 
@@ -168,7 +173,7 @@ function InvitationsMenu({
 
   return (
     <>
-      {(isActive(pathname, "/projects/invitations") ||
+      {(isActive(pathname, "/projects/invitations", true) ||
         invitations.length > 0) && (
         <SidebarGroup>
           <SidebarMenu>
@@ -277,10 +282,12 @@ function ProjectMenu({
   const [project, setProject] = useState<Project | null>(null)
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false)
 
-  const isProjectPage = projectNavigationItems.some(({ href }) => {
-    const projectHref = href.replace("[projectId]", project?.id || "")
-    return isActive(pathname, projectHref)
-  })
+  const isProjectPage = projectNavigationItems.some(
+    ({ href, matchSubRoutes }) => {
+      const projectHref = href.replace("[projectId]", project?.id || "")
+      return isActive(pathname, projectHref, matchSubRoutes)
+    }
+  )
 
   const isProjectSettingsPage = projectSettingsNavigationItems.some(
     ({ href }) => {
@@ -314,40 +321,42 @@ function ProjectMenu({
           {isExpanded && <SidebarGroupLabel>{project.name}</SidebarGroupLabel>}
 
           <SidebarMenu>
-            {projectNavigationItems.map(({ name, icon: Icon, href }) => {
-              const projectHref = href.replace("[projectId]", project.id)
-              return (
-                <SidebarMenuItem key={name}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton
-                        asChild
-                        size="sm"
-                        className={cn(
-                          "w-full justify-start gap-4 py-4 text-base font-medium",
-                          isActive(pathname, projectHref)
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-accent hover:text-accent-foreground"
-                        )}
-                      >
-                        <Link
-                          href={projectHref}
-                          passHref
-                          onClick={handleLinkClick}
+            {projectNavigationItems.map(
+              ({ name, icon: Icon, href, matchSubRoutes }) => {
+                const projectHref = href.replace("[projectId]", project.id)
+                return (
+                  <SidebarMenuItem key={name}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <SidebarMenuButton
+                          asChild
+                          size="sm"
+                          className={cn(
+                            "w-full justify-start gap-4 py-4 text-base font-medium",
+                            isActive(pathname, projectHref, matchSubRoutes)
+                              ? "bg-primary/10 text-primary"
+                              : "hover:bg-accent hover:text-accent-foreground"
+                          )}
                         >
-                          <Icon className="h-4 w-4" />
-                          {name}
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
+                          <Link
+                            href={projectHref}
+                            passHref
+                            onClick={handleLinkClick}
+                          >
+                            <Icon className="h-4 w-4" />
+                            {name}
+                          </Link>
+                        </SidebarMenuButton>
+                      </TooltipTrigger>
 
-                    {!isExpanded && (
-                      <TooltipContent side="right">{name}</TooltipContent>
-                    )}
-                  </Tooltip>
-                </SidebarMenuItem>
-              )
-            })}
+                      {!isExpanded && (
+                        <TooltipContent side="right">{name}</TooltipContent>
+                      )}
+                    </Tooltip>
+                  </SidebarMenuItem>
+                )
+              }
+            )}
 
             {isExpanded ? (
               <Collapsible

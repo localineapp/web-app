@@ -37,6 +37,7 @@ export async function canManageProjectFeature({
         Parameters<typeof auth.api.userHasPermission>[0]
       >["body"]["permissions"]
 }): Promise<{
+  user: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"]
   project: FullProject
   member: ProjectMemberWithLocales | undefined
 }> {
@@ -75,6 +76,7 @@ export async function canManageProjectFeature({
   }
 
   return {
+    user,
     project,
     member,
   }
