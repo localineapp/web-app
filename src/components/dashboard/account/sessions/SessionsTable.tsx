@@ -62,6 +62,7 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   const router = useRouter()
   const { session: currentSession } = useSession()
 
+  const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
 
   const total = sessions.length
@@ -81,18 +82,22 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
     }
   }
 
-  function handleRevokeSession(token: string) {
-    authClient.revokeSession({
+  async function handleRevokeSession(token: string) {
+    setLoading(true)
+
+    await authClient.revokeSession({
       token,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Session revoked.")
+          setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
             error?.message || "Failed to revoke session. Please try again."
           )
+          setLoading(false)
         },
       },
     })
@@ -205,6 +210,7 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                             variant="destructive"
                             size="icon"
                             className="inline-flex items-center p-1 text-sm"
+                            disabled={loading}
                             onClick={(event) => {
                               event.preventDefault()
                               void handleRevokeSession(session.token)
