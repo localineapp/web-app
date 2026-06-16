@@ -54,8 +54,8 @@ import {
 import { generateRoleBadge } from "@/lib/project-utils"
 import { cn, formatDate } from "@/lib/utils"
 import {
+  FullProjectMember,
   ProjectLocaleWithLocale,
-  ProjectMemberWithUserAndRole,
 } from "@/types/project"
 import { ProjectMember, ProjectMemberRole } from "@prisma/client"
 import {
@@ -79,7 +79,7 @@ const PAGE_SIZE = 10
 export default function MembersTable({
   members,
 }: {
-  members: ProjectMemberWithUserAndRole[]
+  members: FullProjectMember[]
 }) {
   const { user } = useSession()
   const { project } = useProject()
@@ -263,7 +263,7 @@ function EditMemberRoleDialog({
   loading,
   setLoading,
 }: {
-  projectMember: ProjectMemberWithUserAndRole
+  projectMember: FullProjectMember
   isOwner: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
@@ -272,8 +272,7 @@ function EditMemberRoleDialog({
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [editingMember, setEditingMember] =
-    useState<ProjectMemberWithUserAndRole | null>()
+  const [editingMember, setEditingMember] = useState<FullProjectMember | null>()
 
   const [role, setRole] = useState<ProjectMemberRole | null>(projectMember.role)
 
@@ -290,7 +289,7 @@ function EditMemberRoleDialog({
       },
     })
 
-  function openDialog(projectMember: ProjectMemberWithUserAndRole) {
+  function openDialog(projectMember: FullProjectMember) {
     setEditingMember(projectMember)
     setRole(projectMember.role)
   }
@@ -300,7 +299,7 @@ function EditMemberRoleDialog({
     setRole(null)
   }
 
-  async function handleUpdateRole(projectMember: ProjectMemberWithUserAndRole) {
+  async function handleUpdateRole(projectMember: FullProjectMember) {
     setLoading(true)
     if (!role) return
 
@@ -461,7 +460,7 @@ function EditMemberLocalesDialog({
   loading,
   setLoading,
 }: {
-  projectMember: ProjectMemberWithUserAndRole
+  projectMember: FullProjectMember
   isOwner: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
@@ -470,8 +469,7 @@ function EditMemberLocalesDialog({
   const { user } = useSession()
   const { project, member } = useProject()
 
-  const [editingMember, setEditingMember] =
-    useState<ProjectMemberWithUserAndRole | null>()
+  const [editingMember, setEditingMember] = useState<FullProjectMember | null>()
 
   const [locales, setLocales] = useState<ProjectLocaleWithLocale[]>(
     projectMember.locales
@@ -490,7 +488,7 @@ function EditMemberLocalesDialog({
       },
     })
 
-  function openDialog(projectMember: ProjectMemberWithUserAndRole) {
+  function openDialog(projectMember: FullProjectMember) {
     setEditingMember(projectMember)
     setLocales(projectMember.locales)
   }
@@ -501,7 +499,7 @@ function EditMemberLocalesDialog({
   }
 
   async function handleUpdateLocales(
-    projectMember: ProjectMemberWithUserAndRole
+    projectMember: FullProjectMember
   ) {
     setLoading(true)
     if (!locales) return
@@ -631,7 +629,7 @@ function RemoveMemberDialog({
   loading,
   setLoading,
 }: {
-  projectMember: ProjectMemberWithUserAndRole
+  projectMember: FullProjectMember
   isOwner: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
@@ -640,8 +638,7 @@ function RemoveMemberDialog({
   const { user } = useSession()
   const { member } = useProject()
 
-  const [removingMember, setRemovingMember] =
-    useState<ProjectMemberWithUserAndRole | null>(null)
+  const [removingMember, setRemovingMember] = useState<FullProjectMember | null>(null)
 
   const canRemoveMembers =
     hasPermission(

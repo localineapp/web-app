@@ -15,7 +15,7 @@ import {
 import {
   FullProject,
   fullProjectArgs,
-  ProjectMemberWithLocales,
+  FullProjectMember,
 } from "@/types/project"
 import { findProject } from "@/lib/project"
 import { getMany, getOne, update } from "@/services/projects"
@@ -39,7 +39,7 @@ export async function canManageProjectFeature({
 }): Promise<{
   user: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"]
   project: FullProject
-  member: ProjectMemberWithLocales | undefined
+  member: FullProjectMember | undefined
 }> {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -78,6 +78,7 @@ export async function canManageProjectFeature({
   return {
     user,
     project,
+    // @ts-expect-error - there is an email field expected on the member's user, but it's not included in the type definition.
     member,
   }
 }

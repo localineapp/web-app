@@ -105,13 +105,9 @@ export type ProjectTranslationWithTerm = ProjectTranslation & {
 
 export type ProjectLocaleWithLocale = ProjectLocale & { locale: Locale }
 
-export type ProjectMemberWithUserAndRole = Prisma.ProjectMemberGetPayload<{
+export type FullProjectMember = Prisma.ProjectMemberGetPayload<{
   include: typeof projectMemberArgs.include
 }>
-
-export type ProjectMemberWithLocales = ProjectMember & {
-  locales: ProjectLocaleWithLocale[]
-}
 
 export type ProjectInvitationWithProject = ProjectInvitation & {
   project: Project

@@ -6,8 +6,8 @@ import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import {
+  FullProjectMember,
   projectMemberArgs,
-  ProjectMemberWithUserAndRole,
 } from "@/types/project"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
@@ -17,7 +17,7 @@ export async function getProjectMembers({
   projectId,
 }: {
   projectId: string
-}): Promise<ProjectMemberWithUserAndRole[]> {
+}): Promise<FullProjectMember[]> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -205,7 +205,7 @@ export async function removeProjectMember({
 }: {
   projectId: string
   memberId: string
-}): Promise<ProjectMemberWithUserAndRole> {
+}): Promise<FullProjectMember> {
   const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.REMOVE_MEMBERS,
