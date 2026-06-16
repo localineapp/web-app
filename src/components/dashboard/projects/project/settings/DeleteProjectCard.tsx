@@ -1,6 +1,8 @@
 "use client"
 
 import { deleteProject } from "@/actions/projects"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -27,24 +29,30 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
-import { Project } from "@prisma/client"
 import { TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
-export default function DeleteProjectCard({
-  project,
-  canDeleteProject,
-}: {
-  project: Project
-  canDeleteProject: boolean
-}) {
+export default function DeleteProjectCard() {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
+
+  const canDeleteProject =
+    member?.roleId === project.id ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["delete"],
+      },
+    })
 
   const handleDeleteAccount = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()

@@ -60,30 +60,29 @@ import {
   deleteProjectLabel,
   updateProjectLabel,
 } from "@/actions/project-labels"
+import { authClient } from "@/lib/auth-client"
+import { useSession } from "@/components/session-provider"
+import { useProject } from "@/components/project-provider"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 
 const PAGE_SIZE = 10
 
-export default function LabelsTable({
-  projectId,
-  labels,
-  canManageLabels,
-}: {
-  projectId: string
-  labels: ProjectLabel[]
-  canManageLabels: boolean
-}) {
+export default function LabelsTable() {
+  const { user } = useSession()
+  const { project, member } = useProject()
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredLabels = normalizedSearchQuery
-    ? labels.filter(
+    ? project.labels.filter(
         (label) =>
           (label.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (label.name ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : labels
+    : project.labels
 
   const total = filteredLabels.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -92,6 +91,19 @@ export default function LabelsTable({
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentLabels = filteredLabels.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  const canManageLabels =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_LABELS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   return (
     <>
@@ -190,14 +202,14 @@ export default function LabelsTable({
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
                       <EditLabelSheet
-                        projectId={projectId}
+                        projectId={project.id}
                         label={label}
                         canUpdateLabels={canManageLabels}
                         loading={loading}
                         setLoading={setLoading}
                       />
                       <DeleteLabelDialog
-                        projectId={projectId}
+                        projectId={project.id}
                         label={label}
                         canDeleteLabels={canManageLabels}
                         loading={loading}

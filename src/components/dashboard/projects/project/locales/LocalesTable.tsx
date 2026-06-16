@@ -2,6 +2,8 @@
 
 import { removeProjectLocale } from "@/actions/project-locales"
 import TablePagination from "@/components/dashboard/TablePagination"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -35,6 +37,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { getFlag } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { ProjectLocaleWithLocale } from "@/types/project"
@@ -45,20 +49,17 @@ import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
-export default function LocalesTable({
-  projectLocales,
-  canManageLocales,
-}: {
-  projectLocales: ProjectLocaleWithLocale[]
-  canManageLocales: boolean
-}) {
+export default function LocalesTable() {
+  const { user } = useSession()
+  const { project, member } = useProject()
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredProjectLocales = normalizedSearchQuery
-    ? projectLocales.filter(
+    ? project.locales.filter(
         (projectLocale) =>
           (projectLocale.id ?? "")
             .toLowerCase()
@@ -70,7 +71,7 @@ export default function LocalesTable({
             .toLowerCase()
             .includes(normalizedSearchQuery)
       )
-    : projectLocales
+    : project.locales
 
   const total = filteredProjectLocales.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -82,6 +83,19 @@ export default function LocalesTable({
     endIndex
   )
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  const canManageLocales =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_LOCALES
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   return (
     <>

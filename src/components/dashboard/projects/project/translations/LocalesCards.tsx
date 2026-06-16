@@ -1,5 +1,6 @@
 "use client"
 
+import { useProject } from "@/components/project-provider"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -8,20 +9,53 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { getFlag } from "@/lib/project-utils"
-import { FullProject, ProjectLocaleWithLocale } from "@/types/project"
-import { AlertTriangleIcon } from "lucide-react"
+import { AlertTriangleIcon, GlobeIcon, GlobeOffIcon } from "lucide-react"
 import Link from "next/link"
 
-export default function LocalesCards({
-  projectLocales,
-  member,
-}: {
-  projectLocales: ProjectLocaleWithLocale[]
-  member: FullProject["members"][number] | undefined
-}) {
-  const sortedProjectLocales = [...projectLocales].sort((a, b) => {
+export default function LocalesCards() {
+  const { project, member } = useProject()
+
+  if (project.locales.length === 0) {
+    return (
+      <div className="flex min-h-full flex-col">
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <GlobeOffIcon />
+            </EmptyMedia>
+
+            <EmptyTitle className="text-4xl">No Locales</EmptyTitle>
+
+            <EmptyDescription className="text-lg">
+              In order to add translations, you need at least one locale being
+              added to your project.
+            </EmptyDescription>
+          </EmptyHeader>
+
+          <EmptyContent className="flex-row justify-center gap-2">
+            <Button asChild size="lg">
+              <Link href="locales">
+                <GlobeIcon className="mr-2 h-5 w-5" />
+                Go to Locales
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
+      </div>
+    )
+  }
+
+  const sortedProjectLocales = [...project.locales].sort((a, b) => {
     const canTranslateA =
       !member ||
       (hasPermission(member.role.permissions, ProjectPermission.TRANSLATE) &&

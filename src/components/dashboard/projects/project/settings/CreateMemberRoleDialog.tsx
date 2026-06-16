@@ -1,6 +1,8 @@
 "use client"
 
 import { createProjectMemberRole } from "@/actions/project-member-roles"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,24 +21,34 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { FullProject } from "@/types/project"
+import { authClient } from "@/lib/auth-client"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
-export default function CreateMemberRoleDialog({
-  project,
-  canManageRoles,
-}: {
-  project: FullProject
-  canManageRoles: boolean
-}) {
+export default function CreateMemberRoleDialog() {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
+
+  const canManageRoles =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_ROLES
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   const isLimitReached = project.memberRoles.length >= 100 // Arbitrary limit to prevent too many roles
 

@@ -2,6 +2,8 @@
 
 import { deleteProjectTerm, updateProjectTerm } from "@/actions/project-terms"
 import TablePagination from "@/components/dashboard/TablePagination"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -53,6 +55,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { cn } from "@/lib/utils"
 import { ProjectTerm } from "@prisma/client"
 import {
@@ -68,18 +72,10 @@ import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
-export default function TermsTable({
-  terms,
-  canLockTerms,
-  canUpdateTerms,
-  canDeleteTerms,
-}: {
-  terms: ProjectTerm[]
-  canLockTerms: boolean
-  canUpdateTerms: boolean
-  canDeleteTerms: boolean
-}) {
+export default function TermsTable() {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -87,13 +83,13 @@ export default function TermsTable({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredTerms = normalizedSearchQuery
-    ? terms.filter(
+    ? project.terms.filter(
         (term) =>
           (term.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (term.key ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (term.context ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : terms
+    : project.terms
 
   const total = filteredTerms.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -102,6 +98,19 @@ export default function TermsTable({
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentTerms = filteredTerms.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  const canLockTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.LOCK_TERMS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   async function handleUpdateLockTerm(term: ProjectTerm) {
     setLoading(true)
@@ -216,13 +225,11 @@ export default function TermsTable({
                     <div className="flex items-center justify-center gap-2">
                       <EditTermSheet
                         term={term}
-                        canUpdateTerms={canUpdateTerms}
                         loading={loading}
                         setLoading={setLoading}
                       />
                       <DeleteTermDialog
                         term={term}
-                        canDeleteTerms={canDeleteTerms}
                         loading={loading}
                         setLoading={setLoading}
                       />
@@ -260,21 +267,35 @@ export default function TermsTable({
 
 function EditTermSheet({
   term,
-  canUpdateTerms,
   loading,
   setLoading,
 }: {
   term: ProjectTerm
-  canUpdateTerms: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
+  const { member } = useProject()
+
   const [editingTerm, setEditingTerm] = useState<ProjectTerm | null>(null)
 
   const [key, setKey] = useState("")
   const [context, setContext] = useState<string | null>(null)
   const [locked, setLocked] = useState(false)
+
+  const canUpdateTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.UPDATE_TERMS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   function openEditor(currentTerm: ProjectTerm) {
     setKey(currentTerm.key)
@@ -452,18 +473,31 @@ function EditTermSheet({
 
 function DeleteTermDialog({
   term,
-  canDeleteTerms,
   loading,
   setLoading,
 }: {
   term: ProjectTerm
-  canDeleteTerms: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
+  const { member } = useProject()
 
   const [deletingTerm, setDeletingTerm] = useState<ProjectTerm | null>(null)
+
+  const canDeleteTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.DELETE_TERMS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   async function handleDeleteTerm(term: ProjectTerm) {
     setLoading(true)

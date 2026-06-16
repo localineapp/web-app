@@ -16,11 +16,13 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import {
+  AlertTriangleIcon,
   HistoryIcon,
   InfoIcon,
   MousePointerClickIcon,
   SaveIcon,
   SearchIcon,
+  UndoDotIcon,
 } from "lucide-react"
 import TablePagination from "@/components/dashboard/TablePagination"
 import { ProjectLocale, ProjectTerm } from "@prisma/client"
@@ -39,18 +41,80 @@ import { upsertProjectTranslation } from "@/actions/project-translations"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Separator } from "@/components/ui/separator"
+import { useSession } from "@/components/session-provider"
+import { useProject } from "@/components/project-provider"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { authClient } from "@/lib/auth-client"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import Link from "next/link"
 
 export default function TranslationsCard({
-  project,
-  locale,
-  canTranslate,
+  localeCode,
 }: {
-  project: FullProject
-  locale: ProjectLocaleWithLocale
-  canTranslate: boolean
+  localeCode: string
 }) {
+  const { user } = useSession()
+  const { project, member } = useProject()
+
   const [referenceLocale, setReferenceLocale] =
     useState<ProjectLocaleWithLocale | null>(null)
+
+  const locale = project.locales.find(
+    ({ locale }) => locale.code === localeCode
+  )
+
+  if (!locale) {
+    return (
+      <div className="flex min-h-full flex-col">
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <AlertTriangleIcon />
+            </EmptyMedia>
+
+            <EmptyTitle className="text-4xl">Locale Not Found</EmptyTitle>
+
+            <EmptyDescription className="text-lg">
+              The locale you are looking for does not exist in this project.
+            </EmptyDescription>
+          </EmptyHeader>
+
+          <EmptyContent className="flex-row justify-center gap-2">
+            <Button asChild size="lg">
+              <Link href={`/projects/${project.id}/translations`}>
+                <UndoDotIcon className="mr-2 h-5 w-5" />
+                Go back
+              </Link>
+            </Button>
+          </EmptyContent>
+        </Empty>
+      </div>
+    )
+  }
+
+  const canTranslate =
+    (hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.TRANSLATE
+    ) &&
+      (member?.locales.length === 0 ||
+        member?.locales.some(
+          (memberLocale) => memberLocale.localeId === locale.id
+        ))) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   return (
     <Card>
@@ -73,7 +137,6 @@ export default function TranslationsCard({
 
         <div className="ml-auto">
           <ReferencePopover
-            projectLocales={project.locales}
             currentLocale={locale}
             referenceLocale={referenceLocale}
             setReferenceLocale={setReferenceLocale}

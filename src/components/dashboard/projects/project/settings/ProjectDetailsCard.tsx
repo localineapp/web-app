@@ -25,18 +25,17 @@ import { PackageIcon, PencilIcon, TagIcon, TextIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { Separator } from "@/components/ui/separator"
-import { FullProject } from "@/types/project"
 import { updateProject } from "@/actions/projects"
 import { toast } from "sonner"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { authClient } from "@/lib/auth-client"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
 
-export default function ProjectDetailsCard({
-  project,
-  canManageSettings,
-}: {
-  project: FullProject
-  canManageSettings: boolean
-}) {
+export default function ProjectDetailsCard() {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [loading, setLoading] = useState(false)
   const [isNameDialogOpen, setNameDialogOpen] = useState(false)
@@ -44,6 +43,19 @@ export default function ProjectDetailsCard({
 
   const [name, setName] = useState(project?.name ?? "")
   const [description, setDescription] = useState(project?.description ?? "")
+
+  const canManageProject =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_LOCALES
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   const handleUpdateName = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -114,7 +126,7 @@ export default function ProjectDetailsCard({
                 <span
                   className={cn(
                     "inline-flex",
-                    !canManageSettings || loading ? "cursor-not-allowed" : ""
+                    !canManageProject || loading ? "cursor-not-allowed" : ""
                   )}
                 >
                   <DialogTrigger asChild>
@@ -122,14 +134,14 @@ export default function ProjectDetailsCard({
                       variant="ghost"
                       size="icon-xs"
                       className="shrink-0"
-                      disabled={!canManageSettings}
+                      disabled={!canManageProject || loading}
                     >
                       <PencilIcon className="size-4" />
                     </Button>
                   </DialogTrigger>
                 </span>
               </TooltipTrigger>
-              {!canManageSettings && (
+              {!canManageProject && (
                 <TooltipContent>
                   You don&rsquo;t have permission to change this project&rsquo;s
                   name.
@@ -221,7 +233,7 @@ export default function ProjectDetailsCard({
                 <span
                   className={cn(
                     "inline-flex",
-                    !canManageSettings || loading ? "cursor-not-allowed" : ""
+                    !canManageProject || loading ? "cursor-not-allowed" : ""
                   )}
                 >
                   <DialogTrigger asChild>
@@ -229,14 +241,14 @@ export default function ProjectDetailsCard({
                       variant="ghost"
                       size="icon-xs"
                       className="shrink-0"
-                      disabled={loading || !canManageSettings}
+                      disabled={!canManageProject || loading}
                     >
                       <PencilIcon className="size-4" />
                     </Button>
                   </DialogTrigger>
                 </span>
               </TooltipTrigger>
-              {!canManageSettings && (
+              {!canManageProject && (
                 <TooltipContent>
                   You don&rsquo;t have permission to change this project&rsquo;s
                   description.

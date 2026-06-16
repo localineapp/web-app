@@ -1,6 +1,8 @@
 "use client"
 
 import { createProjectTerm } from "@/actions/project-terms"
+import { useProject } from "@/components/project-provider"
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,25 +21,35 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { FullProject } from "@/types/project"
+import { authClient } from "@/lib/auth-client"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
-export default function CreateTermDialog({
-  project,
-  canCreateTerms,
-}: {
-  project: FullProject
-  canCreateTerms: boolean
-}) {
+export default function CreateTermDialog() {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [key, setKey] = useState("")
   const [context, setContext] = useState<string | null>(null)
+
+  const canCreateTerms =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.CREATE_TERMS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   const isLimitReached =
     project.plan.termsLimit !== null &&

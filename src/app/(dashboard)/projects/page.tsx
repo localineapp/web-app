@@ -2,28 +2,19 @@ import { getDefaultPlan } from "@/actions/plans"
 import { getProjects } from "@/actions/projects"
 import CreateProjectDialog from "@/components/dashboard/projects/CreateProjectDialog"
 import ProjectsList from "@/components/dashboard/projects/ProjectsList"
-import { auth } from "@/lib/auth"
 import { Metadata } from "next"
-import { headers } from "next/headers"
 
 export const metadata: Metadata = {
   title: "Projects",
 }
 
 export default async function ProjectsPage() {
-  const [session, projects, defaultPlan] = await Promise.all([
-    auth.api.getSession({
-      headers: await headers(),
-    }),
+  const [projects, defaultPlan] = await Promise.all([
     getProjects({
       includeAll: false,
     }),
     getDefaultPlan(),
   ])
-
-  const user = session?.user
-
-  const projectLimit = user?.projectsLimit ?? 0
 
   return (
     <div className="flex flex-col gap-4">
@@ -38,7 +29,6 @@ export default async function ProjectsPage() {
 
         <div>
           <CreateProjectDialog
-            projectLimit={projectLimit}
             projectCount={projects.length}
             defaultPlan={defaultPlan}
           />
@@ -46,11 +36,7 @@ export default async function ProjectsPage() {
       </div>
 
       <div>
-        <ProjectsList
-          user={user}
-          projects={projects}
-          defaultPlan={defaultPlan}
-        />
+        <ProjectsList projects={projects} defaultPlan={defaultPlan} />
       </div>
     </div>
   )
