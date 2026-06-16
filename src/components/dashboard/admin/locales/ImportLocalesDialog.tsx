@@ -1,6 +1,7 @@
 "use client"
 
 import { importLocales } from "@/actions/locales"
+import { useSession } from "@/components/session-provider"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -23,6 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
 import { getFlagCodeForLocale } from "@/lib/project-utils"
 import { AlertTriangleIcon, ImportIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -670,18 +672,23 @@ const IMPORTABLE_LOCALE_GROUPS = IMPORTABLE_LOCALES.reduce<
   return groups
 }, [])
 
-export default function ImportLocalesDialog({
-  canCreateLocales,
-}: {
-  canCreateLocales: boolean
-}) {
+export default function ImportLocalesDialog() {
   const router = useRouter()
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [selectedLocales, setSelectedLocales] = useState<
     ImportableLocaleProps[]
   >([])
+
+  const canCreateLocales = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user.role ?? "user",
+    permissions: {
+      locales: ["create"],
+    },
+  })
 
   const handleLocaleChange = (
     locale: ImportableLocaleProps,

@@ -44,7 +44,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import {
   AlertTriangleIcon,
   BadgeCheckIcon,
@@ -67,18 +67,13 @@ import {
 } from "@/components/ui/input-group"
 import { cn } from "@/lib/utils"
 import { UserWithRole } from "better-auth/plugins"
+import { useSession } from "@/components/session-provider"
 
 const PAGE_SIZE = 10
 
-export default function UsersTable({
-  currentUser,
-  users,
-}: {
-  currentUser:
-    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
-    | undefined
-  users: UserWithRole[]
-}) {
+export default function UsersTable({ users }: { users: UserWithRole[] }) {
+  const { user: currentUser } = useSession()
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -184,19 +179,16 @@ export default function UsersTable({
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
                         <EditUserSheet
-                          currentUser={currentUser}
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
                         />
                         <ImpersonateUserButton
-                          currentUser={currentUser}
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
                         />
                         <DeleteUserDialog
-                          currentUser={currentUser}
                           user={user}
                           loading={loading}
                           setLoading={setLoading}
@@ -235,19 +227,16 @@ export default function UsersTable({
 }
 
 function EditUserSheet({
-  currentUser,
   user,
   loading,
   setLoading,
 }: {
-  currentUser:
-    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
-    | undefined
   user: UserWithRole
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user: currentUser } = useSession()
 
   const [editingUser, setEditingUser] = useState<UserWithRole | null>(null)
 
@@ -735,19 +724,16 @@ function EditUserSheet({
 }
 
 function ImpersonateUserButton({
-  currentUser,
   user,
   loading,
   setLoading,
 }: {
-  currentUser:
-    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
-    | undefined
   user: UserWithRole
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user: currentUser } = useSession()
 
   const canImpersonateUser = user.id !== currentUser?.id && !user.banned
 
@@ -805,19 +791,16 @@ function ImpersonateUserButton({
 }
 
 function DeleteUserDialog({
-  currentUser,
   user,
   loading,
   setLoading,
 }: {
-  currentUser:
-    | NonNullable<ReturnType<typeof useSession>["data"]>["user"]
-    | undefined
   user: UserWithRole
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user: currentUser } = useSession()
 
   const [deletingUser, setDeletingUser] = useState<UserWithRole | null>(null)
 

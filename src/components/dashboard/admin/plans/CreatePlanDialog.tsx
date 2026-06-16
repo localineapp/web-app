@@ -1,6 +1,7 @@
 "use client"
 
 import { createPlan } from "@/actions/plans"
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,22 +20,28 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
-export default function CreatePlanDialog({
-  canCreatePlans,
-}: {
-  canCreatePlans: boolean
-}) {
+export default function CreatePlanDialog() {
   const router = useRouter()
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [displayName, setDisplayName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
+
+  const canCreatePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user.role ?? "user",
+    permissions: {
+      plans: ["create"],
+    },
+  })
 
   const handleCreatePlan = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()

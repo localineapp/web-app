@@ -1,6 +1,7 @@
 "use client"
 
 import { createPlans } from "@/actions/plans"
+import { useSession } from "@/components/session-provider"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,6 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { Plan } from "@prisma/client"
 import { ImportIcon } from "lucide-react"
@@ -72,18 +74,21 @@ const IMPORTABLE_PLANS: ImportablePlanProps[] = [
   },
 ]
 
-export default function PlanPresetsDialog({
-  plans,
-  canCreatePlans,
-}: {
-  plans: Plan[]
-  canCreatePlans: boolean
-}) {
+export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [selectedPlans, setSelectedPlans] = useState<ImportablePlanProps[]>([])
+
+  const canCreatePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user.role ?? "user",
+    permissions: {
+      plans: ["create"],
+    },
+  })
 
   const isPlanAlreadyImported = (plan: ImportablePlanProps) => {
     return plans.some(
