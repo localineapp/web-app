@@ -160,24 +160,26 @@ export async function acceptProjectInvitation({
     )
   }
 
-  return [
-    await prisma.projectInvitation.delete({
-      where: {
-        id: invitation.id,
-      },
-      include: {
-        project: true,
-      },
-    }),
-    await prisma.projectMember.create({
-      data: {
-        id: generateId(),
-        projectId: invitation.projectId,
-        userId: session.user.id,
-        roleId: invitation.roleId,
-      },
-    }),
-  ]
+  return await prisma.$transaction(async (tx) => {
+    return [
+      await tx.projectInvitation.delete({
+        where: {
+          id: invitation.id,
+        },
+        include: {
+          project: true,
+        },
+      }),
+      await tx.projectMember.create({
+        data: {
+          id: generateId(),
+          projectId: invitation.projectId,
+          userId: session.user.id,
+          roleId: invitation.roleId,
+        },
+      }),
+    ]
+  })
 }
 
 export async function declineProjectInvitation({
