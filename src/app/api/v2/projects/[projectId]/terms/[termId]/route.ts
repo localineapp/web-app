@@ -85,7 +85,11 @@ export const PATCH = validateRequest<{ projectId: string; termId: string }>(
         })
         .parse(body)
 
-      if (locked !== undefined && member && !hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)) {
+      if (
+        locked !== undefined &&
+        member &&
+        !hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)
+      ) {
         throw new Error("You don't have permission to lock or unlock terms.")
       }
 

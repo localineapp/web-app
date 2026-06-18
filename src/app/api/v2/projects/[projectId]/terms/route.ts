@@ -39,7 +39,11 @@ export const POST = validateRequest<{ projectId: string }>(
         })
         .parse(body)
 
-      if (locked && member && !hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)) {
+      if (
+        locked &&
+        member &&
+        !hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)
+      ) {
         throw new Error("You don't have permission to lock or unlock terms.")
       }
 

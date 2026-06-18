@@ -26,15 +26,17 @@ export async function getLocales({
 
   if (
     includeDisabled &&
-    !(await auth.api.userHasPermission({
-      body: {
-        // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: user.role ?? "user",
-        permissions: {
-          locales: ["read:disabled"],
+    !(
+      await auth.api.userHasPermission({
+        body: {
+          // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+          role: user.role ?? "user",
+          permissions: {
+            locales: ["read:disabled"],
+          },
         },
-      },
-    })).success
+      })
+    ).success
   ) {
     includeDisabled = false
   }
@@ -57,14 +59,16 @@ export async function createLocale({
   flag?: string | null
   enabled?: boolean
 }): Promise<Locale> {
-  const hasPermission = (await auth.api.userHasPermission({
-    headers: await headers(),
-    body: {
-      permissions: {
-        locales: ["create"],
+  const hasPermission = (
+    await auth.api.userHasPermission({
+      headers: await headers(),
+      body: {
+        permissions: {
+          locales: ["create"],
+        },
       },
-    },
-  })).success
+    })
+  ).success
 
   if (!hasPermission) {
     return forbidden()
@@ -94,14 +98,16 @@ export async function importLocales(
   created: number
   updated: number
 }> {
-  const hasPermission = (await auth.api.userHasPermission({
-    headers: await headers(),
-    body: {
-      permissions: {
-        locales: ["create"],
+  const hasPermission = (
+    await auth.api.userHasPermission({
+      headers: await headers(),
+      body: {
+        permissions: {
+          locales: ["create"],
+        },
       },
-    },
-  })).success
+    })
+  ).success
 
   if (!hasPermission) {
     return forbidden()
@@ -171,14 +177,16 @@ export async function updateLocale(
     enabled?: boolean
   }
 ): Promise<Locale> {
-  const hasPermission = (await auth.api.userHasPermission({
-    headers: await headers(),
-    body: {
-      permissions: {
-        locales: ["update"],
+  const hasPermission = (
+    await auth.api.userHasPermission({
+      headers: await headers(),
+      body: {
+        permissions: {
+          locales: ["update"],
+        },
       },
-    },
-  })).success
+    })
+  ).success
 
   if (!hasPermission) {
     return forbidden()
@@ -195,14 +203,16 @@ export async function updateLocale(
 }
 
 export async function deleteLocale(localeId: string): Promise<Locale> {
-  const hasPermission = (await auth.api.userHasPermission({
-    headers: await headers(),
-    body: {
-      permissions: {
-        locales: ["delete"],
+  const hasPermission = (
+    await auth.api.userHasPermission({
+      headers: await headers(),
+      body: {
+        permissions: {
+          locales: ["delete"],
+        },
       },
-    },
-  })).success
+    })
+  ).success
 
   if (!hasPermission) {
     return forbidden()

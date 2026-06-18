@@ -134,8 +134,13 @@ export function validateRequest<T = {}>(
 
     const params = await context.params
     let project: FullProject | undefined
-    if (params && typeof params === "object" && "projectId" in params && typeof params.projectId === "string") {
-      project = await findProject(params.projectId, user) ?? undefined
+    if (
+      params &&
+      typeof params === "object" &&
+      "projectId" in params &&
+      typeof params.projectId === "string"
+    ) {
+      project = (await findProject(params.projectId, user)) ?? undefined
       if (!project) {
         return Response.json(
           {
@@ -226,7 +231,7 @@ export function validateRequest<T = {}>(
       apiKey: data.key,
       user: user,
       project: project,
-      member: project?.members.find(({ userId }) => userId === user.id)
+      member: project?.members.find(({ userId }) => userId === user.id),
     })
   }
 }
