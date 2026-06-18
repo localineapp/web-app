@@ -46,15 +46,17 @@ export const POST = validateRequest<{ projectId: string }>(
       }
 
       if (!locale.enabled) {
-        const hasPermission = (await auth.api.userHasPermission({
-          body: {
-            // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-            role: user.role ?? "user",
-            permissions: {
-              locales: ["read:disabled"],
+        const hasPermission = (
+          await auth.api.userHasPermission({
+            body: {
+              // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+              role: user.role ?? "user",
+              permissions: {
+                locales: ["read:disabled"],
+              },
             },
-          },
-        })).success
+          })
+        ).success
 
         if (!hasPermission) {
           throw new Error(`Locale with ID "${localeId}" does not exist.`)

@@ -1,12 +1,16 @@
+"use client"
+
 import Link from "next/link"
 
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
-import { FullProject } from "@/types/project"
 import { CheckIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useProject } from "@/components/project-provider"
 
-export default function FirstStepsCards({ project }: { project: FullProject }) {
+export default function FirstStepsCards() {
+  const { project } = useProject()
+
   const hasLocales = project.locales.length > 0
   const hasTerms = project.terms.length > 0
   const hasTranslations = project.terms.some(

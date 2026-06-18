@@ -14,9 +14,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { auth } from "@/lib/auth"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
+import { Account } from "better-auth"
 import { useRouter } from "next/navigation"
 import {
   useState,
@@ -30,7 +30,7 @@ export default function ConnectionsCard({
   accounts,
   enabledProviders,
 }: {
-  accounts: Awaited<ReturnType<typeof auth.api.listUserAccounts>>
+  accounts: Account[]
   enabledProviders: string[]
 }) {
   const [loading, setLoading] = useState(false)

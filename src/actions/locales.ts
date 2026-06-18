@@ -22,18 +22,19 @@ export async function getLocales({
     return unauthorized()
   }
 
+  const user = session.user
+
   if (
     includeDisabled &&
     !(await auth.api.userHasPermission({
-      headers: await headers(),
       body: {
         // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-        role: session.user.role ?? "user",
+        role: user.role ?? "user",
         permissions: {
           locales: ["read:disabled"],
         },
       },
-    }))
+    })).success
   ) {
     includeDisabled = false
   }
@@ -56,14 +57,14 @@ export async function createLocale({
   flag?: string | null
   enabled?: boolean
 }): Promise<Locale> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["create"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()
@@ -93,14 +94,14 @@ export async function importLocales(
   created: number
   updated: number
 }> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["create"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()
@@ -170,14 +171,14 @@ export async function updateLocale(
     enabled?: boolean
   }
 ): Promise<Locale> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["update"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()
@@ -194,14 +195,14 @@ export async function updateLocale(
 }
 
 export async function deleteLocale(localeId: string): Promise<Locale> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["delete"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()

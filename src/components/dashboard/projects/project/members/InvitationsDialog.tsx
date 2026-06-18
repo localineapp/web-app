@@ -42,25 +42,38 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn, formatDate } from "@/lib/utils"
-import { FullProject, ProjectInvitationWithRole } from "@/types/project"
+import { ProjectInvitationWithRole } from "@/types/project"
 import { SendIcon, SquareArrowRightExitIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { ProjectInvitation } from "@prisma/client"
+import { useSession } from "@/components/session-provider"
+import { useProject } from "@/components/project-provider"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { authClient } from "@/lib/auth-client"
 
-export default function InvitationsDialog({
-  project,
-  canInviteMembers,
-}: {
-  project: FullProject
-  canInviteMembers: boolean
-}) {
+export default function InvitationsDialog() {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
+
+  const canInviteMembers =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.INVITE_MEMBERS
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   async function handleUpdateInvitation(
     invitation: ProjectInvitationWithRole,

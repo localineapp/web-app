@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
 import { CopyIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -20,19 +19,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { authClient, useSession } from "@/lib/auth-client"
-import { auth } from "@/lib/auth"
+import { authClient } from "@/lib/auth-client"
 import TablePagination from "@/components/dashboard/TablePagination"
+import { Session } from "better-auth"
+import { formatDate } from "@/lib/utils"
+import { useSession } from "@/components/session-provider"
 
 const PAGE_SIZE = 10
-
-function formatDate(value: Date | string) {
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) return "Unknown"
-
-  return format(date, "PP p")
-}
 
 function getDeviceLabel(userAgent?: string | null) {
   if (!userAgent) return "Unknown device"
@@ -65,18 +58,12 @@ function getBrowserLabel(userAgent?: string | null) {
   return null
 }
 
-export default function SessionsTable({
-  session,
-  sessions,
-}: {
-  session: ReturnType<typeof useSession>["data"]
-  sessions: Awaited<ReturnType<typeof auth.api.listSessions>>
-}) {
+export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   const router = useRouter()
+  const { session: currentSession } = useSession()
 
+  const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
-
-  const currentSessionId = session?.session?.id
 
   const total = sessions.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -95,18 +82,22 @@ export default function SessionsTable({
     }
   }
 
-  function handleRevokeSession(token: string) {
-    authClient.revokeSession({
+  async function handleRevokeSession(token: string) {
+    setLoading(true)
+
+    await authClient.revokeSession({
       token,
       fetchOptions: {
         onSuccess: () => {
           toast.success("Session revoked.")
+          setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
             error?.message || "Failed to revoke session. Please try again."
           )
+          setLoading(false)
         },
       },
     })
@@ -129,7 +120,7 @@ export default function SessionsTable({
           <TableBody>
             {currentSessions.length > 0 ? (
               currentSessions.map((session) => {
-                const isCurrentSession = session.id === currentSessionId
+                const isCurrentSession = session.id === currentSession?.id
                 const browserLabel = getBrowserLabel(session.userAgent)
 
                 return (
@@ -219,6 +210,7 @@ export default function SessionsTable({
                             variant="destructive"
                             size="icon"
                             className="inline-flex items-center p-1 text-sm"
+                            disabled={loading}
                             onClick={(event) => {
                               event.preventDefault()
                               void handleRevokeSession(session.token)

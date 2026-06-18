@@ -18,28 +18,38 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { FullProject } from "@/types/project"
 import { Locale } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 import LocalePickerField from "@/components/ui/custom/LocalePickerField"
+import { useSession } from "@/components/session-provider"
+import { useProject } from "@/components/project-provider"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { authClient } from "@/lib/auth-client"
 
-export default function AddLocaleDialog({
-  project,
-  locales,
-  canManageLocales,
-}: {
-  project: FullProject
-  locales: Locale[]
-  canManageLocales: boolean
-}) {
+export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
   const router = useRouter()
+  const { user } = useSession()
+  const { project, member } = useProject()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [locale, setLocale] = useState<Locale | null>(null)
+
+  const canManageLocales =
+    hasPermission(
+      member?.role.permissions ?? 0n,
+      ProjectPermission.MANAGE_LOCALES
+    ) ||
+    authClient.admin.checkRolePermission({
+      // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+      role: user?.role ?? "user",
+      permissions: {
+        projects: ["update"],
+      },
+    })
 
   const isLimitReached =
     project.plan.localesLimit !== null &&

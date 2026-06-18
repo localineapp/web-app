@@ -1,8 +1,8 @@
 "use server"
 
 import { canManageProjectFeature } from "@/actions/projects"
-import { ProjectPermission } from "@/lib/project-permissions"
-import { ProjectLabel } from "@prisma/client"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
+import { ProjectLabel, ProjectTerm } from "@prisma/client"
 import { createTerm, deleteTerm, updateTerm } from "@/services/project-terms"
 
 export async function createProjectTerm({
@@ -15,11 +15,15 @@ export async function createProjectTerm({
   key: string
   context?: string | null
   locked?: boolean
-}) {
-  const { project } = await canManageProjectFeature({
+}): Promise<ProjectTerm> {
+  const { project, member } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.CREATE_TERMS,
   })
+
+  if (locked && member && hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)) {
+    throw new Error("You don't have permission to create locked terms.")
+  }
 
   return createTerm({
     project,
@@ -43,11 +47,19 @@ export async function updateProjectTerm({
   context?: string | null
   locked?: boolean
   labels?: ProjectLabel[]
-}) {
-  const { project } = await canManageProjectFeature({
+}): Promise<ProjectTerm> {
+  const { project, member } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.UPDATE_TERMS,
   })
+
+  if (locked !== undefined && member && hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)) {
+    throw new Error("You don't have permission to lock or unlock terms.")
+  }
+
+  if (labels !== undefined && member && !hasPermission(member.role.permissions, ProjectPermission.ASSIGN_LABELS)) {
+    throw new Error("You don't have permission to assign labels to terms.")
+  }
 
   return await updateTerm({
     project,
@@ -65,7 +77,7 @@ export async function deleteProjectTerm({
 }: {
   projectId: string
   termId: string
-}) {
+}): Promise<void> {
   const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.DELETE_TERMS,

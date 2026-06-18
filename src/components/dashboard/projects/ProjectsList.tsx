@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils"
 import TablePagination from "@/components/dashboard/TablePagination"
 import { FullProject } from "@/types/project"
 import { generateRoleBadge } from "@/lib/project-utils"
-import { useSession } from "@/lib/auth-client"
+import { useSession } from "@/components/session-provider"
 
 interface ProjectsListProps {
   projects: FullProject[]
@@ -63,23 +63,22 @@ function setCookie(name: string, value: string, days = 365) {
 }
 
 export default function ProjectsList({
-  session,
   projects = [],
   defaultPlan,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   projects: FullProject[]
   defaultPlan: Plan | null
 }) {
   const [view, setView] = useState<"table" | "cards">("table")
   const [page, setPage] = useState<number>(1)
 
-  const projectLimit = session?.user.projectsLimit ?? 0
-
   useEffect(() => {
-    const v = getCookie(COOKIE_NAME)
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (v === "cards" || v === "table") setView(v as "cards" | "table")
+    const value = getCookie(COOKIE_NAME)
+
+    if (value === "cards" || value === "table") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setView(value as "cards" | "table")
+    }
   }, [])
 
   function selectView(next: "table" | "cards") {
@@ -105,7 +104,6 @@ export default function ProjectsList({
 
         <EmptyContent>
           <CreateProjectDialog
-            projectLimit={projectLimit}
             projectCount={projects.length}
             defaultPlan={defaultPlan}
           />
@@ -135,12 +133,7 @@ export default function ProjectsList({
       </div>
 
       {view === "table" ? (
-        <ProjectsTable
-          session={session}
-          projects={projects}
-          page={page}
-          setPage={setPage}
-        />
+        <ProjectsTable projects={projects} page={page} setPage={setPage} />
       ) : (
         <ProjectCards projects={projects} page={page} setPage={setPage} />
       )}
@@ -218,12 +211,9 @@ export function ProjectCards({ projects, page, setPage }: ProjectsListProps) {
   )
 }
 
-export function ProjectsTable({
-  session,
-  projects,
-  page,
-  setPage,
-}: { session: ReturnType<typeof useSession>["data"] } & ProjectsListProps) {
+export function ProjectsTable({ projects, page, setPage }: ProjectsListProps) {
+  const { user } = useSession()
+
   const total = projects.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_TABLE))
   const currentPage = Math.min(page, totalPages)
@@ -251,7 +241,7 @@ export function ProjectsTable({
             {currentProjects.map(
               ({ id, name, description, members, plan: { displayName } }) => {
                 const member = members.find(
-                  (m) => m.userId === session?.user.id
+                  (member) => member.userId === user?.id
                 )
                 return (
                   <TableRow key={id}>
