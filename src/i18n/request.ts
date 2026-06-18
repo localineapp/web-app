@@ -6,9 +6,9 @@ export default getRequestConfig(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
-  const user = session?.user
 
-  const locale = user?.locale || "en_US"
+  const user = session?.user
+  const locale = user ? user.locale : "en_US"
 
   return {
     locale: locale.replace("_", "-"),
