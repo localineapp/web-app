@@ -88,6 +88,7 @@ export default function PlansTable({
   existsDefaultPlan: boolean
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -112,6 +113,14 @@ export default function PlansTable({
   const endIndex = Math.min(total, currentPage * PAGE_SIZE)
   const currentPlans = filteredPlans.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
+
+  const canUpdatePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      plans: ["update"],
+    },
+  })
 
   async function handleUpdateDefaultPlan(plan: {
     id: string
@@ -242,7 +251,7 @@ export default function PlansTable({
                       variant="ghost"
                       size="icon"
                       className="cursor-pointer rounded-full p-0"
-                      disabled={loading}
+                      disabled={!canUpdatePlans || loading}
                       onClick={(event) => {
                         event.preventDefault()
                         handleUpdateDefaultPlan(plan)
@@ -284,6 +293,7 @@ export default function PlansTable({
                     <div className="flex items-center justify-center gap-2">
                       <EditPlanSheet
                         plan={plan}
+                        canUpdatePlans={canUpdatePlans}
                         loading={loading}
                         setLoading={setLoading}
                       />
@@ -326,15 +336,16 @@ export default function PlansTable({
 
 function EditPlanSheet({
   plan,
+  canUpdatePlans,
   loading,
   setLoading,
 }: {
   plan: Plan
+  canUpdatePlans: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
-  const { user } = useSession()
 
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
 
@@ -344,14 +355,6 @@ function EditPlanSheet({
   const [termsLimit, setTermsLimit] = useState<number | null>(null)
   const [labelsLimit, setLabelsLimit] = useState<number | null>(null)
   const [membersLimit, setMembersLimit] = useState<number | null>(null)
-
-  const canUpdatePlans = authClient.admin.checkRolePermission({
-    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-    role: user?.role ?? "user",
-    permissions: {
-      plans: ["update"],
-    },
-  })
 
   function openEditor(plan: Plan) {
     setDisplayName(plan.displayName ?? "")

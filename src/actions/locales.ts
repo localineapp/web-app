@@ -34,7 +34,7 @@ export async function getLocales({
           locales: ["read:disabled"],
         },
       },
-    }))
+    })).success
   ) {
     includeDisabled = false
   }
@@ -57,14 +57,14 @@ export async function createLocale({
   flag?: string | null
   enabled?: boolean
 }): Promise<Locale> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["create"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()
@@ -94,14 +94,14 @@ export async function importLocales(
   created: number
   updated: number
 }> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["create"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()
@@ -171,14 +171,14 @@ export async function updateLocale(
     enabled?: boolean
   }
 ): Promise<Locale> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["update"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()
@@ -195,14 +195,14 @@ export async function updateLocale(
 }
 
 export async function deleteLocale(localeId: string): Promise<Locale> {
-  const hasPermission = await auth.api.userHasPermission({
+  const hasPermission = (await auth.api.userHasPermission({
     headers: await headers(),
     body: {
       permissions: {
         locales: ["delete"],
       },
     },
-  })
+  })).success
 
   if (!hasPermission) {
     return forbidden()

@@ -143,6 +143,10 @@ export async function acceptProjectInvitation({
     return notFound()
   }
 
+  if (invitation.expiresAt && invitation.expiresAt < new Date()) {
+    return notFound()
+  }
+
   const memberCount = await prisma.projectMember.count({
     where: { projectId: invitation.projectId },
   })

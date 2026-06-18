@@ -297,9 +297,9 @@ function EditMemberRoleDialog({
   }
 
   async function handleUpdateRole(projectMember: FullProjectMember) {
-    setLoading(true)
     if (!role) return
 
+    setLoading(true)
     await updateProjectMember({
       projectId: projectMember.projectId,
       memberId: projectMember.id,
@@ -424,8 +424,9 @@ function EditMemberRoleDialog({
           <Button
             disabled={
               loading ||
-              editingMember === null ||
-              role?.id === editingMember?.role.id
+              !editingMember ||
+              !role ||
+              role.id === editingMember.roleId
             }
             onClick={(event) => {
               event.preventDefault()
