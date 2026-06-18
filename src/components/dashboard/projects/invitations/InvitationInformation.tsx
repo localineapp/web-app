@@ -202,7 +202,6 @@ function DeclineInvitationButton({
           `You have declined the invitation to join ${invitation.project.name}.`
         )
 
-        router.refresh()
         router.push("/projects/invitations")
       })
       .catch((error) => {
