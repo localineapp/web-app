@@ -21,7 +21,11 @@ export async function createProjectTerm({
     permission: ProjectPermission.CREATE_TERMS,
   })
 
-  if (locked && member && hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)) {
+  if (
+    locked &&
+    member &&
+    hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)
+  ) {
     throw new Error("You don't have permission to create locked terms.")
   }
 
@@ -53,11 +57,19 @@ export async function updateProjectTerm({
     permission: ProjectPermission.UPDATE_TERMS,
   })
 
-  if (locked !== undefined && member && hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)) {
+  if (
+    locked !== undefined &&
+    member &&
+    hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)
+  ) {
     throw new Error("You don't have permission to lock or unlock terms.")
   }
 
-  if (labels !== undefined && member && !hasPermission(member.role.permissions, ProjectPermission.ASSIGN_LABELS)) {
+  if (
+    labels !== undefined &&
+    member &&
+    !hasPermission(member.role.permissions, ProjectPermission.ASSIGN_LABELS)
+  ) {
     throw new Error("You don't have permission to assign labels to terms.")
   }
 
