@@ -15,7 +15,7 @@ import {
 import {
   FullProject,
   fullProjectArgs,
-  ProjectMemberWithLocales,
+  FullProjectMember,
 } from "@/types/project"
 import { findProject } from "@/lib/project"
 import { getMany, getOne, update } from "@/services/projects"
@@ -37,8 +37,9 @@ export async function canManageProjectFeature({
         Parameters<typeof auth.api.userHasPermission>[0]
       >["body"]["permissions"]
 }): Promise<{
+  user: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>["user"]
   project: FullProject
-  member: ProjectMemberWithLocales | undefined
+  member: FullProjectMember | undefined
 }> {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -75,7 +76,9 @@ export async function canManageProjectFeature({
   }
 
   return {
+    user,
     project,
+    // @ts-expect-error - there is an email field expected on the member's user, but it's not included in the type definition.
     member,
   }
 }
@@ -270,7 +273,7 @@ export async function updateProjectPlan({
   const canUpdatePlan = await auth.api.userHasPermission({
     body: {
       // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
-      role: user?.role ?? "user",
+      role: user.role ?? "user",
       permissions: {
         projects: ["update:plan"],
       },

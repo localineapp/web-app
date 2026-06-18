@@ -10,17 +10,11 @@ export const metadata: Metadata = {
 }
 
 export default async function SecurityPage() {
-  const requestHeaders = await headers()
-
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
-
   const accounts = await auth.api.listUserAccounts({
-    headers: requestHeaders,
+    headers: await headers(),
   })
 
-  const hasPassword = accounts.some(
+  const hasCredentialAccount = accounts.some(
     (account) => account.providerId === "credential"
   )
 
@@ -35,10 +29,10 @@ export default async function SecurityPage() {
 
       <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">
         <div className="w-full min-w-0 xl:flex-1">
-          <SecurityDetailsCard session={session} hasPassword={hasPassword} />
+          <SecurityDetailsCard hasCredentialAccount={hasCredentialAccount} />
         </div>
         <div className="w-full min-w-0 flex-col gap-4 space-y-4 xl:flex-1">
-          <DataExportCard session={session} />
+          <DataExportCard />
           <DeleteAccountCard />
         </div>
       </div>

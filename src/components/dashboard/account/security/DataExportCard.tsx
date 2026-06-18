@@ -9,19 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
-import { useSession } from "@/lib/auth-client"
 import { RefreshCcwIcon } from "lucide-react"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
-export default function DataExportCard({
-  session,
-}: {
-  session: ReturnType<typeof useSession>["data"]
-}) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const user = session?.user
-
+export default function DataExportCard() {
   const [loading, setLoading] = useState(false)
 
   const handleDataExport = async (event: MouseEvent<HTMLButtonElement>) => {

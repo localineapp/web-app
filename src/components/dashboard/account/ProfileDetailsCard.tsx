@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Spinner } from "@/components/ui/spinner"
 import { Separator } from "@/components/ui/separator"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import {
   EyeIcon,
@@ -34,6 +34,8 @@ import { useRouter } from "next/navigation"
 import { MouseEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { Account } from "better-auth"
+import { useSession } from "@/components/session-provider"
 
 type AvatarSource = "none" | "gravatar" | "github" | "custom"
 
@@ -73,25 +75,13 @@ function getAvatarSource({
 }
 
 export default function ProfileDetailsCard({
-  session,
   githubAccount,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  githubAccount:
-    | {
-        scopes: string[]
-        id: string
-        createdAt: Date
-        updatedAt: Date
-        userId: string
-        providerId: string
-        accountId: string
-      }
-    | undefined
+  githubAccount: Account | undefined
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
-  const user = session?.user
   const currentAvatarUrl = user?.image || undefined
   const currentAvatarSource = getAvatarSource({ currentAvatarUrl })
 

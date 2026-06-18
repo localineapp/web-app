@@ -22,6 +22,7 @@ type NavigationItem = {
   name: string
   icon: LucideIcon
   href: string
+  matchSubRoutes?: boolean
 }
 
 export const navigationItems: NavigationItem[] = [
@@ -43,6 +44,7 @@ export const projectNavigationItems: NavigationItem[] = [
     name: "Translations",
     icon: FileTextIcon,
     href: "/projects/[projectId]/translations",
+    matchSubRoutes: true,
   },
   { name: "Terms", icon: LibraryIcon, href: "/projects/[projectId]/terms" },
   { name: "Labels", icon: TagsIcon, href: "/projects/[projectId]/labels" },

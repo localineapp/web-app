@@ -18,13 +18,9 @@ export function validateRequest<T = {}>(
     adminPermission,
   }: {
     permission?: ProjectPermissionValue
-    adminPermission?: Parameters<
-      typeof auth.api.userHasPermission
-    >[0] extends undefined
-      ? never
-      : NonNullable<
-          Parameters<typeof auth.api.userHasPermission>[0]
-        >["body"]["permissions"]
+    adminPermission?: NonNullable<
+      Parameters<typeof auth.api.userHasPermission>[0]
+    >["body"]["permissions"]
   },
   handler: (
     request: NextRequest,
@@ -32,7 +28,8 @@ export function validateRequest<T = {}>(
     auth: {
       apiKey: Omit<ApiKey, "key">
       user: User
-      project: FullProject | null
+      project?: FullProject
+      member?: FullProject["members"][number]
     }
   ) => Promise<Response>
 ) {
@@ -136,9 +133,9 @@ export function validateRequest<T = {}>(
     }
 
     const params = await context.params
-    let project: FullProject | null = null
-    if (params && typeof params === "object" && "projectId" in params) {
-      project = await findProject(params.projectId as string, user)
+    let project: FullProject | undefined
+    if (params && typeof params === "object" && "projectId" in params && typeof params.projectId === "string") {
+      project = await findProject(params.projectId, user) ?? undefined
       if (!project) {
         return Response.json(
           {
@@ -228,7 +225,8 @@ export function validateRequest<T = {}>(
     return handler(request, params, {
       apiKey: data.key,
       user: user,
-      project: project || null,
+      project: project,
+      member: project?.members.find(({ userId }) => userId === user.id)
     })
   }
 }

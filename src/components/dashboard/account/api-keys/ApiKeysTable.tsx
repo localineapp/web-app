@@ -16,10 +16,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { auth } from "@/lib/auth"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import {
   BadgeCheckIcon,
   BadgeXIcon,
+  InfinityIcon,
   KeyRoundIcon,
   SearchIcon,
   TrashIcon,
@@ -57,11 +58,11 @@ type ApiKey = NonNullable<
 const PAGE_SIZE = 10
 
 export default function ApiKeysTable({
-  session,
   apiKeys,
+  apiKeysLimit,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  apiKeys: Awaited<ReturnType<typeof auth.api.listApiKeys>>
+  apiKeys: ApiKey[]
+  apiKeysLimit: number
 }) {
   const router = useRouter()
 
@@ -71,12 +72,12 @@ export default function ApiKeysTable({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredApiKeys = normalizedSearchQuery
-    ? apiKeys.apiKeys.filter(
+    ? apiKeys.filter(
         (apiKey) =>
           (apiKey.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (apiKey.name ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : apiKeys.apiKeys
+    : apiKeys
 
   const total = filteredApiKeys.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -121,8 +122,8 @@ export default function ApiKeysTable({
           <EmptyDescription className="grid gap-2">
             There have been no API keys created yet.
             <CreateApiKeyDialog
-              session={session}
-              apiKeysCount={apiKeys.total}
+              apiKeysCount={apiKeys.length}
+              apiKeysLimit={apiKeysLimit}
             />
           </EmptyDescription>
         </EmptyHeader>
@@ -153,6 +154,7 @@ export default function ApiKeysTable({
               <TableHead className="max-w-28 text-center">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead className="text-center">Enabled</TableHead>
+              <TableHead className="text-center">Rate Limited</TableHead>
               <TableHead>Last Used</TableHead>
               <TableHead>Expires at</TableHead>
               <TableHead>Created at</TableHead>
@@ -187,6 +189,18 @@ export default function ApiKeysTable({
                         <BadgeXIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
                       )}
                     </Button>
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {apiKey.configId === "no-rate-limit" ? (
+                        <InfinityIcon className="size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                      ) : apiKey.remaining === 0 ? (
+                        <BadgeCheckIcon className="size-4 shrink-0 text-red-600 dark:text-red-400" />
+                      ) : (
+                        <BadgeXIcon className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      )}
+                    </div>
                   </TableCell>
 
                   <TableCell
@@ -259,10 +273,15 @@ function DeleteApiKeyDialog({
 
   const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
 
-  async function handleDeleteApiKey(apiKey: ApiKey) {
+  async function handleDeleteApiKey(apiKey: {
+    configId: string
+    id: string
+    name: string | null
+  }) {
     setLoading(true)
 
     await authClient.apiKey.delete({
+      configId: apiKey.configId,
       keyId: apiKey.id,
       fetchOptions: {
         onSuccess: () => {

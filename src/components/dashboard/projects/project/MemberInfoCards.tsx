@@ -1,5 +1,7 @@
+"use client"
+
+import { useProject } from "@/components/project-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useSession } from "@/lib/auth-client"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
 import { formatDate } from "@/lib/utils"
 import { FullProject } from "@/types/project"
@@ -7,14 +9,8 @@ import { ProjectMemberRole } from "@prisma/client"
 import { CalendarIcon, FlagIcon, Globe2Icon, TagIcon } from "lucide-react"
 import { createElement } from "react"
 
-export default function MemberInfoCards({
-  session,
-  project,
-}: {
-  session: ReturnType<typeof useSession>["data"]
-  project: FullProject
-}) {
-  const member = project.members.find((m) => m.userId === session?.user.id)
+export default function MemberInfoCards() {
+  const { member } = useProject()
   const isMember = !!member
 
   return (

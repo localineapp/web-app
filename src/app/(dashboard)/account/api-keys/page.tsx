@@ -1,3 +1,4 @@
+import { getApiKeysLimit } from "@/actions/get-env"
 import ApiKeysTable from "@/components/dashboard/account/api-keys/ApiKeysTable"
 import CreateApiKeyDialog from "@/components/dashboard/account/api-keys/CreateApiKeyDialog"
 import { auth } from "@/lib/auth"
@@ -9,15 +10,12 @@ export const metadata: Metadata = {
 }
 
 export default async function ApiKeysPage() {
-  const requestHeaders = await headers()
-
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
-
-  const apiKeys = await auth.api.listApiKeys({
-    headers: requestHeaders,
-  })
+  const [apiKeys, apiKeysLimit] = await Promise.all([
+    auth.api.listApiKeys({
+      headers: await headers(),
+    }),
+    getApiKeysLimit(),
+  ])
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,12 +28,15 @@ export default async function ApiKeysPage() {
         </div>
 
         <div className="flex gap-2">
-          <CreateApiKeyDialog session={session} apiKeysCount={apiKeys.total} />
+          <CreateApiKeyDialog
+            apiKeysCount={apiKeys.total}
+            apiKeysLimit={apiKeysLimit}
+          />
         </div>
       </div>
 
       <div>
-        <ApiKeysTable session={session} apiKeys={apiKeys} />
+        <ApiKeysTable apiKeys={apiKeys.apiKeys} apiKeysLimit={apiKeysLimit} />
       </div>
     </div>
   )

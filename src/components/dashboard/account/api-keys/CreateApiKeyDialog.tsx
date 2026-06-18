@@ -1,5 +1,6 @@
 "use client"
 
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,37 +19,54 @@ import {
 } from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
+import { Switch } from "@/components/ui/switch"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import { ClipboardIcon, PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateApiKeyDialog({
-  session,
   apiKeysCount,
+  apiKeysLimit,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   apiKeysCount: number
+  apiKeysLimit: number
 }) {
   const router = useRouter()
-
-  const user = session?.user
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
   const [expiryDate, setExpiryDate] = useState<Date | undefined>(undefined)
+  const [disableRateLimiting, setDisableRateLimiting] = useState(false)
 
   const [apiKey, setApiKey] = useState("")
 
-  const apiKeysLimit = user?.role === "admin" ? Infinity : 10 // TODO: Replace with a better way to determine API key limits
-  const canCreateApiKey = apiKeysCount < apiKeysLimit
+  const hasUnlimitedApiKeys = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      apiKeys: ["unlimited"],
+    },
+  })
+
+  const canDisableRateLimiting = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      apiKeys: ["no-rate-limit"],
+    },
+  })
+
+  const userApiKeysLimit = hasUnlimitedApiKeys ? Infinity : apiKeysLimit
+  const canCreateApiKey = apiKeysCount < userApiKeysLimit
 
   const handleCreateApiKey = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
@@ -56,9 +74,9 @@ export default function CreateApiKeyDialog({
 
     if (!canCreateApiKey) {
       toast.error(
-        apiKeysLimit === 0
+        userApiKeysLimit === 0
           ? "The API key limit for your account is currently set to 0."
-          : `You have reached your API key limit (${apiKeysCount}/${apiKeysLimit})`
+          : `You have reached your API key limit (${apiKeysCount}/${userApiKeysLimit})`
       )
       setLoading(false)
       setName("")
@@ -67,6 +85,7 @@ export default function CreateApiKeyDialog({
     }
 
     await authClient.apiKey.create({
+      configId: disableRateLimiting ? "no-rate-limit" : "default",
       name,
       expiresIn: expiryDate
         ? Math.floor((expiryDate.getTime() - Date.now()) / 1000)
@@ -79,7 +98,6 @@ export default function CreateApiKeyDialog({
           setExpiryDate(undefined)
 
           setApiKey(key)
-          router.refresh()
         },
         onError: ({ error }) => {
           toast.error(
@@ -95,15 +113,15 @@ export default function CreateApiKeyDialog({
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={isDialogOpen || !!apiKey} onOpenChange={setDialogOpen}>
       <Tooltip>
         <TooltipTrigger
           asChild
           className={!canCreateApiKey || loading ? "cursor-not-allowed" : ""}
         >
           <span className="inline-block">
-            <DialogTrigger asChild disabled={loading}>
-              <Button variant="outline" disabled={loading}>
+            <DialogTrigger asChild disabled={!canCreateApiKey || loading}>
+              <Button variant="outline" disabled={!canCreateApiKey || loading}>
                 <PlusIcon className="mr-2 h-4 w-4" />
                 New API Key
               </Button>
@@ -112,9 +130,9 @@ export default function CreateApiKeyDialog({
         </TooltipTrigger>
         {!canCreateApiKey && (
           <TooltipContent>
-            {apiKeysLimit === 0
-              ? "The API key limit for your account is currently set to 0."
-              : `You have reached your API key limit (${apiKeysCount}/${apiKeysLimit})`}
+            {userApiKeysLimit === 0
+              ? "The administrator of this system has set the API key limit to 0."
+              : `You have reached your API key limit (${apiKeysCount}/${userApiKeysLimit})`}
           </TooltipContent>
         )}
       </Tooltip>
@@ -153,6 +171,8 @@ export default function CreateApiKeyDialog({
                 onClick={() => {
                   setDialogOpen(false)
                   setApiKey("")
+
+                  router.refresh()
                 }}
               >
                 Close
@@ -193,6 +213,23 @@ export default function CreateApiKeyDialog({
                   disabled={loading}
                 />
               </div>
+
+              {canDisableRateLimiting && (
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="disableRateLimiting"
+                    checked={disableRateLimiting}
+                    onCheckedChange={setDisableRateLimiting}
+                    disabled={loading}
+                  />
+                  <Label htmlFor="disableRateLimiting">
+                    Disable Rate Limiting
+                    <span className="text-xs text-muted-foreground">
+                      (Admin only)
+                    </span>
+                  </Label>
+                </div>
+              )}
             </div>
 
             <DialogFooter>

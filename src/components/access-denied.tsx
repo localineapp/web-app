@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Empty,
@@ -10,7 +12,7 @@ import {
 import { AlertTriangleIcon, HomeIcon, LogInIcon } from "lucide-react"
 import Link from "next/link"
 
-export async function AccessDeniedPage({
+export function AccessDeniedPage({
   isAuthenticated,
 }: {
   isAuthenticated: boolean

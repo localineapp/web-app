@@ -77,20 +77,12 @@ import {
 } from "@/components/ui/input-group"
 import FlagPickerField from "@/components/ui/custom/FlagPickerField"
 import { getFlag } from "@/lib/project-utils"
+import { useSession } from "@/components/session-provider"
+import { authClient } from "@/lib/auth-client"
 
 const PAGE_SIZE = 10
 
-export default function LocalesTable({
-  locales,
-  canCreateLocales,
-  canUpdateLocales,
-  canDeleteLocales,
-}: {
-  locales: Locale[]
-  canCreateLocales: boolean
-  canUpdateLocales: boolean
-  canDeleteLocales: boolean
-}) {
+export default function LocalesTable({ locales }: { locales: Locale[] }) {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -131,7 +123,7 @@ export default function LocalesTable({
 
           <EmptyDescription className="grid gap-2">
             There have been no locales created yet.
-            <CreateLocaleDialog canCreateLocales={canCreateLocales} />
+            <CreateLocaleDialog />
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -244,13 +236,11 @@ export default function LocalesTable({
                     <div className="flex items-center justify-center gap-2">
                       <EditLocaleSheet
                         locale={locale}
-                        canUpdateLocales={canUpdateLocales}
                         loading={loading}
                         setLoading={setLoading}
                       />
                       <DeleteLocaleDialog
                         locale={locale}
-                        canDeleteLocales={canDeleteLocales}
                         loading={loading}
                         setLoading={setLoading}
                       />
@@ -288,16 +278,15 @@ export default function LocalesTable({
 
 function EditLocaleSheet({
   locale,
-  canUpdateLocales,
   loading,
   setLoading,
 }: {
   locale: Locale
-  canUpdateLocales: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
 
@@ -307,6 +296,14 @@ function EditLocaleSheet({
   const [code, setCode] = useState("")
   const [flag, setFlag] = useState<string | null>(null)
   const [enabled, setEnabled] = useState(false)
+
+  const canUpdateLocales = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      locales: ["update"],
+    },
+  })
 
   function openEditor(locale: Locale) {
     setDisplayName(locale.displayName ?? "")
@@ -521,18 +518,25 @@ function EditLocaleSheet({
 
 function DeleteLocaleDialog({
   locale,
-  canDeleteLocales,
   loading,
   setLoading,
 }: {
   locale: Locale
-  canDeleteLocales: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
+
+  const canDeleteLocales = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      locales: ["delete"],
+    },
+  })
 
   async function handleDeleteLocale(locale: Locale) {
     setLoading(true)

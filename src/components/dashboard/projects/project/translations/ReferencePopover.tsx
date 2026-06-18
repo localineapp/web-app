@@ -1,5 +1,6 @@
 "use client"
 
+import { useProject } from "@/components/project-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -20,16 +21,16 @@ import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react"
 import { createElement, useMemo, useState } from "react"
 
 export default function ReferencePopover({
-  projectLocales,
   currentLocale,
   referenceLocale,
   setReferenceLocale,
 }: {
-  projectLocales: ProjectLocaleWithLocale[]
   currentLocale: ProjectLocaleWithLocale
   referenceLocale: ProjectLocaleWithLocale | null
   setReferenceLocale: (locale: ProjectLocaleWithLocale | null) => void
 }) {
+  const { project } = useProject()
+
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -37,12 +38,11 @@ export default function ReferencePopover({
     const normalizedSearchQuery = searchQuery.trim().toLowerCase()
 
     if (!normalizedSearchQuery)
-      return projectLocales.filter((pl) => pl.id !== currentLocale.id)
+      return project.locales.filter((pl) => pl.id !== currentLocale.id)
 
-    return projectLocales
-      .filter((pl) => pl.id !== currentLocale.id)
-      .filter((pl) => {
-        const locale = pl.locale
+    return project.locales
+      .filter(({ id }) => id !== currentLocale.id)
+      .filter(({ locale }) => {
         const displayName = (locale.displayName ?? "").toLowerCase()
         const code = (locale.code ?? "").toLowerCase()
         const region = (locale.region ?? "").toLowerCase()
@@ -52,7 +52,7 @@ export default function ReferencePopover({
           region.includes(normalizedSearchQuery)
         )
       })
-  }, [projectLocales, searchQuery, currentLocale])
+  }, [project.locales, searchQuery, currentLocale])
 
   function clearSelection() {
     setOpen(false)
@@ -71,14 +71,14 @@ export default function ReferencePopover({
       <Tooltip>
         <TooltipTrigger
           asChild
-          className={projectLocales.length > 1 ? "" : "cursor-not-allowed"}
+          className={project.locales.length > 1 ? "" : "cursor-not-allowed"}
         >
           <span className="inline-block">
-            <PopoverTrigger asChild disabled={projectLocales.length <= 1}>
+            <PopoverTrigger asChild disabled={project.locales.length <= 1}>
               <Button
                 type="button"
                 variant="outline"
-                disabled={projectLocales.length <= 1}
+                disabled={project.locales.length <= 1}
                 className={cn(
                   "h-auto min-h-10 w-full justify-between gap-3 px-3 py-2 text-left font-normal",
                   !referenceLocale && "text-muted-foreground"
@@ -112,7 +112,7 @@ export default function ReferencePopover({
             </PopoverTrigger>
           </span>
         </TooltipTrigger>
-        {projectLocales.length <= 1 && (
+        {project.locales.length <= 1 && (
           <TooltipContent>
             You need at least 2 locales in the project to select a reference
             locale.

@@ -54,17 +54,17 @@ import { Plan } from "@prisma/client"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { toast } from "sonner"
 import { FullProject } from "@/types/project"
+import { useSession } from "@/components/session-provider"
+import { authClient } from "@/lib/auth-client"
 
 const PAGE_SIZE = 10
 
 export default function ProjectsTable({
   projects,
   plans,
-  canUpdatePlan,
 }: {
   projects: FullProject[]
   plans: Plan[]
-  canUpdatePlan: boolean
 }) {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -204,7 +204,6 @@ export default function ProjectsTable({
                         <ChangePlanDialog
                           project={project}
                           plans={plans}
-                          canUpdatePlan={canUpdatePlan}
                           loading={loading}
                           setLoading={setLoading}
                         />
@@ -244,20 +243,27 @@ export default function ProjectsTable({
 function ChangePlanDialog({
   project,
   plans,
-  canUpdatePlan,
   loading,
   setLoading,
 }: {
   project: FullProject
   plans: Plan[]
-  canUpdatePlan: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [editingProject, setEditingProject] = useState<FullProject | null>(null)
   const [plan, setPlan] = useState<Plan | null>(null)
+
+  const canUpdatePlan = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      projects: ["update:plan"],
+    },
+  })
 
   const handleUpdatePlan = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()

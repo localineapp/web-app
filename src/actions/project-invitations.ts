@@ -1,6 +1,6 @@
 "use server"
 
-import { ProjectInvitation } from "@prisma/client"
+import { ProjectInvitation, ProjectMember } from "@prisma/client"
 import { canManageProjectFeature } from "@/actions/projects"
 import { ProjectPermission } from "@/lib/project-permissions"
 import { prisma } from "@/lib/prisma"
@@ -28,7 +28,7 @@ export async function getProjectInvitations(
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
@@ -45,7 +45,7 @@ export async function getProjectInvitation(
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
@@ -122,12 +122,12 @@ export async function acceptProjectInvitation({
   token,
 }: {
   token: string
-}): Promise<ProjectInvitationWithProject> {
+}): Promise<[ProjectInvitationWithProject, ProjectMember]> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
@@ -140,6 +140,10 @@ export async function acceptProjectInvitation({
   })
 
   if (!invitation) {
+    return notFound()
+  }
+
+  if (invitation.expiresAt && invitation.expiresAt < new Date()) {
     return notFound()
   }
 
@@ -160,21 +164,25 @@ export async function acceptProjectInvitation({
     )
   }
 
-  await prisma.projectMember.create({
-    data: {
-      id: generateId(),
-      projectId: invitation.projectId,
-      userId: session.user.id,
-      roleId: invitation.roleId,
-    },
-  })
-  return await prisma.projectInvitation.delete({
-    where: {
-      id: invitation.id,
-    },
-    include: {
-      project: true,
-    },
+  return await prisma.$transaction(async (tx) => {
+    return [
+      await tx.projectInvitation.delete({
+        where: {
+          id: invitation.id,
+        },
+        include: {
+          project: true,
+        },
+      }),
+      await tx.projectMember.create({
+        data: {
+          id: generateId(),
+          projectId: invitation.projectId,
+          userId: session.user.id,
+          roleId: invitation.roleId,
+        },
+      }),
+    ]
   })
 }
 
@@ -187,15 +195,18 @@ export async function declineProjectInvitation({
     headers: await headers(),
   })
 
-  if (!session?.user) {
+  if (!session || !session.user) {
     return unauthorized()
   }
 
   const encryptedToken = isEncrypted(token) ? token : encrypt(token)
-  const invitation = await prisma.projectInvitation.findUnique({
+  const invitation = await prisma.projectInvitation.delete({
     where: {
       token: encryptedToken,
       email: session.user.email,
+    },
+    include: {
+      project: true,
     },
   })
 
@@ -203,12 +214,5 @@ export async function declineProjectInvitation({
     return notFound()
   }
 
-  return await prisma.projectInvitation.delete({
-    where: {
-      id: invitation.id,
-    },
-    include: {
-      project: true,
-    },
-  })
+  return invitation
 }
