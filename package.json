@@ -63,7 +63,7 @@
     "prisma": "^7.8.0",
     "shadcn": "^4.11.0",
     "tailwindcss": "^4.3.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "overrides": {
     "@types/react": "19.2.17",
@@ -73,6 +73,6 @@
     "@prisma/engines@7.8.0": true,
     "prisma@7.8.0": true,
     "sharp@0.34.5": true,
-    "unrs-resolver@1.11.1": true
+    "unrs-resolver@1.12.2": true
   }
 }
