@@ -20,7 +20,7 @@
     ],
     "types": ["node", "react", "react-dom"],
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": [
