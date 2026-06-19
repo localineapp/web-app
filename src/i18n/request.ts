@@ -1,6 +1,7 @@
 import { getRequestConfig } from "next-intl/server"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { IntlError } from "next-intl"
 
 export default getRequestConfig(async () => {
   const session = await auth.api.getSession({
@@ -13,7 +14,13 @@ export default getRequestConfig(async () => {
   return {
     locale: locale.replace("_", "-"),
     messages: await safeLoadMessages(locale),
-    onError() {},
+    onError(error: IntlError) {
+      if (error.code === "MISSING_MESSAGE") {
+        return
+      }
+
+      console.error(error)
+    },
     getMessageFallback({ namespace, key }) {
       return namespace ? `${namespace}.${key}` : key
     },
