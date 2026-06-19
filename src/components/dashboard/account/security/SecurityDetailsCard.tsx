@@ -220,12 +220,12 @@ export default function SecurityDetailsCard({
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.editEmail.updating")}
+                      {t("dialog.editEmail.updatingEmail")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.editEmail.update")}
+                      {t("dialog.editEmail.updateEmail")}
                     </>
                   )}
                 </Button>
@@ -322,12 +322,12 @@ export default function SecurityDetailsCard({
                     {loading ? (
                       <>
                         <Spinner className="h-4 w-4" />
-                        {t("dialog.changePassword.updating")}
+                        {t("dialog.changePassword.updatingPassword")}
                       </>
                     ) : (
                       <>
                         <PencilIcon className="h-4 w-4" />
-                        {t("dialog.changePassword.update")}
+                        {t("dialog.changePassword.updatePassword")}
                       </>
                     )}
                   </Button>
@@ -412,12 +412,12 @@ export default function SecurityDetailsCard({
                     {loading ? (
                       <>
                         <Spinner className="h-4 w-4" />
-                        {t("dialog.addPassword.adding")}
+                        {t("dialog.addPassword.addingPassword")}
                       </>
                     ) : (
                       <>
                         <PencilIcon className="h-4 w-4" />
-                        {t("dialog.addPassword.add")}
+                        {t("dialog.addPassword.addPassword")}
                       </>
                     )}
                   </Button>

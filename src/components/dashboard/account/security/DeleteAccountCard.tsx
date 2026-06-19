@@ -101,12 +101,12 @@ export default function DeleteAccountCard() {
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.deleting")}
+                      {t("dialog.deletingAccount")}
                     </>
                   ) : (
                     <>
                       <TrashIcon className="h-4 w-4" />
-                      {t("dialog.delete")}
+                      {t("dialog.deleteAccount")}
                     </>
                   )}
                 </Button>

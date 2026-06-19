@@ -24,6 +24,7 @@ import TablePagination from "@/components/dashboard/TablePagination"
 import { Session } from "better-auth"
 import { formatDate } from "@/lib/utils"
 import { useSession } from "@/components/session-provider"
+import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
@@ -60,6 +61,7 @@ function getBrowserLabel(userAgent?: string | null) {
 
 export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   const router = useRouter()
+  const t = useTranslations("SessionsTable")
   const { session: currentSession } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -76,9 +78,9 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   function copySessionId(sessionId: string) {
     try {
       navigator.clipboard.writeText(sessionId)
-      toast.success("Session ID copied to clipboard.")
+      toast.success(t("toast.copyToClipboard"))
     } catch {
-      toast.error("Failed to copy session ID.")
+      toast.error(t("toast.copyFailed"))
     }
   }
 
@@ -89,14 +91,12 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
       token,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Session revoked.")
+          toast.success(t("toast.revokeSuccess"))
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to revoke session. Please try again."
-          )
+          toast.error(error?.message || t("toast.revokeFailed"))
           setLoading(false)
         },
       },
@@ -109,11 +109,15 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">Session</TableHead>
-              <TableHead>Device</TableHead>
-              <TableHead>IP Address</TableHead>
-              <TableHead>Expires</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.session")}
+              </TableHead>
+              <TableHead>{t("tableHeader.device")}</TableHead>
+              <TableHead>{t("tableHeader.ipAddress")}</TableHead>
+              <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -141,7 +145,9 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                           </Badge>
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          Created {formatDate(session.createdAt)}
+                          {t("table.createdAt", {
+                            date: formatDate(session.createdAt),
+                          })}
                         </span>
                       </div>
                     </TableCell>
@@ -155,18 +161,22 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                         >
                           {browserLabel
                             ? `${browserLabel}${session.userAgent ? ` • ${session.userAgent}` : ""}`
-                            : (session.userAgent ?? "No user agent available")}
+                            : (session.userAgent ?? t("table.noUserAgent"))}
                         </span>
                       </div>
                     </TableCell>
 
-                    <TableCell>{session.ipAddress ?? "Unknown"}</TableCell>
+                    <TableCell>
+                      {session.ipAddress ?? t("table.noIpAddress")}
+                    </TableCell>
 
                     <TableCell>
                       <div className="flex flex-col gap-1">
                         <span>{formatDate(session.expiresAt)}</span>
                         <span className="text-xs text-muted-foreground">
-                          Updated {formatDate(session.updatedAt)}
+                          {t("table.updatedAt", {
+                            date: formatDate(session.updatedAt),
+                          })}
                         </span>
                       </div>
                     </TableCell>
@@ -202,7 +212,7 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              You can&rsquo;t revoke the current session.
+                              {t("tooltip.cannotRevokeCurrentSession")}
                             </TooltipContent>
                           </Tooltip>
                         ) : (
@@ -230,7 +240,7 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                   colSpan={5}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No sessions found.
+                  {t("table.noSessions")}
                 </TableCell>
               </TableRow>
             )}

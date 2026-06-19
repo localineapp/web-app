@@ -50,12 +50,12 @@ export default function DataExportCard() {
           {loading ? (
             <>
               <Spinner className="me-1" />
-              {t("button.exporting")}
+              {t("button.exportingData")}
             </>
           ) : (
             <>
               <RefreshCcwIcon className="me-1" />
-              {t("button.export")}
+              {t("button.exportData")}
             </>
           )}
         </Button>
