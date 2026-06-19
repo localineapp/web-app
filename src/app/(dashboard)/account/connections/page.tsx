@@ -6,6 +6,7 @@ import {
 import ConnectionsCard from "@/components/dashboard/account/connections/ConnectionsCard"
 import { auth } from "@/lib/auth"
 import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { headers } from "next/headers"
 
 export const metadata: Metadata = {
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 }
 
 export default async function ConnectionsPage() {
+  const t = await getTranslations("ConnectionsPage")
+  
   const [accounts, googleEnabled, githubEnabled, discordEnabled] =
     await Promise.all([
       auth.api.listUserAccounts({
@@ -32,11 +35,8 @@ export default async function ConnectionsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="w-full gap-4 space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Connections</h1>
-        <p className="text-muted-foreground">
-          Manage your connected accounts. You can connect your account to
-          third-party services for easier sign-in.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       <div>

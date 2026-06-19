@@ -26,6 +26,7 @@ import {
   MailIcon,
   PencilIcon,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
@@ -36,6 +37,8 @@ export default function SecurityDetailsCard({
   hasCredentialAccount: boolean
 }) {
   const router = useRouter()
+  const t = useTranslations("SecurityDetailsCard")
+
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -58,15 +61,13 @@ export default function SecurityDetailsCard({
       fetchOptions: {
         onSuccess: () => {
           // TODO: Add a check if it got directly updated or if the user needs to confirm via email first and show a different message accordingly
-          toast.success("Your email has been successfully updated.")
+          toast.success(t("toast.emailUpdated"))
           setEmailDialogOpen(false)
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to update your email. Please try again."
-          )
+          toast.error(error?.message || t("toast.emailUpdateFailed"))
           setEmailDialogOpen(false)
           setLoading(false)
 
@@ -86,7 +87,7 @@ export default function SecurityDetailsCard({
       revokeOtherSessions: true,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("Your password has been successfully updated.")
+          toast.success(t("toast.passwordUpdated"))
           setPasswordDialogOpen(false)
           setLoading(false)
 
@@ -94,10 +95,7 @@ export default function SecurityDetailsCard({
           setNewPassword("")
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message ||
-              "Failed to update your password. Please try again."
-          )
+          toast.error(error?.message || t("toast.passwordUpdateFailed"))
           setPasswordDialogOpen(false)
           setLoading(false)
 
@@ -113,7 +111,7 @@ export default function SecurityDetailsCard({
     setLoading(true)
 
     setTimeout(() => {
-      toast.error("Adding a password to an account is not supported yet.")
+      toast.error(t("toast.passwordAddFailed", { message: "Adding a password to an account is not supported yet." }))
       setPasswordDialogOpen(false)
       setLoading(false)
 
@@ -127,7 +125,7 @@ export default function SecurityDetailsCard({
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <MailIcon className="size-4" />
-          <p>Email:</p>
+          <p>{t("card.email")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
@@ -174,19 +172,17 @@ export default function SecurityDetailsCard({
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Edit email</DialogTitle>
-                <DialogDescription>
-                  Update the email address associated with your account.
-                </DialogDescription>
+                <DialogTitle>{t("dialog.editEmail.title")}</DialogTitle>
+                <DialogDescription>{t("dialog.editEmail.description")}</DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("dialog.editEmail.inputLabel")}</Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
-                  placeholder="Enter your email"
+                  placeholder={t("dialog.editEmail.inputPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setEmail(event.target.value)}
                 />
@@ -201,7 +197,7 @@ export default function SecurityDetailsCard({
                   }}
                   disabled={loading}
                 >
-                  Close
+                  {t("dialog.close")}
                 </Button>
 
                 <Button
@@ -216,12 +212,12 @@ export default function SecurityDetailsCard({
                   {loading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      Saving...
+                      {t("dialog.editEmail.updating")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      Save changes
+                      {t("dialog.editEmail.update")}
                     </>
                   )}
                 </Button>
@@ -234,7 +230,7 @@ export default function SecurityDetailsCard({
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <KeySquareIcon className="size-4" />
-          <p>Password:</p>
+          <p>{t("card.password")}</p>
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
@@ -244,26 +240,23 @@ export default function SecurityDetailsCard({
               onOpenChange={setPasswordDialogOpen}
             >
               <DialogTrigger asChild>
-                <Button variant="outline">Change password</Button>
+                <Button variant="outline">{t("button.changePassword")}</Button>
               </DialogTrigger>
 
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Change password</DialogTitle>
-                  <DialogDescription>
-                    Update your account password. Make sure to choose a strong
-                    and unique password to enhance the security of your account.
-                  </DialogDescription>
+                  <DialogTitle>{t("dialog.changePassword.title")}</DialogTitle>
+                  <DialogDescription>{t("dialog.changePassword.description")}</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current password</Label>
+                    <Label htmlFor="currentPassword">{t("dialog.changePassword.currentPasswordLabel")}</Label>
                     <Input
                       id="currentPassword"
                       type="password"
                       value={currentPassword}
-                      placeholder="Enter your current password"
+                      placeholder={t("dialog.changePassword.currentPasswordPlaceholder")}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setCurrentPassword(value)
@@ -272,12 +265,12 @@ export default function SecurityDetailsCard({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">New password</Label>
+                    <Label htmlFor="newPassword">{t("dialog.changePassword.newPasswordLabel")}</Label>
                     <Input
                       id="newPassword"
                       type="password"
                       value={newPassword}
-                      placeholder="Enter your new password"
+                      placeholder={t("dialog.changePassword.newPasswordPlaceholder")}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setNewPassword(value)
@@ -296,7 +289,7 @@ export default function SecurityDetailsCard({
                     }}
                     disabled={loading}
                   >
-                    Close
+                    {t("dialog.close")}
                   </Button>
 
                   <Button
@@ -311,12 +304,12 @@ export default function SecurityDetailsCard({
                     {loading ? (
                       <>
                         <Spinner className="h-4 w-4" />
-                        Changing password...
+                        {t("dialog.changePassword.updating")}
                       </>
                     ) : (
                       <>
                         <PencilIcon className="h-4 w-4" />
-                        Change password
+                        {t("dialog.changePassword.update")}
                       </>
                     )}
                   </Button>
@@ -329,27 +322,23 @@ export default function SecurityDetailsCard({
               onOpenChange={setPasswordDialogOpen}
             >
               <DialogTrigger asChild>
-                <Button variant="outline">Add password</Button>
+                <Button variant="outline">{t("button.addPassword")}</Button>
               </DialogTrigger>
 
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add password</DialogTitle>
-                  <DialogDescription>
-                    Your account is currently using a passwordless
-                    authentication method. To add a password, please enter a new
-                    password below.
-                  </DialogDescription>
+                  <DialogTitle>{t("dialog.addPassword.title")}</DialogTitle>
+                  <DialogDescription>{t("dialog.addPassword.description")}</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">Password</Label>
+                    <Label htmlFor="newPassword">{t("dialog.addPassword.passwordLabel")}</Label>
                     <Input
                       id="newPassword"
                       type="password"
                       value={newPassword}
-                      placeholder="Enter your new password"
+                      placeholder={t("dialog.addPassword.passwordPlaceholder")}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setNewPassword(value)
@@ -358,12 +347,12 @@ export default function SecurityDetailsCard({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPasswordConfirm">Confirm password</Label>
+                    <Label htmlFor="newPasswordConfirm">{t("dialog.addPassword.confirmPasswordLabel")}</Label>
                     <Input
                       id="newPasswordConfirm"
                       type="password"
                       value={confirmNewPassword}
-                      placeholder="Confirm your new password"
+                      placeholder={t("dialog.addPassword.confirmPasswordPlaceholder")}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setConfirmNewPassword(value)
@@ -382,7 +371,7 @@ export default function SecurityDetailsCard({
                     }}
                     disabled={loading}
                   >
-                    Close
+                    {t("dialog.close")}
                   </Button>
 
                   <Button
@@ -397,12 +386,12 @@ export default function SecurityDetailsCard({
                     {loading ? (
                       <>
                         <Spinner className="h-4 w-4" />
-                        Adding password...
+                        {t("dialog.addPassword.adding")}
                       </>
                     ) : (
                       <>
                         <PencilIcon className="h-4 w-4" />
-                        Add password
+                        {t("dialog.addPassword.add")}
                       </>
                     )}
                   </Button>
@@ -416,7 +405,7 @@ export default function SecurityDetailsCard({
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <LockKeyholeIcon className="size-4" />
-          <p>2FA:</p>
+          <p>{t("card.twoFactor")}</p>
 
           <span className="rounded-md bg-muted px-1 text-xs text-muted-foreground">
             Coming soon
@@ -425,11 +414,9 @@ export default function SecurityDetailsCard({
 
         <div className="flex min-w-0 items-center gap-2">
           {false ? (
-            <Button variant="outline">Manage 2FA</Button>
+            <Button variant="outline">{t("button.manageTwoFactor")}</Button>
           ) : (
-            <Button variant="outline" disabled>
-              Setup 2FA
-            </Button>
+            <Button variant="outline" disabled>{t("button.setupTwoFactor")}</Button>
           )}
         </div>
       </CardContent>
@@ -437,7 +424,7 @@ export default function SecurityDetailsCard({
       <CardContent className="flex items-center justify-between">
         <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
           <FingerprintIcon className="size-4" />
-          <p>Passkey:</p>
+          <p>{t("card.passkey")}</p>
 
           <span className="rounded-md bg-muted px-1 text-xs text-muted-foreground">
             Coming soon
@@ -446,11 +433,9 @@ export default function SecurityDetailsCard({
 
         <div className="flex min-w-0 items-center gap-2">
           {false ? (
-            <Button variant="outline">Manage Passkey</Button>
+            <Button variant="outline">{t("button.managePasskeys")}</Button>
           ) : (
-            <Button variant="outline" disabled>
-              Setup Passkey
-            </Button>
+            <Button variant="outline" disabled>{t("button.setupPasskey")}</Button>
           )}
         </div>
       </CardContent>
