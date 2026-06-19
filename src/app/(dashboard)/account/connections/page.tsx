@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function ConnectionsPage() {
   const t = await getTranslations("ConnectionsPage")
-  
+
   const [accounts, googleEnabled, githubEnabled, discordEnabled] =
     await Promise.all([
       auth.api.listUserAccounts({

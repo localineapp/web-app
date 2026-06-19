@@ -79,7 +79,9 @@ export default function DeleteAccountCard() {
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
-                <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
+                <AlertDialogDescription>
+                  {t("dialog.description")}
+                </AlertDialogDescription>
               </AlertDialogHeader>
 
               <AlertDialogFooter>

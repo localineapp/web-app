@@ -111,7 +111,11 @@ export default function SecurityDetailsCard({
     setLoading(true)
 
     setTimeout(() => {
-      toast.error(t("toast.passwordAddFailed", { message: "Adding a password to an account is not supported yet." }))
+      toast.error(
+        t("toast.passwordAddFailed", {
+          message: "Adding a password to an account is not supported yet.",
+        })
+      )
       setPasswordDialogOpen(false)
       setLoading(false)
 
@@ -173,11 +177,15 @@ export default function SecurityDetailsCard({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{t("dialog.editEmail.title")}</DialogTitle>
-                <DialogDescription>{t("dialog.editEmail.description")}</DialogDescription>
+                <DialogDescription>
+                  {t("dialog.editEmail.description")}
+                </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-2 py-2">
-                <Label htmlFor="email">{t("dialog.editEmail.inputLabel")}</Label>
+                <Label htmlFor="email">
+                  {t("dialog.editEmail.inputLabel")}
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -246,17 +254,23 @@ export default function SecurityDetailsCard({
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>{t("dialog.changePassword.title")}</DialogTitle>
-                  <DialogDescription>{t("dialog.changePassword.description")}</DialogDescription>
+                  <DialogDescription>
+                    {t("dialog.changePassword.description")}
+                  </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword">{t("dialog.changePassword.currentPasswordLabel")}</Label>
+                    <Label htmlFor="currentPassword">
+                      {t("dialog.changePassword.currentPasswordLabel")}
+                    </Label>
                     <Input
                       id="currentPassword"
                       type="password"
                       value={currentPassword}
-                      placeholder={t("dialog.changePassword.currentPasswordPlaceholder")}
+                      placeholder={t(
+                        "dialog.changePassword.currentPasswordPlaceholder"
+                      )}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setCurrentPassword(value)
@@ -265,12 +279,16 @@ export default function SecurityDetailsCard({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">{t("dialog.changePassword.newPasswordLabel")}</Label>
+                    <Label htmlFor="newPassword">
+                      {t("dialog.changePassword.newPasswordLabel")}
+                    </Label>
                     <Input
                       id="newPassword"
                       type="password"
                       value={newPassword}
-                      placeholder={t("dialog.changePassword.newPasswordPlaceholder")}
+                      placeholder={t(
+                        "dialog.changePassword.newPasswordPlaceholder"
+                      )}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setNewPassword(value)
@@ -328,12 +346,16 @@ export default function SecurityDetailsCard({
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>{t("dialog.addPassword.title")}</DialogTitle>
-                  <DialogDescription>{t("dialog.addPassword.description")}</DialogDescription>
+                  <DialogDescription>
+                    {t("dialog.addPassword.description")}
+                  </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="newPassword">{t("dialog.addPassword.passwordLabel")}</Label>
+                    <Label htmlFor="newPassword">
+                      {t("dialog.addPassword.passwordLabel")}
+                    </Label>
                     <Input
                       id="newPassword"
                       type="password"
@@ -347,12 +369,16 @@ export default function SecurityDetailsCard({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="newPasswordConfirm">{t("dialog.addPassword.confirmPasswordLabel")}</Label>
+                    <Label htmlFor="newPasswordConfirm">
+                      {t("dialog.addPassword.confirmPasswordLabel")}
+                    </Label>
                     <Input
                       id="newPasswordConfirm"
                       type="password"
                       value={confirmNewPassword}
-                      placeholder={t("dialog.addPassword.confirmPasswordPlaceholder")}
+                      placeholder={t(
+                        "dialog.addPassword.confirmPasswordPlaceholder"
+                      )}
                       disabled={loading}
                       onChange={({ target: { value } }) =>
                         setConfirmNewPassword(value)
@@ -416,7 +442,9 @@ export default function SecurityDetailsCard({
           {false ? (
             <Button variant="outline">{t("button.manageTwoFactor")}</Button>
           ) : (
-            <Button variant="outline" disabled>{t("button.setupTwoFactor")}</Button>
+            <Button variant="outline" disabled>
+              {t("button.setupTwoFactor")}
+            </Button>
           )}
         </div>
       </CardContent>
@@ -435,7 +463,9 @@ export default function SecurityDetailsCard({
           {false ? (
             <Button variant="outline">{t("button.managePasskeys")}</Button>
           ) : (
-            <Button variant="outline" disabled>{t("button.setupPasskey")}</Button>
+            <Button variant="outline" disabled>
+              {t("button.setupPasskey")}
+            </Button>
           )}
         </div>
       </CardContent>

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function SecurityPage() {
   const t = await getTranslations("SecurityPage")
-  
+
   const accounts = await auth.api.listUserAccounts({
     headers: await headers(),
   })

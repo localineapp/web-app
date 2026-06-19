@@ -113,7 +113,12 @@ function ProviderCardContent({
           toast.success(t("toast.requestSent", { provider: displayName }))
         },
         onError: ({ error }) => {
-          toast.error(t("toast.requestFailed", { provider: displayName, message: error?.message || t("toast.tryAgain") }))
+          toast.error(
+            t("toast.requestFailed", {
+              provider: displayName,
+              message: error?.message || t("toast.tryAgain"),
+            })
+          )
           setLoading(false)
         },
       },
@@ -133,7 +138,12 @@ function ProviderCardContent({
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(t("toast.unlinkFailed", { provider: displayName, message: error?.message || t("toast.tryAgain") }))
+          toast.error(
+            t("toast.unlinkFailed", {
+              provider: displayName,
+              message: error?.message || t("toast.tryAgain"),
+            })
+          )
           setLoading(false)
         },
       },
