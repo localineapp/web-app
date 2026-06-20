@@ -401,15 +401,15 @@ function EditLocaleSheet({
                 id: editingLocale?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
-            <SheetDescription>
-              {t("sheet.description")}
-            </SheetDescription>
+            <SheetDescription>{t("sheet.description")}</SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="localeName">{t("sheet.displayNameLabel")}</Label>
+                <Label htmlFor="localeName">
+                  {t("sheet.displayNameLabel")}
+                </Label>
                 <Input
                   id="localeName"
                   value={displayName}
@@ -421,7 +421,9 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeLanguage">{t("sheet.languageLabel")}</Label>
+                <Label htmlFor="localeLanguage">
+                  {t("sheet.languageLabel")}
+                </Label>
                 <Input
                   id="language"
                   value={language}
