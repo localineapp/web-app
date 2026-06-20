@@ -2,13 +2,10 @@
 
 import { ProjectLocale, ProjectMember } from "@prisma/client"
 import { canManageProjectFeature } from "@/actions/projects"
-import { ProjectPermission } from "@/lib/project-permissions"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { notFound, unauthorized } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import {
-  projectMemberArgs,
-  ProjectMemberWithUserAndRole,
-} from "@/types/project"
+import { FullProjectMember, projectMemberArgs } from "@/types/project"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { updateMember } from "@/services/project-members"
@@ -17,7 +14,7 @@ export async function getProjectMembers({
   projectId,
 }: {
   projectId: string
-}): Promise<ProjectMemberWithUserAndRole[]> {
+}): Promise<FullProjectMember[]> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -27,7 +24,6 @@ export async function getProjectMembers({
   }
 
   const user = session.user
-
   const canReadAllProjects = (
     await auth.api.userHasPermission({
       body: {
@@ -40,17 +36,46 @@ export async function getProjectMembers({
     })
   ).success
 
-  return canReadAllProjects
-    ? await prisma.projectMember.findMany({
-        ...projectMemberArgs,
+  const member = canReadAllProjects
+    ? null
+    : await prisma.projectMember.findFirst({
         where: {
-          projectId: projectId,
+          projectId,
+          userId: user.id,
+        },
+        include: {
+          role: {
+            select: {
+              permissions: true,
+            },
+          },
         },
       })
-    : await prisma.projectMember.findMany({
-        ...projectMemberArgs,
-        where: {
-          projectId: projectId,
+
+  const canViewEmail =
+    canReadAllProjects ||
+    (member?.role.permissions != null &&
+      (hasPermission(
+        member.role.permissions,
+        ProjectPermission.INVITE_MEMBERS
+      ) ||
+        hasPermission(
+          member.role.permissions,
+          ProjectPermission.UPDATE_MEMBERS
+        ) ||
+        hasPermission(
+          member.role.permissions,
+          ProjectPermission.REMOVE_MEMBERS
+        )))
+
+  const members = await prisma.projectMember.findMany({
+    ...projectMemberArgs,
+    where: canReadAllProjects
+      ? {
+          projectId,
+        }
+      : {
+          projectId,
           project: {
             members: {
               some: {
@@ -59,7 +84,15 @@ export async function getProjectMembers({
             },
           },
         },
-      })
+  })
+
+  return members.map((member) => ({
+    ...member,
+    user: {
+      ...member.user,
+      email: canViewEmail ? member.user.email : "",
+    },
+  }))
 }
 
 export async function updateProjectMember({
@@ -169,7 +202,7 @@ export async function removeProjectMember({
 }: {
   projectId: string
   memberId: string
-}): Promise<ProjectMemberWithUserAndRole> {
+}): Promise<FullProjectMember> {
   const { project } = await canManageProjectFeature({
     projectId,
     permission: ProjectPermission.REMOVE_MEMBERS,

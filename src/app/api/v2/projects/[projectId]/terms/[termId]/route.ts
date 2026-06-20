@@ -1,5 +1,5 @@
 import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
-import { ProjectPermission } from "@/lib/project-permissions"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { toJsonSafe } from "@/lib/utils"
 import { deleteTerm, updateTerm } from "@/services/project-terms"
 import z from "zod"
@@ -49,7 +49,7 @@ export const PATCH = validateRequest<{ projectId: string; termId: string }>(
   {
     permission: ProjectPermission.UPDATE_TERMS,
   },
-  async (request, { termId }, { project }) => {
+  async (request, { termId }, { project, member }) => {
     const body = await request.json()
     const term = project?.terms.find((t) => t.id === termId)
 
@@ -84,6 +84,14 @@ export const PATCH = validateRequest<{ projectId: string; termId: string }>(
           message: "At least one field must be provided for update",
         })
         .parse(body)
+
+      if (
+        locked !== undefined &&
+        member &&
+        !hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)
+      ) {
+        throw new Error("You don't have permission to lock or unlock terms.")
+      }
 
       const updatedTerm = await updateTerm({
         project: project!,

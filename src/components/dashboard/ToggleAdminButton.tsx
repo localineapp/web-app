@@ -2,7 +2,6 @@
 
 import { setRole } from "@/actions/development"
 import { Button } from "@/components/ui/button"
-import { useSession } from "@/lib/auth-client"
 import { AlertTriangleIcon, CrownIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
@@ -12,15 +11,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useSession } from "@/components/session-provider"
 
-export default function ToggleAdminButton({
-  session,
-}: {
-  session: ReturnType<typeof useSession>["data"]
-}) {
+export default function ToggleAdminButton() {
   const router = useRouter()
-
-  const user = session?.user
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
 

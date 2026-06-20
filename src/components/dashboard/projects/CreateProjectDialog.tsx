@@ -1,6 +1,7 @@
 "use client"
 
 import { createProject } from "@/actions/projects"
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -26,21 +27,21 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateProjectDialog({
-  projectLimit,
   projectCount,
   defaultPlan,
 }: {
-  projectLimit: number
   projectCount: number
   defaultPlan: Plan | null
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState<string | null>(null)
 
+  const projectLimit = user?.projectsLimit ?? Infinity
   const canCreateProject = projectCount < projectLimit
 
   const handleCreateProject = async (event: MouseEvent<HTMLButtonElement>) => {

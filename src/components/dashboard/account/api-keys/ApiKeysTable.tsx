@@ -60,11 +60,9 @@ const PAGE_SIZE = 10
 export default function ApiKeysTable({
   apiKeys,
   apiKeysLimit,
-  canDisableRateLimiting,
 }: {
-  apiKeys: Awaited<ReturnType<typeof auth.api.listApiKeys>>
+  apiKeys: ApiKey[]
   apiKeysLimit: number
-  canDisableRateLimiting: boolean
 }) {
   const router = useRouter()
 
@@ -74,12 +72,12 @@ export default function ApiKeysTable({
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const filteredApiKeys = normalizedSearchQuery
-    ? apiKeys.apiKeys.filter(
+    ? apiKeys.filter(
         (apiKey) =>
           (apiKey.id ?? "").toLowerCase().includes(normalizedSearchQuery) ||
           (apiKey.name ?? "").toLowerCase().includes(normalizedSearchQuery)
       )
-    : apiKeys.apiKeys
+    : apiKeys
 
   const total = filteredApiKeys.length
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -124,9 +122,8 @@ export default function ApiKeysTable({
           <EmptyDescription className="grid gap-2">
             There have been no API keys created yet.
             <CreateApiKeyDialog
-              apiKeysCount={apiKeys.total}
+              apiKeysCount={apiKeys.length}
               apiKeysLimit={apiKeysLimit}
-              canDisableRateLimiting={canDisableRateLimiting}
             />
           </EmptyDescription>
         </EmptyHeader>
@@ -276,10 +273,15 @@ function DeleteApiKeyDialog({
 
   const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
 
-  async function handleDeleteApiKey(apiKey: ApiKey) {
+  async function handleDeleteApiKey(apiKey: {
+    configId: string
+    id: string
+    name: string | null
+  }) {
     setLoading(true)
 
     await authClient.apiKey.delete({
+      configId: apiKey.configId,
       keyId: apiKey.id,
       fetchOptions: {
         onSuccess: () => {

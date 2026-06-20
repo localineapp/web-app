@@ -9,14 +9,8 @@ export const metadata: Metadata = {
 }
 
 export default async function PublicProfilePage() {
-  const requestHeaders = await headers()
-
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
-
   const accounts = await auth.api.listUserAccounts({
-    headers: requestHeaders,
+    headers: await headers(),
   })
 
   const githubAccount = accounts.find(
@@ -35,10 +29,10 @@ export default async function PublicProfilePage() {
 
       <div className="flex w-full flex-row gap-4 max-[700px]:flex-col">
         <div className="w-full min-w-0 xl:flex-1">
-          <ProfileDetailsCard session={session} githubAccount={githubAccount} />
+          <ProfileDetailsCard githubAccount={githubAccount} />
         </div>
         <div className="w-full min-w-0 xl:flex-1">
-          <ProfileInformationCard session={session} />
+          <ProfileInformationCard />
         </div>
       </div>
     </div>

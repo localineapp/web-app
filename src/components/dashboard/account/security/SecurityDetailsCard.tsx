@@ -1,5 +1,6 @@
 "use client"
 
+import { useSession } from "@/components/session-provider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -14,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
-import { authClient, useSession } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import {
   EyeIcon,
@@ -30,15 +31,12 @@ import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function SecurityDetailsCard({
-  session,
-  hasPassword,
+  hasCredentialAccount,
 }: {
-  session: ReturnType<typeof useSession>["data"]
-  hasPassword: boolean
+  hasCredentialAccount: boolean
 }) {
   const router = useRouter()
-
-  const user = session?.user
+  const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
   const [isEmailVisible, setEmailVisible] = useState(false)
@@ -240,7 +238,7 @@ export default function SecurityDetailsCard({
         </div>
 
         <div className="flex min-w-0 items-center gap-2">
-          {hasPassword ? (
+          {hasCredentialAccount ? (
             <Dialog
               open={isPasswordDialogOpen}
               onOpenChange={setPasswordDialogOpen}

@@ -152,7 +152,7 @@ function InvitationsMenu({
   handleLinkClick,
 }: {
   isExpanded: boolean
-  handleLinkClick: (e: MouseEvent<HTMLAnchorElement>) => void
+  handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
   const pathname = usePathname()
 
@@ -222,7 +222,7 @@ function AccountMenu({
   handleLinkClick,
 }: {
   isExpanded: boolean
-  handleLinkClick: (e: MouseEvent<HTMLAnchorElement>) => void
+  handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
   const pathname = usePathname()
   const isAccountPage = accountNavigationItems.some(({ href }) =>
@@ -275,7 +275,7 @@ function ProjectMenu({
   handleLinkClick,
 }: {
   isExpanded: boolean
-  handleLinkClick: (e: MouseEvent<HTMLAnchorElement>) => void
+  handleLinkClick: (event: MouseEvent<HTMLAnchorElement>) => void
 }) {
   const pathname = usePathname()
 
@@ -487,7 +487,7 @@ function AdminMenu({
   handleLinkClick,
 }: {
   isExpanded: boolean
-  handleLinkClick: (e: React.MouseEvent<HTMLAnchorElement>) => void
+  handleLinkClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
 }) {
   const pathname = usePathname()
 

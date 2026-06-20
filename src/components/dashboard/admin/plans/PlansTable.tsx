@@ -75,23 +75,20 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { useSession } from "@/components/session-provider"
+import { authClient } from "@/lib/auth-client"
 
 const PAGE_SIZE = 10
 
 export default function PlansTable({
   plans,
-  canCreatePlans,
-  canUpdatePlans,
-  canDeletePlans,
   existsDefaultPlan,
 }: {
   plans: Plan[]
-  canCreatePlans: boolean
-  canUpdatePlans: boolean
-  canDeletePlans: boolean
   existsDefaultPlan: boolean
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -117,7 +114,19 @@ export default function PlansTable({
   const currentPlans = filteredPlans.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  async function handleUpdateDefaultPlan(plan: Plan) {
+  const canUpdatePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      plans: ["update"],
+    },
+  })
+
+  async function handleUpdateDefaultPlan(plan: {
+    id: string
+    displayName: string
+    default?: boolean
+  }) {
     if (plan.default) {
       toast.error(
         `Plan ${plan.displayName} (${plan.id.slice(0, 8)}) is already the default plan.`
@@ -156,7 +165,7 @@ export default function PlansTable({
 
           <EmptyDescription className="grid gap-2">
             There have been no plans created yet.
-            <CreatePlanDialog canCreatePlans={canCreatePlans} />
+            <CreatePlanDialog />
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -242,7 +251,7 @@ export default function PlansTable({
                       variant="ghost"
                       size="icon"
                       className="cursor-pointer rounded-full p-0"
-                      disabled={loading}
+                      disabled={!canUpdatePlans || loading}
                       onClick={(event) => {
                         event.preventDefault()
                         handleUpdateDefaultPlan(plan)
@@ -290,7 +299,6 @@ export default function PlansTable({
                       />
                       <DeletePlanDialog
                         plan={plan}
-                        canDeletePlans={canDeletePlans}
                         loading={loading}
                         setLoading={setLoading}
                       />
@@ -571,18 +579,25 @@ function EditPlanSheet({
 
 function DeletePlanDialog({
   plan,
-  canDeletePlans,
   loading,
   setLoading,
 }: {
   plan: Plan
-  canDeletePlans: boolean
   loading: boolean
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const { user } = useSession()
 
   const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
+
+  const canDeletePlans = authClient.admin.checkRolePermission({
+    // @ts-expect-error - user.role can be any string, but the API expects a defined set of strings.
+    role: user?.role ?? "user",
+    permissions: {
+      plans: ["delete"],
+    },
+  })
 
   async function handleDeletePlan(plan: Plan) {
     setLoading(true)

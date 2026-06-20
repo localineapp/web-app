@@ -4,7 +4,7 @@ import { LogOutIcon, SearchIcon, UserCog2Icon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useEffect, useRef, useState } from "react"
-import { authClient, signOut, useSession } from "@/lib/auth-client"
+import { authClient, signOut } from "@/lib/auth-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ThemeModeSelector } from "@/components/theme-provider"
 import {
@@ -23,18 +23,17 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { getProjects } from "@/actions/projects"
 import { accountNavigationItems } from "@/components/dashboard/navigation-items"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
+import { useSession } from "@/components/session-provider"
 
 export default function AppHeader({
-  session,
   projects,
 }: {
-  session: ReturnType<typeof useSession>["data"]
   projects: Awaited<ReturnType<typeof getProjects>>
 }) {
   const router = useRouter()
-  const searchContainerRef = useRef<HTMLDivElement>(null)
+  const { session, user } = useSession()
 
-  const user = session?.user
+  const searchContainerRef = useRef<HTMLDivElement>(null)
 
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -198,29 +197,7 @@ export default function AppHeader({
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              {session?.session.impersonatedBy === null ? (
-                <DropdownMenuItem
-                  variant="destructive"
-                  className={cn(
-                    "cursor-pointer",
-                    loading && "cursor-not-allowed opacity-50"
-                  )}
-                  disabled={loading}
-                  onClick={handleSignOut}
-                >
-                  {loading ? (
-                    <>
-                      <Spinner className="h-4 w-4" aria-hidden />
-                      Signing out...
-                    </>
-                  ) : (
-                    <>
-                      <LogOutIcon className="h-4 w-4" aria-hidden />
-                      Sign Out
-                    </>
-                  )}
-                </DropdownMenuItem>
-              ) : (
+              {session?.impersonatedBy != null ? (
                 <DropdownMenuItem
                   variant="destructive"
                   className={cn(
@@ -239,6 +216,28 @@ export default function AppHeader({
                     <>
                       <UserCog2Icon className="h-4 w-4" aria-hidden />
                       Stop Impersonation
+                    </>
+                  )}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  variant="destructive"
+                  className={cn(
+                    "cursor-pointer",
+                    loading && "cursor-not-allowed opacity-50"
+                  )}
+                  disabled={loading}
+                  onClick={handleSignOut}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner className="h-4 w-4" aria-hidden />
+                      Signing out...
+                    </>
+                  ) : (
+                    <>
+                      <LogOutIcon className="h-4 w-4" aria-hidden />
+                      Sign Out
                     </>
                   )}
                 </DropdownMenuItem>

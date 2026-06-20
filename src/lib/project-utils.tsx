@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import * as LucideIcons from "lucide-react"
 import * as FlagIcons from "country-flag-icons/react/3x2"
 import { ComponentType, createElement, CSSProperties, SVGProps } from "react"

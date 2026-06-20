@@ -1,5 +1,5 @@
 import { createHeaders, handleApiError, validateRequest } from "@/lib/api"
-import { ProjectPermission } from "@/lib/project-permissions"
+import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { toJsonSafe } from "@/lib/utils"
 import { createTerm } from "@/services/project-terms"
 import z from "zod"
@@ -27,7 +27,7 @@ export const POST = validateRequest<{ projectId: string }>(
   {
     permission: ProjectPermission.CREATE_TERMS,
   },
-  async (request, _, { project }) => {
+  async (request, _, { project, member }) => {
     const body = await request.json()
 
     try {
@@ -38,6 +38,14 @@ export const POST = validateRequest<{ projectId: string }>(
           locked: z.boolean().optional(),
         })
         .parse(body)
+
+      if (
+        locked &&
+        member &&
+        !hasPermission(member.role.permissions, ProjectPermission.LOCK_TERMS)
+      ) {
+        throw new Error("You don't have permission to lock or unlock terms.")
+      }
 
       const newTerm = await createTerm({
         project: project!,

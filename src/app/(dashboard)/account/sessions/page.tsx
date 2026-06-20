@@ -12,14 +12,8 @@ export const metadata: Metadata = {
 }
 
 export default async function SessionsPage() {
-  const requestHeaders = await headers()
-
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  })
-
   const sessions = await auth.api.listSessions({
-    headers: requestHeaders,
+    headers: await headers(),
   })
 
   return (
@@ -39,7 +33,7 @@ export default async function SessionsPage() {
       </div>
 
       <div>
-        <SessionsTable session={session} sessions={sessions} />
+        <SessionsTable sessions={sessions} />
       </div>
     </div>
   )

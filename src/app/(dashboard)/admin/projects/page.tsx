@@ -1,31 +1,19 @@
 import { getPlans } from "@/actions/plans"
 import { getProjects } from "@/actions/projects"
 import ProjectsTable from "@/components/dashboard/admin/ProjectsTable"
-import { auth } from "@/lib/auth"
 import { Metadata } from "next"
-import { headers } from "next/headers"
 
 export const metadata: Metadata = {
   title: "Projects",
 }
 
 export default async function AdminProjectsPage() {
-  const projects = await getProjects({
-    includeAll: true,
-  })
-
-  const plans = await getPlans()
-
-  const canUpdatePlan = (
-    await auth.api.userHasPermission({
-      headers: await headers(),
-      body: {
-        permissions: {
-          projects: ["update:plan"],
-        },
-      },
-    })
-  ).success
+  const [projects, plans] = await Promise.all([
+    getProjects({
+      includeAll: true,
+    }),
+    getPlans(),
+  ])
 
   return (
     <div className="flex flex-col gap-4">
@@ -37,11 +25,7 @@ export default async function AdminProjectsPage() {
       </div>
 
       <div>
-        <ProjectsTable
-          projects={projects}
-          plans={plans}
-          canUpdatePlan={canUpdatePlan}
-        />
+        <ProjectsTable projects={projects} plans={plans} />
       </div>
     </div>
   )

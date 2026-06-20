@@ -13,15 +13,16 @@ export const metadata: Metadata = {
 }
 
 export default async function ConnectionsPage() {
-  const accounts = await auth.api.listUserAccounts({
-    headers: await headers(),
-  })
+  const [accounts, googleEnabled, githubEnabled, discordEnabled] =
+    await Promise.all([
+      auth.api.listUserAccounts({
+        headers: await headers(),
+      }),
+      isGoogleLoginEnabled(),
+      isGitHubLoginEnabled(),
+      isDiscordLoginEnabled(),
+    ])
 
-  const [googleEnabled, githubEnabled, discordEnabled] = await Promise.all([
-    isGoogleLoginEnabled(),
-    isGitHubLoginEnabled(),
-    isDiscordLoginEnabled(),
-  ])
   const enabledProviders = [
     googleEnabled ? "google" : null,
     githubEnabled ? "github" : null,

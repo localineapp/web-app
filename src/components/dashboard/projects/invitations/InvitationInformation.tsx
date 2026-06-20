@@ -148,7 +148,7 @@ function AcceptInvitationButton({
     setLoading(true)
 
     await acceptProjectInvitation({ token: invitation.token })
-      .then((invitation) => {
+      .then(([invitation]) => {
         toast.success(
           `You have accepted the invitation to join ${invitation.project.name}.`
         )
@@ -202,7 +202,6 @@ function DeclineInvitationButton({
           `You have declined the invitation to join ${invitation.project.name}.`
         )
 
-        router.refresh()
         router.push("/projects/invitations")
       })
       .catch((error) => {
