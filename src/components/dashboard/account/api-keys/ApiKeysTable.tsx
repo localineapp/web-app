@@ -49,8 +49,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { cn, formatDate } from "@/lib/utils"
-import { useTranslations } from "next-intl"
+import { cn } from "@/lib/utils"
+import { useFormatter, useTranslations } from "next-intl"
 
 type ApiKey = NonNullable<
   Awaited<ReturnType<typeof auth.api.listApiKeys>>
@@ -67,6 +67,7 @@ export default function ApiKeysTable({
 }) {
   const router = useRouter()
   const t = useTranslations("ApiKeysTable")
+  const format = useFormatter()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -219,7 +220,13 @@ export default function ApiKeysTable({
                     )}
                   >
                     {apiKey.lastRequest
-                      ? formatDate(apiKey.lastRequest)
+                      ? format.dateTime(new Date(apiKey.lastRequest), {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                       : t("never")}
                   </TableCell>
 
@@ -229,11 +236,25 @@ export default function ApiKeysTable({
                     )}
                   >
                     {apiKey.expiresAt
-                      ? formatDate(apiKey.expiresAt)
+                      ? format.dateTime(new Date(apiKey.expiresAt), {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                       : t("never")}
                   </TableCell>
 
-                  <TableCell>{formatDate(apiKey.createdAt)}</TableCell>
+                  <TableCell>
+                    {format.dateTime(new Date(apiKey.createdAt), {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </TableCell>
 
                   <TableCell className="text-center">
                     <DeleteApiKeyDialog

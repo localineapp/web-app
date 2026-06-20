@@ -6,8 +6,11 @@ import { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import { headers } from "next/headers"
 
-export const metadata: Metadata = {
-  title: "API Keys",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("PublicProfilePage")
+  return {
+    title: t("title"),
+  }
 }
 
 export default async function ApiKeysPage() {

@@ -229,12 +229,12 @@ export default function ProfileDetailsCard({
                   {nameLoading ? (
                     <>
                       <Spinner className="h-4 w-4" />
-                      {t("dialog.updatingName")}
+                      {t("dialog.editName.updatingName")}
                     </>
                   ) : (
                     <>
                       <PencilIcon className="h-4 w-4" />
-                      {t("dialog.updateName")}
+                      {t("dialog.editName.updateName")}
                     </>
                   )}
                 </Button>

@@ -19,13 +19,15 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { Separator } from "@/components/ui/separator"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { useSession } from "@/components/session-provider"
 import { Spinner } from "@/components/ui/spinner"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function ProfileInformationCard() {
   const t = useTranslations("ProfileInformationCard")
+  const format = useFormatter()
+
   const { user } = useSession()
 
   if (!user) {
@@ -113,7 +115,7 @@ export default function ProfileInformationCard() {
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
           {user.projectsLimit !== null
-            ? user.projectsLimit.toLocaleString("en-US")
+            ? format.number(user.projectsLimit)
             : t("card.projectsLimitUnlimited")}
         </p>
       </CardContent>
@@ -183,7 +185,13 @@ export default function ProfileInformationCard() {
         </div>
 
         <p className="min-w-0 font-mono text-sm break-all text-foreground">
-          {formatDate(user.createdAt)}
+          {format.dateTime(new Date(user.createdAt), {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </p>
       </CardContent>
     </Card>

@@ -12,7 +12,7 @@ export default getRequestConfig(async () => {
   const locale = user ? user.locale : "en_US"
 
   return {
-    locale: locale.replace("_", "-"),
+    locale: locale.replaceAll("_", "-"),
     messages: await safeLoadMessages(locale),
     onError(error: IntlError) {
       if (error.code === "MISSING_MESSAGE") {

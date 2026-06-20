@@ -22,9 +22,8 @@ import {
 import { authClient } from "@/lib/auth-client"
 import TablePagination from "@/components/dashboard/TablePagination"
 import { Session } from "better-auth"
-import { formatDate } from "@/lib/utils"
 import { useSession } from "@/components/session-provider"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
@@ -62,6 +61,8 @@ function getBrowserLabel(userAgent?: string | null) {
 export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   const router = useRouter()
   const t = useTranslations("SessionsTable")
+  const format = useFormatter()
+
   const { session: currentSession } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -75,9 +76,9 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
   const currentSessions = sessions.slice(startIndex, endIndex)
   const displayStartIndex = total === 0 ? 0 : startIndex + 1
 
-  function copySessionId(sessionId: string) {
+  async function copySessionId(sessionId: string) {
     try {
-      navigator.clipboard.writeText(sessionId)
+      await navigator.clipboard.writeText(sessionId)
       toast.success(t("toast.copyToClipboard"))
     } catch {
       toast.error(t("toast.copyFailed"))
@@ -146,7 +147,13 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
                         </div>
                         <span className="text-xs text-muted-foreground">
                           {t("table.createdAt", {
-                            date: formatDate(session.createdAt),
+                            date: format.dateTime(new Date(session.createdAt), {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }),
                           })}
                         </span>
                       </div>
@@ -172,10 +179,24 @@ export default function SessionsTable({ sessions }: { sessions: Session[] }) {
 
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span>{formatDate(session.expiresAt)}</span>
+                        <span>
+                          {format.dateTime(new Date(session.expiresAt), {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
                         <span className="text-xs text-muted-foreground">
                           {t("table.updatedAt", {
-                            date: formatDate(session.updatedAt),
+                            date: format.dateTime(new Date(session.updatedAt), {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }),
                           })}
                         </span>
                       </div>
