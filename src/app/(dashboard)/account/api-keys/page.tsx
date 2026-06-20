@@ -7,10 +7,11 @@ import { getTranslations } from "next-intl/server"
 import { headers } from "next/headers"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("PublicProfilePage")
+  const t = await getTranslations("ApiKeysPage")
   return {
     title: t("title"),
   }
+}
 }
 
 export default async function ApiKeysPage() {

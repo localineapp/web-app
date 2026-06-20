@@ -210,7 +210,9 @@ export default function AdminPlansTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center"></TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.id")}
+              </TableHead>
               <TableHead>{t("tableHeader.displayName")}</TableHead>
               <TableHead>{t("tableHeader.description")}</TableHead>
               <TableHead className="text-center">
