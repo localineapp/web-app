@@ -69,7 +69,7 @@ export default function DeleteAccountCard() {
           <AlertDialogTrigger asChild>
             <Button variant="destructive" disabled={loading}>
               <TrashIcon className="me-1" />
-              {t("button.delete")}
+              {t("button.deleteAccount")}
             </Button>
           </AlertDialogTrigger>
 

@@ -123,7 +123,7 @@ export default function CreateApiKeyDialog({
             <DialogTrigger asChild disabled={!canCreateApiKey || loading}>
               <Button variant="outline" disabled={!canCreateApiKey || loading}>
                 <PlusIcon className="mr-2 h-4 w-4" />
-                {t("button.create")}
+                {t("button.createApiKey")}
               </Button>
             </DialogTrigger>
           </span>
