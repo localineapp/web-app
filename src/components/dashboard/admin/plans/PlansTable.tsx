@@ -77,10 +77,11 @@ import {
 } from "@/components/ui/hover-card"
 import { useSession } from "@/components/session-provider"
 import { authClient } from "@/lib/auth-client"
+import { useFormatter, useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function PlansTable({
+export default function AdminPlansTable({
   plans,
   existsDefaultPlan,
 }: {
@@ -88,6 +89,9 @@ export default function PlansTable({
   existsDefaultPlan: boolean
 }) {
   const router = useRouter()
+  const t = useTranslations("AdminPlansTable")
+  const format = useFormatter()
+
   const { user } = useSession()
 
   const [page, setPage] = useState(1)
@@ -129,7 +133,10 @@ export default function PlansTable({
   }) {
     if (plan.default) {
       toast.error(
-        `Plan ${plan.displayName} (${plan.id.slice(0, 8)}) is already the default plan.`
+        t("toast.alreadyDefault", {
+          displayName: plan.displayName,
+          id: plan.id.slice(0, 8),
+        })
       )
       return
     }
@@ -139,14 +146,15 @@ export default function PlansTable({
     await updateDefaultPlan(plan.id)
       .then(() => {
         toast.success(
-          `Set plan ${plan.displayName} (${plan.id.slice(0, 8)}) as default.`
+          t("toast.setDefaultSuccess", {
+            displayName: plan.displayName,
+            id: plan.id.slice(0, 8),
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update default plan. Please try again."
-        )
+        toast.error(error?.message || t("toast.setDefaultFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -161,10 +169,10 @@ export default function PlansTable({
             <PackageIcon />
           </EmptyMedia>
 
-          <EmptyTitle>No Plans Yet</EmptyTitle>
+          <EmptyTitle>{t("empty.title")}</EmptyTitle>
 
           <EmptyDescription className="grid gap-2">
-            There have been no plans created yet.
+            {t("empty.description")}
             <CreatePlanDialog />
           </EmptyDescription>
         </EmptyHeader>
@@ -177,18 +185,16 @@ export default function PlansTable({
       {!existsDefaultPlan && (
         <Alert className="mt-2 mb-2 max-w-xl border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
           <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-          <AlertTitle>No Default Plan</AlertTitle>
+          <AlertTitle>{t("noDefaultPlanAlert.title")}</AlertTitle>
           <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-            There is currently no default plan set. This means that new projects
-            can&rsquo;t be created because every project must be associated with
-            a plan.
+            {t("noDefaultPlanAlert.description")}
           </AlertDescription>
         </Alert>
       )}
 
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search plans by name or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -204,26 +210,35 @@ export default function PlansTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Display Name</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead className="max-w-28 text-center"></TableHead>
+              <TableHead>{t("tableHeader.displayName")}</TableHead>
+              <TableHead>{t("tableHeader.description")}</TableHead>
               <TableHead className="text-center">
                 <HoverCard openDelay={10} closeDelay={10}>
                   <HoverCardTrigger asChild>
-                    <Button variant="ghost">Default</Button>
+                    <Button variant="ghost">{t("tableHeader.default")}</Button>
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    The default plan is the plan that newly created projects
-                    will be associated with.
+                    {t("tableHeader.defaultHover")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
-              <TableHead className="text-center">Locales</TableHead>
-              <TableHead className="text-center">Terms</TableHead>
-              <TableHead className="text-center">Labels</TableHead>
-              <TableHead className="text-center">Members</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.localesLimit")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.termsLimit")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.labelsLimit")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.membersLimit")}
+              </TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -267,26 +282,26 @@ export default function PlansTable({
 
                   <TableCell className="text-center">
                     {plan.localesLimit
-                      ? plan.localesLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.localesLimit)
+                      : t("unlimited")}
                   </TableCell>
 
                   <TableCell className="text-center">
                     {plan.termsLimit
-                      ? plan.termsLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.termsLimit)
+                      : t("unlimited")}
                   </TableCell>
 
                   <TableCell className="text-center">
                     {plan.labelsLimit
-                      ? plan.labelsLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.labelsLimit)
+                      : t("unlimited")}
                   </TableCell>
 
                   <TableCell className="text-center">
                     {plan.membersLimit
-                      ? plan.membersLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.membersLimit)
+                      : t("unlimited")}
                   </TableCell>
 
                   <TableCell>
@@ -313,8 +328,8 @@ export default function PlansTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No plans found matching your search."
-                    : "No plans found."}
+                    ? t("table.noPlansFound", { query: searchQuery })
+                    : t("table.noPlansFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -346,6 +361,7 @@ function EditPlanSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("AdminPlansTable")
 
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
 
@@ -382,14 +398,15 @@ function EditPlanSheet({
     })
       .then(() => {
         toast.success(
-          `Updated plan ${displayName} (${editingPlan.id.slice(0, 8)}).`
+          t("toast.updateSuccess", {
+            displayName,
+            id: editingPlan.id.slice(0, 8),
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update plan. Please try again."
-        )
+        toast.error(error?.message || t("toast.updateFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -426,9 +443,7 @@ function EditPlanSheet({
           </SheetTrigger>
         </TooltipTrigger>
         {!canUpdatePlans && (
-          <TooltipContent>
-            You don&rsquo;t have permission to edit plans.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdate")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -439,23 +454,22 @@ function EditPlanSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              Edit{" "}
-              <span className="font-mono">
-                {editingPlan?.displayName} ({editingPlan?.id.slice(0, 8)})
-              </span>{" "}
+              {t("sheet.title", {
+                displayName: editingPlan?.displayName ?? "",
+                id: editingPlan?.id.slice(0, 8) ?? "",
+              })}
             </SheetTitle>
-            <SheetDescription>
-              Here you can edit the plan&rsquo;s details.
-            </SheetDescription>
+            <SheetDescription>{t("sheet.description")}</SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="planName">Display Name</Label>
+                <Label htmlFor="planName">{t("sheet.displayNameLabel")}</Label>
                 <Input
                   id="planName"
                   value={displayName}
+                  placeholder={t("sheet.displayNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -463,10 +477,13 @@ function EditPlanSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="planDescription">Description (optional)</Label>
+                <Label htmlFor="planDescription">
+                  {t("sheet.descriptionLabel")}
+                </Label>
                 <Input
                   id="planDescription"
                   value={description || ""}
+                  placeholder={t("sheet.descriptionPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setDescription(event.target.value)}
                 />
@@ -474,13 +491,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planLocalesLimit">
-                  Locales Limit (Empty for unlimited)
+                  {t("sheet.localesLimitLabel")}
                 </Label>
                 <Input
                   id="planLocalesLimit"
                   type="number"
                   value={localesLimit ?? ""}
-                  placeholder="Enter locales limit..."
+                  placeholder={t("sheet.localesLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setLocalesLimit(
@@ -492,13 +509,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planTermsLimit">
-                  Terms Limit (Empty for unlimited)
+                  {t("sheet.termsLimitLabel")}
                 </Label>
                 <Input
                   id="planTermsLimit"
                   type="number"
                   value={termsLimit ?? ""}
-                  placeholder="Enter terms limit..."
+                  placeholder={t("sheet.termsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setTermsLimit(
@@ -510,13 +527,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planLabelsLimit">
-                  Labels Limit (Empty for unlimited)
+                  {t("sheet.labelsLimitLabel")}
                 </Label>
                 <Input
                   id="planLabelsLimit"
                   type="number"
                   value={labelsLimit ?? ""}
-                  placeholder="Enter labels limit..."
+                  placeholder={t("sheet.labelsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setLabelsLimit(
@@ -528,13 +545,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planMembersLimit">
-                  Members Limit (Empty for unlimited)
+                  {t("sheet.membersLimitLabel")}
                 </Label>
                 <Input
                   id="planMembersLimit"
                   type="number"
                   value={membersLimit ?? ""}
-                  placeholder="Enter members limit..."
+                  placeholder={t("sheet.membersLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setMembersLimit(
@@ -554,10 +571,13 @@ function EditPlanSheet({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Saving changes...
+                  {t("sheet.updatingPlan")}
                 </>
               ) : (
-                "Save changes"
+                <>
+                  <PencilIcon className="h-4 w-4" />
+                  {t("sheet.updatePlan")}
+                </>
               )}
             </Button>
 
@@ -567,7 +587,7 @@ function EditPlanSheet({
                 disabled={loading}
                 onClick={() => setEditingPlan(null)}
               >
-                Close
+                {t("sheet.close")}
               </Button>
             </SheetClose>
           </SheetFooter>
@@ -587,6 +607,7 @@ function DeletePlanDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("AdminPlansTable")
   const { user } = useSession()
 
   const [deletingPlan, setDeletingPlan] = useState<Plan | null>(null)
@@ -605,14 +626,15 @@ function DeletePlanDialog({
     await deletePlan(plan.id)
       .then(() => {
         toast.success(
-          `Deleted plan ${plan.displayName} (${plan.id.slice(0, 8)}).`
+          t("toast.deleteSuccess", {
+            displayName: plan.displayName,
+            id: plan.id.slice(0, 8),
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to delete plan. Please try again."
-        )
+        toast.error(error?.message || t("toast.deleteFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -647,9 +669,7 @@ function DeletePlanDialog({
           </span>
         </TooltipTrigger>
         {!canDeletePlans && (
-          <TooltipContent>
-            You don&rsquo;t have permission to delete plans.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionDelete")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -657,15 +677,12 @@ function DeletePlanDialog({
         <AlertDialogOverlay className="bg-red-950/30 backdrop-blur-sm" />
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialog.deletePlan.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              plan{" "}
-              <span className="font-mono">
-                {deletingPlan?.displayName} ({deletingPlan?.id.slice(0, 8)})
-              </span>{" "}
-              and all associated translations in all projects. Please confirm
-              that you want to proceed.
+              {t("dialog.deletePlan.description", {
+                displayName: deletingPlan?.displayName ?? "",
+                id: deletingPlan?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -675,7 +692,7 @@ function DeletePlanDialog({
               disabled={loading}
               onClick={() => setDeletingPlan(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -691,12 +708,12 @@ function DeletePlanDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting plan...
+                  {t("dialog.deletePlan.deletingPlan")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete Plan
+                  {t("dialog.deletePlan.deletePlan")}
                 </>
               )}
             </Button>

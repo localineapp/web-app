@@ -358,9 +358,11 @@ function DeleteApiKeyDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("dialog.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteApiKey.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("dialog.deleteDescription", {
+              {t("dialog.deleteApiKey.description", {
                 name: deletingApiKey?.name ?? "",
                 id: deletingApiKey?.id.slice(0, 8) ?? "",
               })}
@@ -389,12 +391,12 @@ function DeleteApiKeyDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("dialog.deletingApiKey")}
+                  {t("dialog.deleteApiKey.deletingApiKey")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  {t("dialog.deleteApiKey")}
+                  {t("dialog.deleteApiKey.deleteApiKey")}
                 </>
               )}
             </Button>

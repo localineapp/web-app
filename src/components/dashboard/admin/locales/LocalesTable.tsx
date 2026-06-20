@@ -614,9 +614,11 @@ function DeleteLocaleDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteDialog.title")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteLocale.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("deleteDialog.description", {
+              {t("dialog.deleteLocale.description", {
                 displayName: deletingLocale?.displayName ?? "",
                 id: deletingLocale?.id.slice(0, 8) ?? "",
               })}
@@ -629,7 +631,7 @@ function DeleteLocaleDialog({
               disabled={loading}
               onClick={() => setDeletingLocale(null)}
             >
-              {t("deleteDialog.cancel")}
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -645,12 +647,12 @@ function DeleteLocaleDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("deleteDialog.deletingLocale")}
+                  {t("dialog.deleteLocale.deletingLocale")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  {t("deleteDialog.deleteLocale")}
+                  {t("dialog.deleteLocale.deleteLocale")}
                 </>
               )}
             </Button>

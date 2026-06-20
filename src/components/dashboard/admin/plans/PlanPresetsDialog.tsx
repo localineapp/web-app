@@ -30,6 +30,7 @@ import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { Plan } from "@prisma/client"
 import { ImportIcon } from "lucide-react"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -76,6 +77,9 @@ const IMPORTABLE_PLANS: ImportablePlanProps[] = [
 
 export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
   const router = useRouter()
+  const t = useTranslations("PlanPresetsDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -129,14 +133,16 @@ export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
       )
 
       toast.success(
-        `Imported ${selectedPlans.length} locales (${result.count} created, ${selectedPlans.length - result.count} skipped).`
+        t("toast.importSuccess", {
+          count: selectedPlans.length,
+          created: result.count,
+          updated: selectedPlans.length - result.count,
+        })
       )
       router.refresh()
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to import plans. Please try again."
+        error instanceof Error ? error.message : t("toast.importFailed")
       )
     } finally {
       setLoading(false)
@@ -174,28 +180,22 @@ export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
                 disabled={!canCreatePlans || allPlansAlreadyImported || loading}
               >
                 <ImportIcon className="mr-2 h-4 w-4" />
-                Presets
+                {t("button.importPresets")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canCreatePlans ? (
-          <TooltipContent>
-            You don&rsquo;t have permission to create new plans.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         ) : allPlansAlreadyImported ? (
-          <TooltipContent>
-            All plan presets have already been imported.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPresets")}</TooltipContent>
         ) : null}
       </Tooltip>
 
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Plan Presets</DialogTitle>
-          <DialogDescription>
-            Select which presets you want to import into your system.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -221,45 +221,49 @@ export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
                 <CardTitle className="flex items-center justify-between">
                   <span>{plan.displayName}</span>
                   {selectedPlans.includes(plan) && (
-                    <Badge variant="outline">Selected</Badge>
+                    <Badge variant="outline">
+                      {t("dialog.card.planSelected")}
+                    </Badge>
                   )}
                   {isPlanAlreadyImported(plan) && (
-                    <Badge variant="destructive">Already Imported</Badge>
+                    <Badge variant="destructive">
+                      {t("dialog.card.alreadyImported")}
+                    </Badge>
                   )}
                 </CardTitle>
                 <CardDescription className={cn(!plan.description && "italic")}>
-                  {plan.description ?? "No description available."}
+                  {plan.description ?? t("dialog.card.noDescription")}
                 </CardDescription>
               </CardHeader>
 
               <CardContent>
                 <ul className="space-y-1">
                   <li>
-                    <strong>Locales Limit:</strong>{" "}
+                    <strong>{t("dialog.card.localesLimit")}</strong>{" "}
                     {plan.localesLimit !== undefined
-                      ? plan.localesLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.localesLimit)
+                      : t("dialog.card.unlimited")}
                   </li>
 
                   <li>
-                    <strong>Terms Limit:</strong>{" "}
+                    <strong>{t("dialog.card.termsLimit")}</strong>{" "}
                     {plan.termsLimit !== undefined
-                      ? plan.termsLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.termsLimit)
+                      : t("dialog.card.unlimited")}
                   </li>
 
                   <li>
-                    <strong>Labels Limit:</strong>{" "}
+                    <strong>{t("dialog.card.labelsLimit")}</strong>{" "}
                     {plan.labelsLimit !== undefined
-                      ? plan.labelsLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.labelsLimit)
+                      : t("dialog.card.unlimited")}
                   </li>
 
                   <li>
-                    <strong>Members Limit:</strong>{" "}
+                    <strong>{t("dialog.card.membersLimit")}</strong>{" "}
                     {plan.membersLimit !== undefined
-                      ? plan.membersLimit.toLocaleString("en-US")
-                      : "∞"}
+                      ? format.number(plan.membersLimit)
+                      : t("dialog.card.unlimited")}
                   </li>
                 </ul>
               </CardContent>
@@ -276,7 +280,7 @@ export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -287,12 +291,12 @@ export default function PlanPresetsDialog({ plans }: { plans: Plan[] }) {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Importing...
+                {t("dialog.importingPlans")}
               </>
             ) : (
               <>
                 <ImportIcon className="h-4 w-4" />
-                Import Presets ({selectedPlans.length})
+                {t("dialog.importPlans", { count: selectedPlans.length })}
               </>
             )}
           </Button>
