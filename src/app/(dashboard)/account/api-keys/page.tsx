@@ -12,7 +12,6 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("title"),
   }
 }
-}
 
 export default async function ApiKeysPage() {
   const t = await getTranslations("ApiKeysPage")
