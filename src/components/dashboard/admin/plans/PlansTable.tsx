@@ -283,25 +283,25 @@ export default function AdminPlansTable({
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {plan.localesLimit
+                    {plan.localesLimit !== null
                       ? format.number(plan.localesLimit)
                       : t("unlimited")}
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {plan.termsLimit
+                    {plan.termsLimit !== null
                       ? format.number(plan.termsLimit)
                       : t("unlimited")}
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {plan.labelsLimit
+                    {plan.labelsLimit !== null
                       ? format.number(plan.labelsLimit)
                       : t("unlimited")}
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {plan.membersLimit
+                    {plan.membersLimit !== null
                       ? format.number(plan.membersLimit)
                       : t("unlimited")}
                   </TableCell>
@@ -456,22 +456,26 @@ function EditPlanSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.title", {
+              {t("sheet.editPlan.title", {
                 displayName: editingPlan?.displayName ?? "",
                 id: editingPlan?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
-            <SheetDescription>{t("sheet.description")}</SheetDescription>
+            <SheetDescription>
+              {t("sheet.editPlan.description")}
+            </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="planName">{t("sheet.displayNameLabel")}</Label>
+                <Label htmlFor="planName">
+                  {t("sheet.editPlan.displayNameLabel")}
+                </Label>
                 <Input
                   id="planName"
                   value={displayName}
-                  placeholder={t("sheet.displayNamePlaceholder")}
+                  placeholder={t("sheet.editPlan.displayNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -480,12 +484,12 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planDescription">
-                  {t("sheet.descriptionLabel")}
+                  {t("sheet.editPlan.descriptionLabel")}
                 </Label>
                 <Input
                   id="planDescription"
                   value={description || ""}
-                  placeholder={t("sheet.descriptionPlaceholder")}
+                  placeholder={t("sheet.editPlan.descriptionPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setDescription(event.target.value)}
                 />
@@ -493,13 +497,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planLocalesLimit">
-                  {t("sheet.localesLimitLabel")}
+                  {t("sheet.editPlan.localesLimitLabel")}
                 </Label>
                 <Input
                   id="planLocalesLimit"
                   type="number"
                   value={localesLimit ?? ""}
-                  placeholder={t("sheet.localesLimitPlaceholder")}
+                  placeholder={t("sheet.editPlan.localesLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setLocalesLimit(
@@ -511,13 +515,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planTermsLimit">
-                  {t("sheet.termsLimitLabel")}
+                  {t("sheet.editPlan.termsLimitLabel")}
                 </Label>
                 <Input
                   id="planTermsLimit"
                   type="number"
                   value={termsLimit ?? ""}
-                  placeholder={t("sheet.termsLimitPlaceholder")}
+                  placeholder={t("sheet.editPlan.termsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setTermsLimit(
@@ -529,13 +533,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planLabelsLimit">
-                  {t("sheet.labelsLimitLabel")}
+                  {t("sheet.editPlan.labelsLimitLabel")}
                 </Label>
                 <Input
                   id="planLabelsLimit"
                   type="number"
                   value={labelsLimit ?? ""}
-                  placeholder={t("sheet.labelsLimitPlaceholder")}
+                  placeholder={t("sheet.editPlan.labelsLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setLabelsLimit(
@@ -547,13 +551,13 @@ function EditPlanSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="planMembersLimit">
-                  {t("sheet.membersLimitLabel")}
+                  {t("sheet.editPlan.membersLimitLabel")}
                 </Label>
                 <Input
                   id="planMembersLimit"
                   type="number"
                   value={membersLimit ?? ""}
-                  placeholder={t("sheet.membersLimitPlaceholder")}
+                  placeholder={t("sheet.editPlan.membersLimitPlaceholder")}
                   disabled={loading}
                   onChange={(event) =>
                     setMembersLimit(
@@ -573,12 +577,12 @@ function EditPlanSheet({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("sheet.updatingPlan")}
+                  {t("sheet.editPlan.updatingPlan")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="h-4 w-4" />
-                  {t("sheet.updatePlan")}
+                  {t("sheet.editPlan.updatePlan")}
                 </>
               )}
             </Button>

@@ -294,7 +294,7 @@ function EditLocaleSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
-  const t = useTranslations("LocalesTable")
+  const t = useTranslations("AdminLocalesTable")
   const { user } = useSession()
 
   const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
@@ -396,24 +396,26 @@ function EditLocaleSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              {t("sheet.title", {
+              {t("sheet.editLocale.title", {
                 displayName: editingLocale?.displayName ?? "",
                 id: editingLocale?.id.slice(0, 8) ?? "",
               })}
             </SheetTitle>
-            <SheetDescription>{t("sheet.description")}</SheetDescription>
+            <SheetDescription>
+              {t("sheet.editLocale.description")}
+            </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
                 <Label htmlFor="localeName">
-                  {t("sheet.displayNameLabel")}
+                  {t("sheet.editLocale.displayNameLabel")}
                 </Label>
                 <Input
                   id="localeName"
                   value={displayName}
-                  placeholder={t("sheet.displayNamePlaceholder")}
+                  placeholder={t("sheet.editLocale.displayNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -422,12 +424,12 @@ function EditLocaleSheet({
 
               <div className="grid gap-3">
                 <Label htmlFor="localeLanguage">
-                  {t("sheet.languageLabel")}
+                  {t("sheet.editLocale.languageLabel")}
                 </Label>
                 <Input
-                  id="language"
+                  id="localeLanguage"
                   value={language}
-                  placeholder={t("sheet.languagePlaceholder")}
+                  placeholder={t("sheet.editLocale.languagePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setLanguage(event.target.value)}
@@ -435,22 +437,26 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeRegion">{t("sheet.regionLabel")}</Label>
+                <Label htmlFor="localeRegion">
+                  {t("sheet.editLocale.regionLabel")}
+                </Label>
                 <Input
-                  id="region"
+                  id="localeRegion"
                   value={region || ""}
-                  placeholder={t("sheet.regionPlaceholder")}
+                  placeholder={t("sheet.editLocale.regionPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setRegion(event.target.value)}
                 />
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeCode">{t("sheet.codeLabel")}</Label>
+                <Label htmlFor="localeCode">
+                  {t("sheet.editLocale.codeLabel")}
+                </Label>
                 <Input
                   id="localeCode"
                   value={code}
-                  placeholder={t("sheet.codePlaceholder")}
+                  placeholder={t("sheet.editLocale.codePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setCode(event.target.value)}
@@ -458,7 +464,9 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeFlag">{t("sheet.flagLabel")}</Label>
+                <Label htmlFor="localeFlag">
+                  {t("sheet.editLocale.flagLabel")}
+                </Label>
                 <FlagPickerField
                   id="localeFlag"
                   value={flag || ""}
@@ -468,7 +476,9 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="enabled">{t("sheet.enabledLabel")}</Label>
+                <Label htmlFor="enabled">
+                  {t("sheet.editLocale.enabledLabel")}
+                </Label>
                 <ToggleGroup
                   type="single"
                   className="grid w-full grid-cols-2 border-2"
@@ -484,13 +494,13 @@ function EditLocaleSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.enabledYes")}
+                    {t("sheet.editLocale.enabledYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    {t("sheet.enabledNo")}
+                    {t("sheet.editLocale.enabledNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -507,12 +517,12 @@ function EditLocaleSheet({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  {t("toast.updatingLocale")}
+                  {t("sheet.editLocale.updatingLocale")}
                 </>
               ) : (
                 <>
                   <PencilIcon className="h-4 w-4" />
-                  {t("sheet.updateLocale")}
+                  {t("sheet.editLocale.updateLocale")}
                 </>
               )}
             </Button>
@@ -543,7 +553,7 @@ function DeleteLocaleDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
-  const t = useTranslations("LocalesTable")
+  const t = useTranslations("AdminLocalesTable")
   const { user } = useSession()
 
   const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
