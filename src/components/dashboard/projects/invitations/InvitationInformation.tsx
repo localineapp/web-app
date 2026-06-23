@@ -120,7 +120,7 @@ export default function InvitationInformation({
 
                 <div className="flex items-start justify-between gap-4">
                   <dt className="text-muted-foreground">
-                    {t("card.content.aside.ExpiresOn")}
+                    {t("card.content.aside.expiresOn")}
                   </dt>
                   <dd className="text-right font-medium text-foreground">
                     {format.dateTime(invitation.expiresAt, {
