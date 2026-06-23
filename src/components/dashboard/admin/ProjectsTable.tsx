@@ -342,7 +342,7 @@ function ChangePlanDialog({
           <DialogTitle>
             {t("dialog.updatePlan.title", {
               projectName: project.name,
-              projectId: project.id,
+              projectId: project.id.slice(0, 8),
             })}
           </DialogTitle>
           <DialogDescription>
