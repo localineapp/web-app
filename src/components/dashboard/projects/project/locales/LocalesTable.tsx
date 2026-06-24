@@ -43,13 +43,16 @@ import { getFlag } from "@/lib/project-utils"
 import { cn } from "@/lib/utils"
 import { ProjectLocaleWithLocale } from "@/types/project"
 import { SearchIcon, TrashIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 const PAGE_SIZE = 10
 
-export default function LocalesTable() {
+export default function ProjectLocalesTable() {
+  const t = useTranslations("ProjectLocalesTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -101,7 +104,7 @@ export default function LocalesTable() {
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search locales by ID, name, or code..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -117,11 +120,17 @@ export default function LocalesTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead className="text-center">Flag</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.id")}
+              </TableHead>
+              <TableHead>{t("tableHeader.name")}</TableHead>
+              <TableHead>{t("tableHeader.code")}</TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.flag")}
+              </TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -157,11 +166,11 @@ export default function LocalesTable() {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>Invalid flag</p>
+                          <p>{t("invalidFlag")}</p>
                         )
                       })()
                     ) : (
-                      <p>None</p>
+                      <p>{t("noFlag")}</p>
                     )}
                   </TableCell>
 
@@ -184,8 +193,8 @@ export default function LocalesTable() {
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No locales found matching your search."
-                    : "No locales found."}
+                    ? t("table.noLocalesFound", { query: searchQuery })
+                    : t("table.noLocalesFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -217,6 +226,7 @@ function RemoveLocaleDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectLocalesTable")
 
   const [removingLocale, setRemovingLocale] =
     useState<ProjectLocaleWithLocale | null>(null)
@@ -230,14 +240,14 @@ function RemoveLocaleDialog({
     })
       .then(() => {
         toast.success(
-          `Removed locale ${projectLocale.locale.displayName} (${projectLocale.id.slice(0, 8)}).`
+          t("toast.removeSuccess", {
+            localeName: projectLocale.locale.displayName,
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to delete locale. Please try again."
-        )
+        toast.error(error?.message || t("toast.removeFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -272,9 +282,7 @@ function RemoveLocaleDialog({
           </span>
         </TooltipTrigger>
         {!canManageLocales && (
-          <TooltipContent>
-            You don&rsquo;t have permission to manage locales.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -283,16 +291,14 @@ function RemoveLocaleDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.removeLocale.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently remove the
-              locale{" "}
-              <span className="font-mono">
-                {removingLocale?.locale.displayName} (
-                {removingLocale?.id.slice(0, 8)})
-              </span>{" "}
-              and all associated translations in the projects. Please confirm
-              that you want to proceed.
+              {t("dialog.removeLocale.description", {
+                localeName: removingLocale?.locale.displayName ?? "",
+                localeId: removingLocale?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -302,7 +308,7 @@ function RemoveLocaleDialog({
               disabled={loading}
               onClick={() => setRemovingLocale(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -318,12 +324,12 @@ function RemoveLocaleDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Removing locale...
+                  {t("dialog.removeLocale.removingLocale")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete Locale
+                  {t("dialog.removeLocale.removeLocale")}
                 </>
               )}
             </Button>

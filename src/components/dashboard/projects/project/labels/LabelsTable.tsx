@@ -68,8 +68,8 @@ import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function LabelsTable() {
-  const t = useTranslations("LabelsTable")
+export default function ProjectLabelsTable() {
+  const t = useTranslations("ProjectLabelsTable")
 
   const { user } = useSession()
   const { project, member } = useProject()
@@ -272,7 +272,7 @@ function EditLabelSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
-  const t = useTranslations("LabelsTable")
+  const t = useTranslations("ProjectLabelsTable")
 
   const [editingLabel, setEditingLabel] = useState<ProjectLabel | null>(null)
 
@@ -478,7 +478,7 @@ function DeleteLabelDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
-  const t = useTranslations("LabelsTable")
+  const t = useTranslations("ProjectLabelsTable")
 
   const [deletingLabel, setDeletingLabel] = useState<ProjectLabel | null>(null)
 

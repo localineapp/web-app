@@ -1,5 +1,5 @@
 import CreateLabelDialog from "@/components/dashboard/projects/project/labels/CreateLabelDialog"
-import LabelsTable from "@/components/dashboard/projects/project/labels/LabelsTable"
+import ProjectLabelsTable from "@/components/dashboard/projects/project/labels/LabelsTable"
 import ProjectNavigation from "@/components/dashboard/projects/project/ProjectNavigation"
 import { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
@@ -25,7 +25,7 @@ export default async function ProjectLabelsPage() {
       </div>
 
       <div>
-        <LabelsTable />
+        <ProjectLabelsTable />
       </div>
     </div>
   )
