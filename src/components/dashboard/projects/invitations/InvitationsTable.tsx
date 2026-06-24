@@ -20,8 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { generateRoleBadge } from "@/lib/project-utils"
-import { formatDate } from "@/lib/utils"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
@@ -31,6 +30,7 @@ export default function InvitationsTable({
   invitations: ProjectInvitationWithProjectAndRole[]
 }) {
   const t = useTranslations("InvitationsTable")
+  const format = useFormatter()
 
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
@@ -106,7 +106,12 @@ export default function InvitationsTable({
                     )}
                   </TableCell>
 
-                  <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
+                  <TableCell>
+                    {format.dateTime(invitation.expiresAt, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </TableCell>
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">

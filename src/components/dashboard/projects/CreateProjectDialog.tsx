@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Plan } from "@prisma/client"
 import { PlusIcon } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
@@ -36,6 +36,8 @@ export default function CreateProjectDialog({
 }) {
   const router = useRouter()
   const t = useTranslations("CreateProjectDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -101,8 +103,8 @@ export default function CreateProjectDialog({
             {projectLimit === 0
               ? t("tooltip.limitZero")
               : t("tooltip.limitExceeded", {
-                  current: projectCount,
-                  limit: projectLimit,
+                  current: format.number(projectCount),
+                  limit: format.number(projectLimit),
                 })}
           </TooltipContent>
         ) : (

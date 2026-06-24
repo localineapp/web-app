@@ -24,7 +24,7 @@ import {
 import { authClient } from "@/lib/auth-client"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { PlusIcon } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
@@ -32,6 +32,7 @@ import { toast } from "sonner"
 export default function CreateLabelDialog() {
   const router = useRouter()
   const t = useTranslations("CreateLabelDialog")
+  const format = useFormatter()
 
   const { user } = useSession()
   const { project, member } = useProject()
@@ -116,8 +117,8 @@ export default function CreateLabelDialog() {
               {project.plan.labelsLimit === 0
                 ? t("tooltip.limitZero")
                 : t("tooltip.limitReached", {
-                    current: project.labels.length,
-                    limit: project.plan.labelsLimit ?? 0,
+                    current: format.number(project.labels.length),
+                    limit: format.number(project.plan.labelsLimit ?? 0),
                   })}
             </TooltipContent>
           )

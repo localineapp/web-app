@@ -28,11 +28,12 @@ import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { authClient } from "@/lib/auth-client"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
   const router = useRouter()
   const t = useTranslations("AddLocaleDialog")
+  const format = useFormatter()
 
   const { user } = useSession()
   const { project, member } = useProject()
@@ -119,8 +120,8 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
               {project.plan.localesLimit === 0
                 ? t("tooltip.limitZero")
                 : t("tooltip.limitReached", {
-                    current: project.locales.length,
-                    limit: project.plan.localesLimit ?? 0,
+                    current: format.number(project.locales.length),
+                    limit: format.number(project.plan.localesLimit ?? 0),
                   })}
             </TooltipContent>
           )
