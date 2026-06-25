@@ -52,7 +52,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip"
 import { generateRoleBadge } from "@/lib/project-utils"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { FullProjectMember, ProjectLocaleWithLocale } from "@/types/project"
 import { ProjectMember, ProjectMemberRole } from "@prisma/client"
 import {
@@ -70,14 +70,18 @@ import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { authClient } from "@/lib/auth-client"
+import { useFormatter, useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function MembersTable({
+export default function ProjectMembersTable({
   members,
 }: {
   members: FullProjectMember[]
 }) {
+  const t = useTranslations("ProjectMembersTable")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project } = useProject()
 
@@ -129,12 +133,18 @@ export default function MembersTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-center">Role</TableHead>
-              <TableHead>Assigned Locales</TableHead>
-              <TableHead>Member since</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.id")}
+              </TableHead>
+              <TableHead>{t("tableHeader.name")}</TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.role")}
+              </TableHead>
+              <TableHead>{t("tableHeader.assignedLocales")}</TableHead>
+              <TableHead>{t("tableHeader.joinedAt")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -155,11 +165,11 @@ export default function MembersTable({
                             {projectMember.user.name}
                           </span>
                           {projectMember.user.id === user?.id && (
-                            <Badge>You</Badge>
+                            <Badge>{t("badge.you")}</Badge>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          E-Mail:{" "}
+                          {t("email")}
                           <span
                             className={cn(
                               projectMember.user.email === "" && "blur-xs"
@@ -194,12 +204,17 @@ export default function MembersTable({
                         ))
                       ) : (
                         <span className="text-muted-foreground italic">
-                          No specific locales assigned
+                          {t("noAssignedLocales")}
                         </span>
                       )}
                     </TableCell>
 
-                    <TableCell>{formatDate(projectMember.createdAt)}</TableCell>
+                    <TableCell>
+                      {format.dateTime(projectMember.createdAt, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </TableCell>
 
                     <TableCell>
                       <div className="flex items-center justify-center gap-2">
@@ -233,8 +248,8 @@ export default function MembersTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No members found matching your search."
-                    : "No members found."}
+                    ? t("table.noMembersFound", { query: searchQuery })
+                    : t("table.noMembersFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -266,6 +281,8 @@ function EditMemberRoleDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMembersTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -307,14 +324,16 @@ function EditMemberRoleDialog({
     })
       .then(() => {
         toast.success(
-          `The role of ${projectMember.user.name} has been updated to ${role.name}.`
+          t("toast.roleUpdateSuccess", {
+            name: projectMember.user.name,
+            id: projectMember.id,
+            role: role.name,
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update member role. Please try again."
-        )
+        toast.error(error?.message || t("toast.roleUpdateFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -352,14 +371,10 @@ function EditMemberRoleDialog({
           </span>
         </TooltipTrigger>
         {!canUpdateMembers && (
-          <TooltipContent>
-            You don&rsquo;t have permission to update members.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdateRole")}</TooltipContent>
         )}
         {isOwner && (
-          <TooltipContent>
-            The owner&rsquo;s role cannot be changed.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.ownerCannotChangeRole")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -367,29 +382,29 @@ function EditMemberRoleDialog({
         className={cn(editingMember?.user.id === user?.id && "sm:max-w-130")}
       >
         <DialogHeader>
-          <DialogTitle>Update Member Role</DialogTitle>
+          <DialogTitle>
+            {t("dialog.updateRole.title", {
+              name: editingMember?.user.name ?? "",
+              id: editingMember?.id ?? "",
+            })}
+          </DialogTitle>
           <DialogDescription>
-            You are updating the role of{" "}
-            <span className="font-medium">{editingMember?.user.name}</span>.
-            Please select a new role for this member.
+            {t("dialog.updateRole.description")}
           </DialogDescription>
 
           {editingMember?.user.id === user?.id && (
             <Alert className="mt-2 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
               <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-              <AlertTitle>Updating Own Role</AlertTitle>
+              <AlertTitle>{t("alert.updateOwnRole.title")}</AlertTitle>
               <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                Changing your own role may affect your permissions in the
-                project. You may lose access to certain features or the ability
-                to manage members if you select a role with fewer permissions.
-                Please proceed with caution.
+                {t("alert.updateOwnRole.description")}
               </AlertDescription>
             </Alert>
           )}
         </DialogHeader>
 
         <div className="space-y-2 py-2">
-          <Label htmlFor="role">Role</Label>
+          <Label htmlFor="role">{t("dialog.updateRole.roleLabel")}</Label>
           <RolePickerField
             id={`role-${editingMember?.id}`}
             roles={project.memberRoles
@@ -418,7 +433,7 @@ function EditMemberRoleDialog({
             onClick={() => setEditingMember(null)}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -437,12 +452,12 @@ function EditMemberRoleDialog({
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Updating role...
+                {t("dialog.updateRole.updatingRole")}
               </>
             ) : (
               <>
                 <PencilIcon className="h-4 w-4" />
-                Update Role
+                {t("dialog.updateRole.updateRole")}
               </>
             )}
           </Button>
@@ -464,6 +479,8 @@ function EditMemberLocalesDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMembersTable")
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -507,14 +524,15 @@ function EditMemberLocalesDialog({
     })
       .then(() => {
         toast.success(
-          `The locales of ${projectMember.user.name} have been updated.`
+          t("toast.localesUpdateSuccess", {
+            name: projectMember.user.name,
+            id: projectMember.id,
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update member locales. Please try again."
-        )
+        toast.error(error?.message || t("toast.localesUpdateFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -553,28 +571,33 @@ function EditMemberLocalesDialog({
         </TooltipTrigger>
         {!canUpdateMembers && (
           <TooltipContent>
-            You don&rsquo;t have permission to update members.
+            {t("tooltip.noPermissionUpdateLocales")}
           </TooltipContent>
         )}
         {isOwner && (
           <TooltipContent>
-            The owner can&rsquo;t have specific locales assigned.
+            {t("tooltip.ownerCannotChangeLocales")}
           </TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Update Member Locales</DialogTitle>
+          <DialogTitle>
+            {t("dialog.updateLocales.title", {
+              name: editingMember?.user.name ?? "",
+              id: editingMember?.id ?? "",
+            })}
+          </DialogTitle>
           <DialogDescription>
-            You are updating the locales of{" "}
-            <span className="font-medium">{editingMember?.user.name}</span>.
-            Please select new locales for this member.
+            {t("dialog.updateLocales.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 py-2">
-          <Label htmlFor="locales">Assigned Locales</Label>
+          <Label htmlFor="locales">
+            {t("dialog.updateLocales.localesLabel")}
+          </Label>
           <ProjectLocalesPicker
             id={`locales-${editingMember?.id}`}
             locales={project.locales}
@@ -590,7 +613,7 @@ function EditMemberLocalesDialog({
             onClick={() => setEditingMember(null)}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -604,12 +627,12 @@ function EditMemberLocalesDialog({
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Updating locales...
+                {t("dialog.updateLocales.updatingLocales")}
               </>
             ) : (
               <>
                 <PencilIcon className="h-4 w-4" />
-                Update Locales
+                {t("dialog.updateLocales.updateLocales")}
               </>
             )}
           </Button>
@@ -631,6 +654,8 @@ function RemoveMemberDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ProjectMembersTable")
+
   const { user } = useSession()
   const { member } = useProject()
 
@@ -658,13 +683,16 @@ function RemoveMemberDialog({
       memberId: currentMember.id,
     })
       .then((projectMember) => {
-        toast.success(`Removed member ${projectMember.user.name}.`)
+        toast.success(
+          t("toast.removeMemberSuccess", {
+            name: projectMember.user.name,
+            id: projectMember.id,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to remove member. Please try again."
-        )
+        toast.error(error?.message || t("toast.removeMemberFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -702,13 +730,11 @@ function RemoveMemberDialog({
         </TooltipTrigger>
         {!canRemoveMembers && (
           <TooltipContent>
-            You don&rsquo;t have permission to remove members.
+            {t("tooltip.noPermissionRemoveMember")}
           </TooltipContent>
         )}
         {isOwner && (
-          <TooltipContent>
-            The owner can&rsquo;t be removed from the project.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.ownerCannotBeRemoved")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -717,26 +743,22 @@ function RemoveMemberDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove member?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.removeMember.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently remove the
-              member{" "}
-              <span className="font-mono">
-                {removingMember?.user.name} (
-                {removingMember?.user.id.slice(0, 8)})
-              </span>
-              .
+              {t("dialog.removeMember.description", {
+                name: removingMember?.user.name ?? "",
+                id: removingMember?.id ?? "",
+              })}
             </AlertDialogDescription>
 
             {removingMember?.user.id === user?.id && (
               <Alert className="mt-4 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-50">
                 <AlertTriangleIcon className="size-4 text-amber-600 dark:text-amber-300" />
-                <AlertTitle>Removing Own Membership</AlertTitle>
+                <AlertTitle>{t("alert.removeOwnMembership.title")}</AlertTitle>
                 <AlertDescription className="text-amber-900/80 dark:text-amber-100/80">
-                  You are about to remove your own membership from this project.
-                  This will result in losing access to the project and all its
-                  resources. You will need to be re-invited by another member to
-                  regain access. Please proceed with caution.
+                  {t("alert.removeOwnMembership.description")}
                 </AlertDescription>
               </Alert>
             )}
@@ -748,7 +770,7 @@ function RemoveMemberDialog({
               disabled={loading}
               onClick={() => setRemovingMember(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -763,12 +785,12 @@ function RemoveMemberDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Removing member...
+                  {t("dialog.removingMember")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Remove Member
+                  {t("dialog.removeMember")}
                 </>
               )}
             </Button>

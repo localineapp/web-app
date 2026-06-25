@@ -3,11 +3,10 @@
 import { useProject } from "@/components/project-provider"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getColorClassName, getColorStyle, getIcon } from "@/lib/project-utils"
-import { formatDate } from "@/lib/utils"
 import { FullProject } from "@/types/project"
 import { ProjectMemberRole } from "@prisma/client"
 import { CalendarIcon, FlagIcon, Globe2Icon, TagIcon } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 import { createElement } from "react"
 
 export default function MemberInfoCards() {
@@ -128,6 +127,7 @@ function JoinedAtCard({
   isMember: boolean
 }) {
   const t = useTranslations("MemberInfoCards")
+  const format = useFormatter()
 
   return (
     <Card>
@@ -144,7 +144,12 @@ function JoinedAtCard({
             {t("joinedAt.noMember")}
           </p>
         ) : (
-          <div className="text-2xl font-medium">{formatDate(joinedAt)}</div>
+          <div className="text-2xl font-medium">
+            {format.dateTime(joinedAt ?? new Date(), {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </div>
         )}
       </CardContent>
     </Card>
