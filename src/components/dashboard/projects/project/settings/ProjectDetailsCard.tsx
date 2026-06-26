@@ -72,6 +72,7 @@ export default function ProjectDetailsCard() {
         toast.success(
           t("toast.updateNameSuccess", { name: project?.name ?? "" })
         )
+        setName(project?.name ?? "")
         router.refresh()
       })
       .catch((error) => {
@@ -80,7 +81,6 @@ export default function ProjectDetailsCard() {
       .finally(() => {
         setLoading(false)
         setNameDialogOpen(false)
-        setName(project?.name ?? "")
       })
   }
 
@@ -100,6 +100,7 @@ export default function ProjectDetailsCard() {
             description: project?.description ?? "",
           })
         )
+        setDescription(project?.description ?? "")
         router.refresh()
       })
       .catch((error) => {
@@ -108,7 +109,6 @@ export default function ProjectDetailsCard() {
       .finally(() => {
         setLoading(false)
         setDescriptionDialogOpen(false)
-        setDescription(project?.description ?? "")
       })
   }
 

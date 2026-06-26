@@ -84,7 +84,7 @@ function LocalesCard({
         </CardTitle>
 
         <div className="flex items-center gap-1">
-          {hasLocales ?? (
+          {hasLocales && (
             <span className="mr-1 text-sm">{locales?.length ?? 0}</span>
           )}
 
