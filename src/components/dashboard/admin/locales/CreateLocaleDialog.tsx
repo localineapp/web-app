@@ -22,12 +22,14 @@ import {
 } from "@/components/ui/tooltip"
 import { authClient } from "@/lib/auth-client"
 import { PlusIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
 
 export default function CreateLocaleDialog() {
   const router = useRouter()
+  const t = useTranslations("CreateLocaleDialog")
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -58,13 +60,16 @@ export default function CreateLocaleDialog() {
       enabled: true,
     })
       .then(() => {
-        toast.success(`Created locale ${displayName} (${code}).`)
+        toast.success(
+          t("toast.creationSuccess", {
+            displayName,
+            code,
+          })
+        )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to create locale. Please try again."
-        )
+        toast.error(error?.message || t("toast.creationFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -86,50 +91,48 @@ export default function CreateLocaleDialog() {
             <DialogTrigger asChild disabled={!canCreateLocales || loading}>
               <Button variant="outline" disabled={!canCreateLocales || loading}>
                 <PlusIcon className="mr-2 h-4 w-4" />
-                New Locale
+                {t("button.createLocale")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canCreateLocales && (
-          <TooltipContent>
-            You don&rsquo;t have permission to create a new locale.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         )}
       </Tooltip>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new locale</DialogTitle>
-          <DialogDescription>Add a new locale to the system.</DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="localeLanguage">Language</Label>
+            <Label htmlFor="localeLanguage">{t("dialog.languageLabel")}</Label>
             <Input
               id="localeLanguage"
-              placeholder="e.g. English"
+              placeholder={t("dialog.languagePlaceholder")}
               value={language}
               onChange={({ target: { value } }) => setLanguage(value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="localeRegion">Region (optional)</Label>
+            <Label htmlFor="localeRegion">{t("dialog.regionLabel")}</Label>
             <Input
               id="localeRegion"
-              placeholder="e.g. United States"
+              placeholder={t("dialog.regionPlaceholder")}
               value={region || ""}
               onChange={({ target: { value } }) => setRegion(value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="localeCode">Locale code</Label>
+            <Label htmlFor="localeCode">{t("dialog.codeLabel")}</Label>
             <Input
               id="localeCode"
-              placeholder="e.g. en_US"
+              placeholder={t("dialog.codePlaceholder")}
               value={code}
               onChange={({ target: { value } }) => setCode(value)}
             />
@@ -147,7 +150,7 @@ export default function CreateLocaleDialog() {
             }}
             disabled={loading}
           >
-            Close
+            {t("dialog.close")}
           </Button>
 
           <Button
@@ -158,12 +161,12 @@ export default function CreateLocaleDialog() {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Creating...
+                {t("dialog.creatingLocale")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Create Locale
+                {t("dialog.createLocale")}
               </>
             )}
           </Button>

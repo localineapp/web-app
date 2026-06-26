@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { generateRoleBadge } from "@/lib/project-utils"
-import { formatDate } from "@/lib/utils"
+import { useFormatter, useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
@@ -29,6 +29,9 @@ export default function InvitationsTable({
 }: {
   invitations: ProjectInvitationWithProjectAndRole[]
 }) {
+  const t = useTranslations("InvitationsTable")
+  const format = useFormatter()
+
   const [page, setPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -55,7 +58,7 @@ export default function InvitationsTable({
     <>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search invitations by ID or project..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -71,16 +74,20 @@ export default function InvitationsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Project Name</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Expires at</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.id")}
+              </TableHead>
+              <TableHead>{t("tableHeader.projectName")}</TableHead>
+              <TableHead>{t("tableHeader.role")}</TableHead>
+              <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {invitations.length > 0 ? (
+            {filteredInvitations.length > 0 ? (
               currentInvitations.map(async (invitation) => (
                 <TableRow key={invitation.id}>
                   <TableCell className="text-center">
@@ -99,7 +106,12 @@ export default function InvitationsTable({
                     )}
                   </TableCell>
 
-                  <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
+                  <TableCell>
+                    {format.dateTime(invitation.expiresAt, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </TableCell>
 
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
@@ -123,8 +135,8 @@ export default function InvitationsTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No invitations found matching your search."
-                    : "No invitations found."}
+                    ? t("table.noInvitationsFound", { query: searchQuery })
+                    : t("table.noInvitationsFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}

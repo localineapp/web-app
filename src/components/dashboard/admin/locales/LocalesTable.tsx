@@ -79,10 +79,13 @@ import FlagPickerField from "@/components/ui/custom/FlagPickerField"
 import { getFlag } from "@/lib/project-utils"
 import { useSession } from "@/components/session-provider"
 import { authClient } from "@/lib/auth-client"
+import { useTranslations } from "next-intl"
 
 const PAGE_SIZE = 10
 
-export default function LocalesTable({ locales }: { locales: Locale[] }) {
+export default function AdminLocalesTable({ locales }: { locales: Locale[] }) {
+  const t = useTranslations("AdminLocalesTable")
+
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -119,10 +122,10 @@ export default function LocalesTable({ locales }: { locales: Locale[] }) {
             <GlobeIcon />
           </EmptyMedia>
 
-          <EmptyTitle>No Locales Yet</EmptyTitle>
+          <EmptyTitle>{t("empty.title")}</EmptyTitle>
 
           <EmptyDescription className="grid gap-2">
-            There have been no locales created yet.
+            {t("empty.description")}
             <CreateLocaleDialog />
           </EmptyDescription>
         </EmptyHeader>
@@ -134,7 +137,7 @@ export default function LocalesTable({ locales }: { locales: Locale[] }) {
     <div>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search locales by name or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -150,25 +153,30 @@ export default function LocalesTable({ locales }: { locales: Locale[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Display Name</TableHead>
-              <TableHead>Language</TableHead>
-              <TableHead>Region</TableHead>
-              <TableHead>Code</TableHead>
-              <TableHead className="text-center">Flag</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.id")}
+              </TableHead>
+              <TableHead>{t("tableHeader.displayName")}</TableHead>
+              <TableHead>{t("tableHeader.language")}</TableHead>
+              <TableHead>{t("tableHeader.region")}</TableHead>
+              <TableHead>{t("tableHeader.code")}</TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.flag")}
+              </TableHead>
               <TableHead className="text-center">
                 <HoverCard openDelay={10} closeDelay={10}>
                   <HoverCardTrigger asChild>
-                    <Button variant="ghost">Enabled</Button>
+                    <Button variant="ghost">{t("tableHeader.enabled")}</Button>
                   </HoverCardTrigger>
 
                   <HoverCardContent>
-                    Indicates whether the locale can be selected by users in
-                    their projects.
+                    {t("tableHeader.enabledHover")}
                   </HoverCardContent>
                 </HoverCard>
               </TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -214,11 +222,11 @@ export default function LocalesTable({ locales }: { locales: Locale[] }) {
                             aria-hidden="true"
                           />
                         ) : (
-                          <p>Invalid flag</p>
+                          <p>{t("invalidFlag")}</p>
                         )
                       })()
                     ) : (
-                      <p>None</p>
+                      <p>{t("none")}</p>
                     )}
                   </TableCell>
 
@@ -255,8 +263,8 @@ export default function LocalesTable({ locales }: { locales: Locale[] }) {
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No locales found matching your search."
-                    : "No locales found."}
+                    ? t("table.noLocalesFound", { query: searchQuery })
+                    : t("table.noLocalesFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -286,6 +294,7 @@ function EditLocaleSheet({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("AdminLocalesTable")
   const { user } = useSession()
 
   const [editingLocale, setEditingLocale] = useState<Locale | null>(null)
@@ -331,14 +340,15 @@ function EditLocaleSheet({
     })
       .then(() => {
         toast.success(
-          `Updated locale ${displayName} (${editingLocale.id.slice(0, 8)}).`
+          t("toast.updateSuccess", {
+            displayName,
+            id: editingLocale.id.slice(0, 8),
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to update locale. Please try again."
-        )
+        toast.error(error?.message || t("toast.updateFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -375,9 +385,7 @@ function EditLocaleSheet({
           </SheetTrigger>
         </TooltipTrigger>
         {!canUpdateLocales && (
-          <TooltipContent>
-            You don&rsquo;t have permission to edit locales.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionUpdate")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -388,23 +396,26 @@ function EditLocaleSheet({
         >
           <SheetHeader className="shrink-0">
             <SheetTitle>
-              Edit{" "}
-              <span className="font-mono">
-                {editingLocale?.displayName} ({editingLocale?.id.slice(0, 8)})
-              </span>{" "}
+              {t("sheet.editLocale.title", {
+                displayName: editingLocale?.displayName ?? "",
+                id: editingLocale?.id.slice(0, 8) ?? "",
+              })}
             </SheetTitle>
             <SheetDescription>
-              Here you can edit the locale&rsquo;s details.
+              {t("sheet.editLocale.description")}
             </SheetDescription>
           </SheetHeader>
 
           <ScrollArea className="min-h-0 flex-1 overflow-hidden">
             <div className="grid auto-rows-min gap-6 px-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="localeName">Display Name</Label>
+                <Label htmlFor="localeName">
+                  {t("sheet.editLocale.displayNameLabel")}
+                </Label>
                 <Input
                   id="localeName"
                   value={displayName}
+                  placeholder={t("sheet.editLocale.displayNamePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setDisplayName(event.target.value)}
@@ -412,10 +423,13 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeLanguage">Language</Label>
+                <Label htmlFor="localeLanguage">
+                  {t("sheet.editLocale.languageLabel")}
+                </Label>
                 <Input
-                  id="language"
+                  id="localeLanguage"
                   value={language}
+                  placeholder={t("sheet.editLocale.languagePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setLanguage(event.target.value)}
@@ -423,20 +437,26 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeRegion">Region (optional)</Label>
+                <Label htmlFor="localeRegion">
+                  {t("sheet.editLocale.regionLabel")}
+                </Label>
                 <Input
-                  id="region"
+                  id="localeRegion"
                   value={region || ""}
+                  placeholder={t("sheet.editLocale.regionPlaceholder")}
                   disabled={loading}
                   onChange={(event) => setRegion(event.target.value)}
                 />
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeCode">Locale Code</Label>
+                <Label htmlFor="localeCode">
+                  {t("sheet.editLocale.codeLabel")}
+                </Label>
                 <Input
                   id="localeCode"
                   value={code}
+                  placeholder={t("sheet.editLocale.codePlaceholder")}
                   required
                   disabled={loading}
                   onChange={(event) => setCode(event.target.value)}
@@ -444,7 +464,9 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="localeFlag">Flag (optional)</Label>
+                <Label htmlFor="localeFlag">
+                  {t("sheet.editLocale.flagLabel")}
+                </Label>
                 <FlagPickerField
                   id="localeFlag"
                   value={flag || ""}
@@ -454,7 +476,9 @@ function EditLocaleSheet({
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="enabled">Enabled</Label>
+                <Label htmlFor="enabled">
+                  {t("sheet.editLocale.enabledLabel")}
+                </Label>
                 <ToggleGroup
                   type="single"
                   className="grid w-full grid-cols-2 border-2"
@@ -470,13 +494,13 @@ function EditLocaleSheet({
                     value="true"
                     className="w-full data-[state=on]:bg-emerald-400! data-[state=on]:text-white!"
                   >
-                    Yes
+                    {t("sheet.editLocale.enabledYes")}
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value="false"
                     className="w-full data-[state=on]:bg-red-400! data-[state=on]:text-white!"
                   >
-                    No
+                    {t("sheet.editLocale.enabledNo")}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
@@ -493,10 +517,13 @@ function EditLocaleSheet({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Saving changes...
+                  {t("sheet.editLocale.updatingLocale")}
                 </>
               ) : (
-                "Save changes"
+                <>
+                  <PencilIcon className="h-4 w-4" />
+                  {t("sheet.editLocale.updateLocale")}
+                </>
               )}
             </Button>
 
@@ -506,7 +533,7 @@ function EditLocaleSheet({
                 disabled={loading}
                 onClick={() => setEditingLocale(null)}
               >
-                Close
+                {t("sheet.close")}
               </Button>
             </SheetClose>
           </SheetFooter>
@@ -526,6 +553,7 @@ function DeleteLocaleDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("AdminLocalesTable")
   const { user } = useSession()
 
   const [deletingLocale, setDeletingLocale] = useState<Locale | null>(null)
@@ -544,14 +572,15 @@ function DeleteLocaleDialog({
     await deleteLocale(locale.id)
       .then(() => {
         toast.success(
-          `Deleted locale ${locale.displayName} (${locale.id.slice(0, 8)}).`
+          t("toast.deleteSuccess", {
+            displayName: locale.displayName,
+            id: locale.id.slice(0, 8),
+          })
         )
         router.refresh()
       })
       .catch((error) => {
-        toast.error(
-          error?.message || "Failed to delete locale. Please try again."
-        )
+        toast.error(error?.message || t("toast.deleteFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -586,9 +615,7 @@ function DeleteLocaleDialog({
           </span>
         </TooltipTrigger>
         {!canDeleteLocales && (
-          <TooltipContent>
-            You don&rsquo;t have permission to delete locales.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermissionDelete")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -597,15 +624,14 @@ function DeleteLocaleDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteLocale.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              locale{" "}
-              <span className="font-mono">
-                {deletingLocale?.displayName} ({deletingLocale?.id.slice(0, 8)})
-              </span>{" "}
-              and all associated translations in all projects. Please confirm
-              that you want to proceed.
+              {t("dialog.deleteLocale.description", {
+                displayName: deletingLocale?.displayName ?? "",
+                id: deletingLocale?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -615,7 +641,7 @@ function DeleteLocaleDialog({
               disabled={loading}
               onClick={() => setDeletingLocale(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -631,12 +657,12 @@ function DeleteLocaleDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting locale...
+                  {t("dialog.deleteLocale.deletingLocale")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete Locale
+                  {t("dialog.deleteLocale.deleteLocale")}
                 </>
               )}
             </Button>

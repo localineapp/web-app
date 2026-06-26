@@ -28,9 +28,13 @@ import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { authClient } from "@/lib/auth-client"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
   const router = useRouter()
+  const t = useTranslations("AddLocaleDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -59,7 +63,7 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
     event.preventDefault()
 
     if (!locale) {
-      toast.error("Please select a locale to add.")
+      toast.error(t("toast.noLocaleSelected"))
       return
     }
 
@@ -69,13 +73,11 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
       localeId: locale.id,
     })
       .then(() => {
-        toast.success(
-          `The locale ${locale.displayName} has been added to the project.`
-        )
+        toast.success(t("toast.addSuccess", { locale: locale.displayName }))
         router.refresh()
       })
       .catch((error) => {
-        toast.error(error?.message || `Failed to add locale. Please try again.`)
+        toast.error(error?.message || t("toast.addFailed"))
       })
       .finally(() => {
         setLoading(false)
@@ -105,21 +107,22 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
                 disabled={!canManageLocales || isLimitReached || loading}
               >
                 <PlusIcon className="mr-2 h-4 w-4" />
-                Add Locale
+                {t("button.addLocale")}
               </Button>
             </DialogTrigger>
           </span>
         </TooltipTrigger>
         {!canManageLocales ? (
-          <TooltipContent>
-            You don&rsquo;t have permission to add locales in this project.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         ) : (
           isLimitReached && (
             <TooltipContent>
               {project.plan.localesLimit === 0
-                ? "Your current plan does not allow adding locales."
-                : `This project has reached the maximum number of locales allowed by your plan (${project.locales.length}/${project.plan.localesLimit}).`}
+                ? t("tooltip.limitZero")
+                : t("tooltip.limitReached", {
+                    current: format.number(project.locales.length),
+                    limit: format.number(project.plan.localesLimit ?? 0),
+                  })}
             </TooltipContent>
           )
         )}
@@ -127,14 +130,12 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create new locale</DialogTitle>
-          <DialogDescription>
-            Add a new locale to your project.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">
-          <Label htmlFor="locale">Locale</Label>
+          <Label htmlFor="locale">{t("dialog.localeLabel")}</Label>
           <LocalePickerField
             id="locale"
             locales={locales}
@@ -153,7 +154,7 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
             }}
             disabled={loading}
           >
-            Close
+            {t("button.close")}
           </Button>
 
           <Button
@@ -164,12 +165,12 @@ export default function AddLocaleDialog({ locales }: { locales: Locale[] }) {
             {loading ? (
               <>
                 <Spinner className="h-4 w-4" />
-                Adding...
+                {t("dialog.addingLocale")}
               </>
             ) : (
               <>
                 <PlusIcon className="h-4 w-4" />
-                Add Locale
+                {t("dialog.addLocale")}
               </>
             )}
           </Button>

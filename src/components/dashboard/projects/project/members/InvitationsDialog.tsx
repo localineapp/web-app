@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import RolePickerField from "@/components/ui/custom/RolePickerField"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -41,7 +40,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { ProjectInvitationWithRole } from "@/types/project"
 import { SendIcon, SquareArrowRightExitIcon, TrashIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -53,9 +52,13 @@ import { useSession } from "@/components/session-provider"
 import { useProject } from "@/components/project-provider"
 import { hasPermission, ProjectPermission } from "@/lib/project-permissions"
 import { authClient } from "@/lib/auth-client"
+import { useFormatter, useTranslations } from "next-intl"
 
 export default function InvitationsDialog() {
   const router = useRouter()
+  const t = useTranslations("InvitationsDialog")
+  const format = useFormatter()
+
   const { user } = useSession()
   const { project, member } = useProject()
 
@@ -87,15 +90,12 @@ export default function InvitationsDialog() {
       roleId,
     })
       .then(() => {
-        toast.success(
-          `Updated role for ${invitation.email} (${invitation.id.slice(0, 8)}) to ${project.memberRoles.find((r) => r.id === roleId)?.name}.`
-        )
+        toast.success(t("toast.updateSuccess", { email: invitation.email }))
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message ||
-            "Failed to update invitation role. Please try again."
+          error?.message || t("toast.updateError", { email: invitation.email })
         )
       })
       .finally(() => {
@@ -112,28 +112,31 @@ export default function InvitationsDialog() {
           disabled={!canInviteMembers || loading}
         >
           <SendIcon className="mr-2 h-4 w-4" />
-          Invitations
+          {t("button.viewInvitations")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="flex h-140 max-h-[calc(100dvh-4rem)] flex-col gap-0 overflow-hidden sm:max-w-230">
         <DialogHeader className="pb-4">
-          <DialogTitle>Invitations</DialogTitle>
-          <DialogDescription>
-            View and manage pending invitations for this project. You can resend
-            or revoke invitations as needed.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="max-w-28 text-center">ID</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead className="text-center">Role</TableHead>
-                <TableHead>Expires at</TableHead>
-                <TableHead className="max-w-24 text-center">Actions</TableHead>
+                <TableHead className="max-w-28 text-center">
+                  {t("tableHeader.id")}
+                </TableHead>
+                <TableHead>{t("tableHeader.email")}</TableHead>
+                <TableHead className="text-center">
+                  {t("tableHeader.role")}
+                </TableHead>
+                <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+                <TableHead className="max-w-24 text-center">
+                  {t("tableHeader.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -150,12 +153,6 @@ export default function InvitationsDialog() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Label
-                        htmlFor={`role-${invitation.id}`}
-                        className="sr-only"
-                      >
-                        Role
-                      </Label>
                       <RolePickerField
                         id={`role-${invitation.id}`}
                         roles={project.memberRoles
@@ -178,10 +175,16 @@ export default function InvitationsDialog() {
 
                     <TableCell>
                       <div className="flex gap-2">
-                        {formatDate(invitation.expiresAt)}
+                        {format.dateTime(invitation.expiresAt, {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                         {invitation.expiresAt < new Date() && (
                           <Badge variant="destructive" className="ml-2">
-                            Expired
+                            {t("badge.expired")}
                           </Badge>
                         )}
                       </div>
@@ -211,7 +214,7 @@ export default function InvitationsDialog() {
                     colSpan={5}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    No invitations found.
+                    {t("table.noInvitationsFound")}
                   </TableCell>
                 </TableRow>
               )}
@@ -235,6 +238,7 @@ function ResendInvitationDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("InvitationsDialog")
 
   const isExpired = invitation.expiresAt < new Date()
 
@@ -247,14 +251,12 @@ function ResendInvitationDialog({
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
       .then(() => {
-        toast.success(
-          `Resent invitation for ${invitation.email} (${invitation.id.slice(0, 8)}).`
-        )
+        toast.success(t("toast.resendSuccess", { email: invitation.email }))
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to resend invitation. Please try again."
+          error?.message || t("toast.resendFailed", { email: invitation.email })
         )
       })
       .finally(() => {
@@ -285,16 +287,9 @@ function ResendInvitationDialog({
         </span>
       </TooltipTrigger>
       {!canInviteMembers && (
-        <TooltipContent>
-          You don&rsquo;t have permission to invite members.
-        </TooltipContent>
+        <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
       )}
-      {!isExpired && (
-        <TooltipContent>
-          This invitation is not expired yet. You can only resend expired
-          invitations.
-        </TooltipContent>
-      )}
+      {!isExpired && <TooltipContent>{t("tooltip.notExpired")}</TooltipContent>}
     </Tooltip>
   )
 }
@@ -311,6 +306,7 @@ function RevokeInvitationDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("InvitationsDialog")
 
   const [revokingInvitation, setRevokingInvitation] =
     useState<ProjectInvitationWithRole | null>(null)
@@ -323,14 +319,12 @@ function RevokeInvitationDialog({
       invitationId: invitation.id,
     })
       .then(() => {
-        toast.success(
-          `Removed invitation for ${invitation.email} (${invitation.id.slice(0, 8)}).`
-        )
+        toast.success(t("toast.revokeSuccess", { email: invitation.email }))
         router.refresh()
       })
       .catch((error) => {
         toast.error(
-          error?.message || "Failed to revoke invitation. Please try again."
+          error?.message || t("toast.revokeFailed", { email: invitation.email })
         )
       })
       .finally(() => {
@@ -366,9 +360,7 @@ function RevokeInvitationDialog({
           </span>
         </TooltipTrigger>
         {!canInviteMembers && (
-          <TooltipContent>
-            You don&rsquo;t have permission to invite members.
-          </TooltipContent>
+          <TooltipContent>{t("tooltip.noPermission")}</TooltipContent>
         )}
       </Tooltip>
 
@@ -377,10 +369,13 @@ function RevokeInvitationDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.revokeInvitation.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently revoke the
-              invitation for {invitation.email} ({invitation.id.slice(0, 8)}).
+              {t("dialog.revokeInvitation.description", {
+                email: invitation.email,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -390,7 +385,7 @@ function RevokeInvitationDialog({
               disabled={loading}
               onClick={() => setRevokingInvitation(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -406,12 +401,12 @@ function RevokeInvitationDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Revoking invitation...
+                  {t("dialog.revokeInvitation.revokingInvitation")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Revoke Invitation
+                  {t("dialog.revokeInvitation.revokeInvitation")}
                 </>
               )}
             </Button>

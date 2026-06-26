@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/tooltip"
 import { authClient } from "@/lib/auth-client"
 import { ClipboardIcon, PlusIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { MouseEvent, useState } from "react"
 import { toast } from "sonner"
@@ -39,6 +40,7 @@ export default function CreateApiKeyDialog({
   apiKeysLimit: number
 }) {
   const router = useRouter()
+  const t = useTranslations("CreateApiKeyDialog")
   const { user } = useSession()
 
   const [loading, setLoading] = useState(false)
@@ -75,8 +77,8 @@ export default function CreateApiKeyDialog({
     if (!canCreateApiKey) {
       toast.error(
         userApiKeysLimit === 0
-          ? "The API key limit for your account is currently set to 0."
-          : `You have reached your API key limit (${apiKeysCount}/${userApiKeysLimit})`
+          ? t("limitZero")
+          : t("limitExceeded", { count: apiKeysCount, limit: userApiKeysLimit })
       )
       setLoading(false)
       setName("")
@@ -92,7 +94,7 @@ export default function CreateApiKeyDialog({
         : undefined,
       fetchOptions: {
         onSuccess: ({ data: { key } }) => {
-          toast.success("API key created successfully!")
+          toast.success(t("toast.creationSuccess"))
           setLoading(false)
           setName("")
           setExpiryDate(undefined)
@@ -100,9 +102,7 @@ export default function CreateApiKeyDialog({
           setApiKey(key)
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to create API key. Please try again."
-          )
+          toast.error(error?.message || t("toast.creationFailed"))
           setLoading(false)
           setDialogOpen(false)
           setName("")
@@ -123,7 +123,7 @@ export default function CreateApiKeyDialog({
             <DialogTrigger asChild disabled={!canCreateApiKey || loading}>
               <Button variant="outline" disabled={!canCreateApiKey || loading}>
                 <PlusIcon className="mr-2 h-4 w-4" />
-                New API Key
+                {t("button.createApiKey")}
               </Button>
             </DialogTrigger>
           </span>
@@ -131,8 +131,11 @@ export default function CreateApiKeyDialog({
         {!canCreateApiKey && (
           <TooltipContent>
             {userApiKeysLimit === 0
-              ? "The administrator of this system has set the API key limit to 0."
-              : `You have reached your API key limit (${apiKeysCount}/${userApiKeysLimit})`}
+              ? t("limitZero")
+              : t("limitExceeded", {
+                  count: apiKeysCount,
+                  limit: userApiKeysLimit,
+                })}
           </TooltipContent>
         )}
       </Tooltip>
@@ -141,16 +144,15 @@ export default function CreateApiKeyDialog({
         {apiKey ? (
           <>
             <DialogHeader>
-              <DialogTitle>API Key Created</DialogTitle>
+              <DialogTitle>{t("dialog.successTitle")}</DialogTitle>
               <DialogDescription>
-                Your new API key has been created successfully. Please copy and
-                store it securely, as it will not be shown again.
+                {t("dialog.successDescription")}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>API Key</Label>
+                <Label>{t("dialog.apiKey")}</Label>
                 <InputGroup>
                   <InputGroupInput value={apiKey} readOnly />
                   <InputGroupAddon align="inline-end">
@@ -158,7 +160,7 @@ export default function CreateApiKeyDialog({
                       className="h-4 w-4 cursor-pointer"
                       onClick={() => {
                         navigator.clipboard.writeText(apiKey)
-                        toast.success("API key copied to clipboard!")
+                        toast.success(t("toast.copiedToClipboard"))
                       }}
                     />
                   </InputGroupAddon>
@@ -175,32 +177,32 @@ export default function CreateApiKeyDialog({
                   router.refresh()
                 }}
               >
-                Close
+                {t("dialog.close")}
               </Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Create new API key</DialogTitle>
+              <DialogTitle>{t("dialog.createTitle")}</DialogTitle>
               <DialogDescription>
-                Create a new API key to authenticate your applications.
+                {t("dialog.createDescription")}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="apiKeyName">Key Name</Label>
+                <Label htmlFor="apiKeyName">{t("dialog.apiKeyName")}</Label>
                 <Input
                   id="apiKeyName"
-                  placeholder="My API Key"
+                  placeholder={t("dialog.apiKeyNamePlaceholder")}
                   value={name}
                   onChange={({ target: { value } }) => setName(value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="expiryDate">Expiry Date (optional)</Label>
+                <Label htmlFor="expiryDate">{t("dialog.expiryDate")}</Label>
                 <Input
                   id="expiryDate"
                   type="date"
@@ -223,7 +225,7 @@ export default function CreateApiKeyDialog({
                     disabled={loading}
                   />
                   <Label htmlFor="disableRateLimiting">
-                    Disable Rate Limiting
+                    {t("dialog.disableRateLimiting")}
                     <span className="text-xs text-muted-foreground">
                       (Admin only)
                     </span>
@@ -242,7 +244,7 @@ export default function CreateApiKeyDialog({
                 }}
                 disabled={loading}
               >
-                Close
+                {t("dialog.close")}
               </Button>
 
               <Button
@@ -258,12 +260,12 @@ export default function CreateApiKeyDialog({
                 {loading ? (
                   <>
                     <Spinner className="h-4 w-4" />
-                    Creating...
+                    {t("dialog.creatingApiKey")}
                   </>
                 ) : (
                   <>
                     <PlusIcon className="h-4 w-4" />
-                    Create API Key
+                    {t("dialog.createApiKey")}
                   </>
                 )}
               </Button>

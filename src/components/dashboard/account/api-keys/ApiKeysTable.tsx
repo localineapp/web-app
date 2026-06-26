@@ -49,7 +49,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
+import { useFormatter, useTranslations } from "next-intl"
 
 type ApiKey = NonNullable<
   Awaited<ReturnType<typeof auth.api.listApiKeys>>
@@ -65,6 +66,8 @@ export default function ApiKeysTable({
   apiKeysLimit: number
 }) {
   const router = useRouter()
+  const t = useTranslations("ApiKeysTable")
+  const format = useFormatter()
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -95,14 +98,14 @@ export default function ApiKeysTable({
       enabled: !apiKey.enabled,
       fetchOptions: {
         onSuccess: () => {
-          toast.success(`API key ${!apiKey.enabled ? "enabled" : "disabled"}.`)
+          toast.success(
+            t(apiKey.enabled ? "toast.apiKeyDisabled" : "toast.apiKeyEnabled")
+          )
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to update API key. Please try again."
-          )
+          toast.error(error?.message || t("toast.apiKeyToggleFailed"))
           setLoading(false)
         },
       },
@@ -117,10 +120,10 @@ export default function ApiKeysTable({
             <KeyRoundIcon />
           </EmptyMedia>
 
-          <EmptyTitle>No API Keys Yet</EmptyTitle>
+          <EmptyTitle>{t("empty.title")}</EmptyTitle>
 
           <EmptyDescription className="grid gap-2">
-            There have been no API keys created yet.
+            {t("empty.description")}
             <CreateApiKeyDialog
               apiKeysCount={apiKeys.length}
               apiKeysLimit={apiKeysLimit}
@@ -135,7 +138,7 @@ export default function ApiKeysTable({
     <div>
       <InputGroup className="relative mb-2 max-w-md">
         <InputGroupInput
-          placeholder="Search API keys by name or ID..."
+          placeholder={t("input.searchPlaceholder")}
           value={searchQuery}
           onChange={({ target: { value } }) => {
             setSearchQuery(value)
@@ -151,14 +154,22 @@ export default function ApiKeysTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="max-w-28 text-center">ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="text-center">Enabled</TableHead>
-              <TableHead className="text-center">Rate Limited</TableHead>
-              <TableHead>Last Used</TableHead>
-              <TableHead>Expires at</TableHead>
-              <TableHead>Created at</TableHead>
-              <TableHead className="max-w-24 text-center">Actions</TableHead>
+              <TableHead className="max-w-28 text-center">
+                {t("tableHeader.id")}
+              </TableHead>
+              <TableHead>{t("tableHeader.name")}</TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.enabled")}
+              </TableHead>
+              <TableHead className="text-center">
+                {t("tableHeader.rateLimited")}
+              </TableHead>
+              <TableHead>{t("tableHeader.lastUsed")}</TableHead>
+              <TableHead>{t("tableHeader.expiresAt")}</TableHead>
+              <TableHead>{t("tableHeader.createdAt")}</TableHead>
+              <TableHead className="max-w-24 text-center">
+                {t("tableHeader.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -209,8 +220,14 @@ export default function ApiKeysTable({
                     )}
                   >
                     {apiKey.lastRequest
-                      ? formatDate(apiKey.lastRequest)
-                      : "Never used"}
+                      ? format.dateTime(new Date(apiKey.lastRequest), {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : t("never")}
                   </TableCell>
 
                   <TableCell
@@ -218,10 +235,26 @@ export default function ApiKeysTable({
                       !apiKey.expiresAt && "text-muted-foreground italic"
                     )}
                   >
-                    {apiKey.expiresAt ? formatDate(apiKey.expiresAt) : "Never"}
+                    {apiKey.expiresAt
+                      ? format.dateTime(new Date(apiKey.expiresAt), {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : t("never")}
                   </TableCell>
 
-                  <TableCell>{formatDate(apiKey.createdAt)}</TableCell>
+                  <TableCell>
+                    {format.dateTime(new Date(apiKey.createdAt), {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </TableCell>
 
                   <TableCell className="text-center">
                     <DeleteApiKeyDialog
@@ -239,8 +272,8 @@ export default function ApiKeysTable({
                   className="h-24 text-center text-muted-foreground"
                 >
                   {searchQuery
-                    ? "No API keys found matching your search."
-                    : "No API keys found."}
+                    ? t("table.noApiKeysFound", { query: searchQuery })
+                    : t("table.noApiKeysFoundGeneric")}
                 </TableCell>
               </TableRow>
             )}
@@ -270,6 +303,7 @@ function DeleteApiKeyDialog({
   setLoading: (loading: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations("ApiKeysTable")
 
   const [deletingApiKey, setDeletingApiKey] = useState<ApiKey | null>(null)
 
@@ -285,15 +319,13 @@ function DeleteApiKeyDialog({
       keyId: apiKey.id,
       fetchOptions: {
         onSuccess: () => {
-          toast.success("API key deleted.")
+          toast.success(t("toast.apiKeyDeleted"))
           setDeletingApiKey(null)
           setLoading(false)
           router.refresh()
         },
         onError: ({ error }) => {
-          toast.error(
-            error?.message || "Failed to delete API key. Please try again."
-          )
+          toast.error(error?.message || t("toast.apiKeyDeleteFailed"))
           setLoading(false)
         },
       },
@@ -326,15 +358,14 @@ function DeleteApiKeyDialog({
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("dialog.deleteApiKey.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the API
-              key{" "}
-              <span className="font-mono">
-                {deletingApiKey?.name} ({deletingApiKey?.id.slice(0, 8)})
-              </span>{" "}
-              and all associated translations in all projects. Please confirm
-              that you want to proceed.
+              {t("dialog.deleteApiKey.description", {
+                name: deletingApiKey?.name ?? "",
+                id: deletingApiKey?.id.slice(0, 8) ?? "",
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -344,7 +375,7 @@ function DeleteApiKeyDialog({
               disabled={loading}
               onClick={() => setDeletingApiKey(null)}
             >
-              Cancel
+              {t("dialog.cancel")}
             </AlertDialogCancel>
 
             <Button
@@ -360,12 +391,12 @@ function DeleteApiKeyDialog({
               {loading ? (
                 <>
                   <Spinner className="h-4 w-4" />
-                  Deleting API key...
+                  {t("dialog.deleteApiKey.deletingApiKey")}
                 </>
               ) : (
                 <>
                   <TrashIcon className="h-4 w-4" />
-                  Delete API Key
+                  {t("dialog.deleteApiKey.deleteApiKey")}
                 </>
               )}
             </Button>
